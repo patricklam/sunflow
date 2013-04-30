@@ -2,7 +2,7 @@
 <project name="Sunflow" default="release">
 	<!-- This needs to change with every release -->
 	<property name="sunflow.version" value="0.07.3" />
-	<property name="sunflow.jdk.level" value="5" />
+	<property name="sunflow.jdk.level" value="1.6" />
 	<property name="sunflow.zip.comment" value="Sunflow rendering system v${sunflow.version}" />
 	<property name="sunflow.libs" value="janino.jar" />
 	<property name="sunflow.jar.filename" value="sunflow.jar" />
@@ -34,7 +34,7 @@
 	<!-- build directory targets -->
 	<target name="compile" depends="init" description="Compile source">
 		<mkdir dir="${build.classes.dir}" />
-		<javac srcdir="${src.dir}" destdir="${build.classes.dir}" source="${sunflow.jdk.level}" target="${sunflow.jdk.level}" classpath="${sunflow.libs}">
+		<javac srcdir="${src.dir}" destdir="${build.classes.dir}" source="${sunflow.jdk.level}" target="${sunflow.jdk.level}" classpath="${sunflow.libs}" includeantruntime="false">
 			<compilerarg value="-Xlint:unchecked" />
 		</javac>
 	</target>
