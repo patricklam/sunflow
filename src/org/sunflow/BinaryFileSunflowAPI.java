@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.sunflow.core.ParameterList.InterpolationType;
-import org.sunflow.core.parser.SCAbstractParser.Keyword;
+import org.sunflow.core.parser.Keyword;
 import org.sunflow.math.Matrix4;
 
 class BinaryFileSunflowAPI extends FileSunflowAPI {

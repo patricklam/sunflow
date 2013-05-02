@@ -106,11 +106,11 @@ public class SCParser implements SceneParser {
                     parseTraceBlock(api);
                 } else if (token.equals("camera")) {
                     parseCamera(api);
-                } else if (token.equals("shader")) {
+                } else if (token.equals(SHADER)) {
                     if (!parseShader(api)) {
                         return false;
                     }
-                } else if (token.equals("modifier")) {
+                } else if (token.equals(MODIFIER)) {
                     if (!parseModifier(api)) {
                         return false;
                     }
@@ -232,7 +232,7 @@ public class SCParser implements SceneParser {
         int numEmit = 0;
         boolean globalEmit = false;
         p.checkNextToken("{");
-        if (p.peekNextToken("emit")) {
+        if (p.peekNextToken(EMIT)) {
             UI.printWarning(Module.API, "Shared photon emit values are deprectated - specify number of photons to emit per map");
             numEmit = p.getNextInt();
             globalEmit = true;
@@ -403,8 +403,8 @@ public class SCParser implements SceneParser {
         if (type.equals("pinhole")) {
             p.checkNextToken("fov");
             api.parameter("fov", p.getNextFloat());
-            p.checkNextToken("aspect");
-            api.parameter("aspect", p.getNextFloat());
+            p.checkNextToken(ASPECT);
+            api.parameter(ASPECT, p.getNextFloat());
             if (p.peekNextToken("shift")) {
                 api.parameter("shift.x", p.getNextFloat());
                 api.parameter("shift.y", p.getNextFloat());
@@ -413,8 +413,8 @@ public class SCParser implements SceneParser {
         } else if (type.equals("thinlens")) {
             p.checkNextToken("fov");
             api.parameter("fov", p.getNextFloat());
-            p.checkNextToken("aspect");
-            api.parameter("aspect", p.getNextFloat());
+            p.checkNextToken(ASPECT);
+            api.parameter(ASPECT, p.getNextFloat());
             if (p.peekNextToken("shift")) {
                 api.parameter("shift.x", p.getNextFloat());
                 api.parameter("shift.y", p.getNextFloat());
@@ -516,7 +516,7 @@ public class SCParser implements SceneParser {
             }
             p.checkNextToken("spec");
             api.parameter("specular", null, parseColor().getRGB());
-            api.parameter("power", p.getNextFloat());
+            api.parameter(POWER, p.getNextFloat());
             if (p.peekNextToken(SAMPLES)) {
                 api.parameter(SAMPLES, p.getNextInt());
             }
@@ -706,16 +706,16 @@ public class SCParser implements SceneParser {
                     shaders[i] = p.getNextToken();
                 }
             } else {
-                p.checkNextToken("shader");
+                p.checkNextToken(SHADER);
                 shaders = new String[]{p.getNextToken()};
             }
-            if (p.peekNextToken("modifiers")) {
+            if (p.peekNextToken(MODIFIERS)) {
                 int n = p.getNextInt();
                 modifiers = new String[n];
                 for (int i = 0; i < n; i++) {
                     modifiers[i] = p.getNextToken();
                 }
-            } else if (p.peekNextToken("modifier")) {
+            } else if (p.peekNextToken(MODIFIER)) {
                 modifiers = new String[]{p.getNextToken()};
             }
             if (p.peekNextToken(TRANSFORM)) {
@@ -771,8 +771,8 @@ public class SCParser implements SceneParser {
             // create geometry
             api.parameter(TRIANGLES, triangles);
             api.parameter(POINTS, POINT, VERTEX, points);
-            api.parameter("normals", "vector", VERTEX, normals);
-            api.parameter("uvs", "texcoord", VERTEX, uvs);
+            api.parameter(NORMALS, "vector", VERTEX, normals);
+            api.parameter("uvs", TEXCOORD, VERTEX, uvs);
             api.geometry(name, TRIANGLE_MESH);
         } else if (type.equals("flat-mesh")) {
             UI.printWarning(Module.API, "Deprecated object type: flat-mesh");
@@ -802,7 +802,7 @@ public class SCParser implements SceneParser {
             // create geometry
             api.parameter(TRIANGLES, triangles);
             api.parameter(POINTS, POINT, VERTEX, points);
-            api.parameter("uvs", "texcoord", VERTEX, uvs);
+            api.parameter("uvs", TEXCOORD, VERTEX, uvs);
             api.geometry(name, TRIANGLE_MESH);
         } else if (type.equals("sphere")) {
             UI.printInfo(Module.API, "Reading sphere ...");
@@ -818,7 +818,7 @@ public class SCParser implements SceneParser {
                 api.parameter(TRANSFORM, Matrix4.translation(x, y, z).multiply(Matrix4.scale(radius)));
                 api.parameter(SHADERS, shaders);
                 if (modifiers != null) {
-                    api.parameter("modifiers", modifiers);
+                    api.parameter(MODIFIERS, modifiers);
                 }
                 api.instance(name + ".instance", name);
                 // disable future instancing - instance has already been created
@@ -872,20 +872,20 @@ public class SCParser implements SceneParser {
             int nt = p.getNextInt();
             api.parameter(TRIANGLES, parseIntArray(nt * 3));
             // parse normals
-            p.checkNextToken("normals");
+            p.checkNextToken(NORMALS);
             if (p.peekNextToken(VERTEX)) {
-                api.parameter("normals", "vector", VERTEX, parseFloatArray(np * 3));
+                api.parameter(NORMALS, "vector", VERTEX, parseFloatArray(np * 3));
             } else if (p.peekNextToken("facevarying")) {
-                api.parameter("normals", "vector", "facevarying", parseFloatArray(nt * 9));
+                api.parameter(NORMALS, "vector", "facevarying", parseFloatArray(nt * 9));
             } else {
                 p.checkNextToken(NONE);
             }
             // parse texture coordinates
             p.checkNextToken("uvs");
             if (p.peekNextToken(VERTEX)) {
-                api.parameter("uvs", "texcoord", VERTEX, parseFloatArray(np * 2));
+                api.parameter("uvs", TEXCOORD, VERTEX, parseFloatArray(np * 2));
             } else if (p.peekNextToken("facevarying")) {
-                api.parameter("uvs", "texcoord", "facevarying", parseFloatArray(nt * 6));
+                api.parameter("uvs", TEXCOORD, "facevarying", parseFloatArray(nt * 6));
             } else {
                 p.checkNextToken(NONE);
             }
@@ -1022,7 +1022,7 @@ public class SCParser implements SceneParser {
             // create instance
             api.parameter(SHADERS, shaders);
             if (modifiers != null) {
-                api.parameter("modifiers", modifiers);
+                api.parameter(MODIFIERS, modifiers);
             }
             if (transform != null && transform.length > 0) {
                 if (transform.length == 1) {
@@ -1071,22 +1071,22 @@ public class SCParser implements SceneParser {
                 shaders[i] = p.getNextToken();
             }
         } else {
-            p.checkNextToken("shader");
+            p.checkNextToken(SHADER);
             shaders = new String[]{p.getNextToken()};
         }
         api.parameter(SHADERS, shaders);
         String[] modifiers = null;
-        if (p.peekNextToken("modifiers")) {
+        if (p.peekNextToken(MODIFIERS)) {
             int n = p.getNextInt();
             modifiers = new String[n];
             for (int i = 0; i < n; i++) {
                 modifiers[i] = p.getNextToken();
             }
-        } else if (p.peekNextToken("modifier")) {
+        } else if (p.peekNextToken(MODIFIER)) {
             modifiers = new String[]{p.getNextToken()};
         }
         if (modifiers != null) {
-            api.parameter("modifiers", modifiers);
+            api.parameter(MODIFIERS, modifiers);
         }
         api.instance(name, geoname);
         p.checkNextToken("}");
@@ -1100,7 +1100,7 @@ public class SCParser implements SceneParser {
             p.checkNextToken(NAME);
             String name = p.getNextToken();
             UI.printInfo(Module.API, "Reading light mesh: %s ...", name);
-            p.checkNextToken("emit");
+            p.checkNextToken(EMIT);
             api.parameter(RADIANCE, null, parseColor().getRGB());
             int samples = numLightSamples;
             if (p.peekNextToken(SAMPLES)) {
@@ -1139,17 +1139,17 @@ public class SCParser implements SceneParser {
             Color pow;
             if (p.peekNextToken(COLOR)) {
                 pow = parseColor();
-                p.checkNextToken("power");
+                p.checkNextToken(POWER);
                 float po = p.getNextFloat();
                 pow.mul(po);
             } else {
                 UI.printWarning(Module.API, "Deprecated color specification - please use color and power instead");
-                p.checkNextToken("power");
+                p.checkNextToken(POWER);
                 pow = parseColor();
             }
             p.checkNextToken("p");
             api.parameter(CENTER, parsePoint());
-            api.parameter("power", null, pow.getRGB());
+            api.parameter(POWER, null, pow.getRGB());
             api.light(generateUniqueName("pointlight"), POINT);
         } else if (p.peekNextToken("spherical")) {
             UI.printInfo(Module.API, "Reading spherical light ...");
@@ -1175,7 +1175,7 @@ public class SCParser implements SceneParser {
             api.parameter("dir", Point3.sub(t, s, new Vector3()));
             p.checkNextToken(RADIUS);
             api.parameter(RADIUS, p.getNextFloat());
-            p.checkNextToken("emit");
+            p.checkNextToken(EMIT);
             Color e = parseColor();
             if (p.peekNextToken("intensity")) {
                 float i = p.getNextFloat();
@@ -1212,7 +1212,7 @@ public class SCParser implements SceneParser {
             p.checkNextToken(NAME);
             String name = p.getNextToken();
             UI.printInfo(Module.API, "Reading meshlight: %s ...", name);
-            p.checkNextToken("emit");
+            p.checkNextToken(EMIT);
             Color e = parseColor();
             if (p.peekNextToken(RADIANCE)) {
                 float r = p.getNextFloat();
@@ -1271,7 +1271,7 @@ public class SCParser implements SceneParser {
             api.parameter("bottomColor", null, parseColor().getRGB());
             p.checkNextToken("back");
             api.parameter("backColor", null, parseColor().getRGB());
-            p.checkNextToken("emit");
+            p.checkNextToken(EMIT);
             api.parameter(RADIANCE, null, parseColor().getRGB());
             if (p.peekNextToken(SAMPLES)) {
                 api.parameter(SAMPLES, p.getNextInt());

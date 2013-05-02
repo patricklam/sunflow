@@ -1319,10 +1319,9 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
             }
             try {
                 // get a List of Files
-
+                @SuppressWarnings("unchecked") // because they are nonsense here     
                 List<File> files = (java.util.List<File>) t.getTransferData(DataFlavor.javaFileListFlavor);
                 for (File file : files) {
-                    //final File file = (File) files.get(i);
                     String filename = file.getAbsolutePath();
                     // check extension
                     if (filename.endsWith(".sc") || filename.endsWith(JAVA_EXT)) {

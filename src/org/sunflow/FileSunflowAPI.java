@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import org.sunflow.core.Display;
 import org.sunflow.core.ParameterList.InterpolationType;
-import org.sunflow.core.parser.SCAbstractParser.Keyword;
+import org.sunflow.core.parser.*;
 import org.sunflow.image.ColorFactory;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point2;

@@ -7,25 +7,33 @@ import org.sunflow.SunflowAPIInterface;
  * Simple interface to allow for scene creation from arbitrary file formats.
  */
 public interface SceneParser {
-
+    
+    final String ASPECT = "aspect";
     final String CENTER = "center";
     final String COLOR = "color";
     final String DIFF = "diff";
     final String DIFFUSE = "diffuse";
+    final String EMIT = "emit";
     final String GI_ENGINE = "gi.engine";
+    final String MODIFIER = "modifier";
+    final String MODIFIERS = "modifiers";
     final String NAME = "name";
     final String NONE = "none";
+    final String NORMALS = "normals";
     final String POINTS = "points";
     final String POINT = "point";
+    final String POWER = "power";
     final String VERTEX = "vertex";
     final String RADIUS = "radius";
     final String RADIANCE = "radiance";
     final String SAMPLES = "samples";
     final String SCALE = "scale";
+    final String SHADER = "shader";
     final String SHADERS = "shaders";
     final String SMOOTH = "scale";
     final String SUBDIVS = "subdivs";
     final String TEXTURE = "texture";
+    final String TEXCOORD = "texcoord";
     final String TRANSFORM = "transform";
     final String TRIANGLES = "triangles";    
     final String TRIANGLE_MESH = "triangle_mesh";

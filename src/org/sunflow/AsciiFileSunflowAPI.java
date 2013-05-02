@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.util.Locale;
 
 import org.sunflow.core.ParameterList.InterpolationType;
-import org.sunflow.core.parser.SCAbstractParser.Keyword;
+import org.sunflow.core.parser.Keyword;
 import org.sunflow.math.Matrix4;
 
 class AsciiFileSunflowAPI extends FileSunflowAPI {
