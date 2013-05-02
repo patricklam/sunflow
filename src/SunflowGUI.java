@@ -38,6 +38,8 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
@@ -61,6 +63,7 @@ import org.sunflow.system.UI.PrintLevel;
 
 @SuppressWarnings("serial")
 public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
+
     final String JAVA_EXT = ".java";
     private static final int DEFAULT_WIDTH = 1024;
     private static final int DEFAULT_HEIGHT = 768;
@@ -485,7 +488,18 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
                 api.render(SunflowAPI.DEFAULT_OPTIONS, display);
             }
         } else {
-            MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
+            try {
+                for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        UIManager.setLookAndFeel(info.getClassName());
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                // If Nimbus is not available, you can set the GUI to another look and feel.
+                MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
+            }
+            
             SunflowGUI gui = new SunflowGUI();
             gui.setVisible(true);
             Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
