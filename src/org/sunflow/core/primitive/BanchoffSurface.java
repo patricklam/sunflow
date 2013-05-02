@@ -15,14 +15,16 @@ import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
 
 public class BanchoffSurface implements PrimitiveList {
+
     public boolean update(ParameterList pl, SunflowAPI api) {
         return true;
     }
 
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(1.5f);
-        if (o2w != null)
+        if (o2w != null) {
             bounds = o2w.transform(bounds);
+        }
         return bounds;
     }
 
@@ -71,8 +73,9 @@ public class BanchoffSurface implements PrimitiveList {
         double[] t = Solvers.solveQuartic(A, B, C, D, E);
         if (t != null) {
             // early rejection
-            if (t[0] >= r.getMax() || t[t.length - 1] <= r.getMin())
+            if (t[0] >= r.getMax() || t[t.length - 1] <= r.getMin()) {
                 return;
+            }
             // find first intersection in front of the ray
             for (int i = 0; i < t.length; i++) {
                 if (t[i] > r.getMin()) {

@@ -13,6 +13,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public class UberShader implements Shader {
+
     private Color diff;
     private Color spec;
     private Texture diffmap;
@@ -35,11 +36,13 @@ public class UberShader implements Shader {
         spec = pl.getColor("specular", spec);
         String filename;
         filename = pl.getString("diffuse.texture", null);
-        if (filename != null)
+        if (filename != null) {
             diffmap = TextureCache.getTexture(api.resolveTextureFilename(filename), false);
+        }
         filename = pl.getString("specular.texture", null);
-        if (filename != null)
+        if (filename != null) {
             specmap = TextureCache.getTexture(api.resolveTextureFilename(filename), false);
+        }
         diffBlend = MathUtils.clamp(pl.getFloat("diffuse.blend", diffBlend), 0, 1);
         specBlend = MathUtils.clamp(pl.getFloat("specular.blend", diffBlend), 0, 1);
         glossyness = MathUtils.clamp(pl.getFloat("glossyness", glossyness), 0, 1);
@@ -63,8 +66,9 @@ public class UberShader implements Shader {
         state.initCausticSamples();
         Color d = getDiffuse(state);
         Color lr = state.diffuse(d);
-        if (!state.includeSpecular())
+        if (!state.includeSpecular()) {
             return lr;
+        }
         if (glossyness == 0) {
             float cos = state.getCosND();
             float dn = 2 * cos;
@@ -83,8 +87,9 @@ public class UberShader implements Shader {
             ret.mul(cos5);
             ret.add(spec);
             return lr.add(ret.mul(state.traceReflection(refRay, 0)));
-        } else
+        } else {
             return lr.add(state.specularPhong(getSpecular(state), 2 / glossyness, numSamples));
+        }
     }
 
     public void scatterPhoton(ShadingState state, Color power) {

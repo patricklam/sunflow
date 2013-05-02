@@ -5,6 +5,7 @@ import org.sunflow.image.Color;
 import org.sunflow.image.XYZColor;
 
 public class BitmapXYZ extends Bitmap {
+
     private int w, h;
     private float[] data;
 

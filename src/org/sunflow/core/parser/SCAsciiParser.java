@@ -11,6 +11,7 @@ import org.sunflow.system.Parser.ParserException;
 import org.sunflow.system.UI.Module;
 
 public class SCAsciiParser extends SCAbstractParser {
+
     private Parser p;
 
     protected Color parseColor() throws IOException {
@@ -27,8 +28,9 @@ public class SCAsciiParser extends SCAbstractParser {
             float g = p.getNextFloat();
             float b = p.getNextFloat();
             c = new Color(r, g, b);
-        } else
+        } else {
             UI.printWarning(Module.API, "Unrecognized color space: %s", space);
+        }
         return c;
     }
 
@@ -75,10 +77,12 @@ public class SCAsciiParser extends SCAbstractParser {
                     float z = p.getNextFloat();
                     float angle = p.getNextFloat();
                     t = Matrix4.rotate(x, y, z, (float) Math.toRadians(angle));
-                } else
+                } else {
                     UI.printWarning(Module.API, "Unrecognized transformation type: %s", p.getNextToken());
-                if (t != null)
+                }
+                if (t != null) {
                     m = t.multiply(m);
+                }
             }
             return m;
         }
@@ -125,89 +129,123 @@ public class SCAsciiParser extends SCAbstractParser {
 
     @Override
     protected InterpolationType parseInterpolationType() throws IOException {
-        if (p.peekNextToken("none"))
+        if (p.peekNextToken("none")) {
             return InterpolationType.NONE;
-        else if (p.peekNextToken("vertex"))
+        } else if (p.peekNextToken("vertex")) {
             return InterpolationType.VERTEX;
-        else if (p.peekNextToken("face"))
+        } else if (p.peekNextToken("face")) {
             return InterpolationType.FACE;
-        else if (p.peekNextToken("facevarying"))
+        } else if (p.peekNextToken("facevarying")) {
             return InterpolationType.FACEVARYING;
+        }
         return InterpolationType.NONE;
     }
 
     @Override
     protected Keyword parseKeyword() throws IOException {
         String keyword = p.getNextToken();
-        if (keyword == null)
+        if (keyword == null) {
             return Keyword.END_OF_FILE;
-        if (anyEqual(keyword, "reset"))
+        }
+        if (anyEqual(keyword, "reset")) {
             return Keyword.RESET;
-        if (anyEqual(keyword, "parameter", "param", "p"))
+        }
+        if (anyEqual(keyword, "parameter", "param", "p")) {
             return Keyword.PARAMETER;
-        if (anyEqual(keyword, "geometry", "geom", "g"))
+        }
+        if (anyEqual(keyword, "geometry", "geom", "g")) {
             return Keyword.GEOMETRY;
-        if (anyEqual(keyword, "instance", "inst", "i"))
+        }
+        if (anyEqual(keyword, "instance", "inst", "i")) {
             return Keyword.INSTANCE;
-        if (anyEqual(keyword, "shader", "shd", "s"))
+        }
+        if (anyEqual(keyword, "shader", "shd", "s")) {
             return Keyword.SHADER;
-        if (anyEqual(keyword, "modifier", "mod", "m"))
+        }
+        if (anyEqual(keyword, "modifier", "mod", "m")) {
             return Keyword.MODIFIER;
-        if (anyEqual(keyword, "light", "l"))
+        }
+        if (anyEqual(keyword, "light", "l")) {
             return Keyword.LIGHT;
-        if (anyEqual(keyword, "camera", "cam", "c"))
+        }
+        if (anyEqual(keyword, "camera", "cam", "c")) {
             return Keyword.CAMERA;
-        if (anyEqual(keyword, "options", "opt", "o"))
+        }
+        if (anyEqual(keyword, "options", "opt", "o")) {
             return Keyword.OPTIONS;
-        if (anyEqual(keyword, "include", "inc"))
+        }
+        if (anyEqual(keyword, "include", "inc")) {
             return Keyword.INCLUDE;
-        if (anyEqual(keyword, "remove"))
+        }
+        if (anyEqual(keyword, "remove")) {
             return Keyword.REMOVE;
-        if (anyEqual(keyword, "frame"))
+        }
+        if (anyEqual(keyword, "frame")) {
             return Keyword.FRAME;
-        if (anyEqual(keyword, "plugin", "plug"))
+        }
+        if (anyEqual(keyword, "plugin", "plug")) {
             return Keyword.PLUGIN;
-        if (anyEqual(keyword, "searchpath"))
+        }
+        if (anyEqual(keyword, "searchpath")) {
             return Keyword.SEARCHPATH;
-        if (anyEqual(keyword, "string", "str"))
+        }
+        if (anyEqual(keyword, "string", "str")) {
             return Keyword.STRING;
-        if (anyEqual(keyword, "string[]", "str[]"))
+        }
+        if (anyEqual(keyword, "string[]", "str[]")) {
             return Keyword.STRING_ARRAY;
-        if (anyEqual(keyword, "boolean", "bool"))
+        }
+        if (anyEqual(keyword, "boolean", "bool")) {
             return Keyword.BOOL;
-        if (anyEqual(keyword, "integer", "int"))
+        }
+        if (anyEqual(keyword, "integer", "int")) {
             return Keyword.INT;
-        if (anyEqual(keyword, "integer[]", "int[]"))
+        }
+        if (anyEqual(keyword, "integer[]", "int[]")) {
             return Keyword.INT_ARRAY;
-        if (anyEqual(keyword, "float", "flt"))
+        }
+        if (anyEqual(keyword, "float", "flt")) {
             return Keyword.FLOAT;
-        if (anyEqual(keyword, "float[]", "flt[]"))
+        }
+        if (anyEqual(keyword, "float[]", "flt[]")) {
             return Keyword.FLOAT_ARRAY;
-        if (anyEqual(keyword, "color", "col"))
+        }
+        if (anyEqual(keyword, "color", "col")) {
             return Keyword.COLOR;
-        if (anyEqual(keyword, "point", "pnt"))
+        }
+        if (anyEqual(keyword, "point", "pnt")) {
             return Keyword.POINT;
-        if (anyEqual(keyword, "point[]", "pnt[]"))
+        }
+        if (anyEqual(keyword, "point[]", "pnt[]")) {
             return Keyword.POINT_ARRAY;
-        if (anyEqual(keyword, "vector", "vec"))
+        }
+        if (anyEqual(keyword, "vector", "vec")) {
             return Keyword.VECTOR;
-        if (anyEqual(keyword, "vector[]", "vec[]"))
+        }
+        if (anyEqual(keyword, "vector[]", "vec[]")) {
             return Keyword.VECTOR_ARRAY;
-        if (anyEqual(keyword, "texcoord", "tex"))
+        }
+        if (anyEqual(keyword, "texcoord", "tex")) {
             return Keyword.TEXCOORD;
-        if (anyEqual(keyword, "texcoord[]", "tex[]"))
+        }
+        if (anyEqual(keyword, "texcoord[]", "tex[]")) {
             return Keyword.TEXCOORD_ARRAY;
-        if (anyEqual(keyword, "matrix", "mat"))
+        }
+        if (anyEqual(keyword, "matrix", "mat")) {
             return Keyword.MATRIX;
-        if (anyEqual(keyword, "matrix[]", "mat[]"))
+        }
+        if (anyEqual(keyword, "matrix[]", "mat[]")) {
             return Keyword.MATRIX_ARRAY;
+        }
         return null;
     }
 
     private boolean anyEqual(String source, String... values) {
-        for (String v : values)
-            if (source.equals(v))
+        for (String v : values) {
+            if (source.equals(v)) {
                 return true;
+            }
+        }
         return false;
     }
 }

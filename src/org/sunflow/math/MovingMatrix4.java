@@ -6,16 +6,17 @@ package org.sunflow.math;
  * segments represent equidistant samples within a given time range.
  */
 public final class MovingMatrix4 {
+
     private Matrix4[] transforms;
     private float t0, t1, inv;
 
     /**
      * Constructs a simple static matrix.
-     * 
+     *
      * @param m matrix value at all times
      */
     public MovingMatrix4(Matrix4 m) {
-        transforms = new Matrix4[] { m };
+        transforms = new Matrix4[]{m};
         t0 = t1 = 0;
         inv = 1;
     }
@@ -31,22 +32,23 @@ public final class MovingMatrix4 {
      * Redefines the number of steps in the matrix. The contents are only
      * re-allocated if the number of steps changes. This is to allow the matrix
      * to be incrementally specified.
-     * 
+     *
      * @param n
      */
     public void setSteps(int n) {
         if (transforms.length != n) {
             transforms = new Matrix4[n];
-            if (t0 < t1)
+            if (t0 < t1) {
                 inv = (transforms.length - 1) / (t1 - t0);
-            else
+            } else {
                 inv = 1;
+            }
         }
     }
 
     /**
      * Updates the matrix for the given time step.
-     * 
+     *
      * @param i time step to update
      * @param m new value for the matrix at this time step
      */
@@ -56,7 +58,7 @@ public final class MovingMatrix4 {
 
     /**
      * Get the matrix for the given time step.
-     * 
+     *
      * @param i time step to get
      * @return matrix for the specfied time step
      */
@@ -66,7 +68,7 @@ public final class MovingMatrix4 {
 
     /**
      * Get the number of matrix segments
-     * 
+     *
      * @return number of segments
      */
     public int numSegments() {
@@ -77,17 +79,18 @@ public final class MovingMatrix4 {
      * Update the time extents over which the matrix data is changing. If the
      * interval is empty, no motion will be produced, even if multiple values
      * have been specified.
-     * 
+     *
      * @param t0
      * @param t1
      */
     public void updateTimes(float t0, float t1) {
         this.t0 = t0;
         this.t1 = t1;
-        if (t0 < t1)
+        if (t0 < t1) {
             inv = (transforms.length - 1) / (t1 - t0);
-        else
+        } else {
             inv = 1;
+        }
     }
 
     public MovingMatrix4 inverse() {
@@ -95,17 +98,18 @@ public final class MovingMatrix4 {
         for (int i = 0; i < transforms.length; i++) {
             if (transforms[i] != null) {
                 mi.transforms[i] = transforms[i].inverse();
-                if (mi.transforms[i] == null)
+                if (mi.transforms[i] == null) {
                     return null; // unable to invert
+                }
             }
         }
         return mi;
     }
 
     public Matrix4 sample(float time) {
-        if (transforms.length == 1 || t0 >= t1)
+        if (transforms.length == 1 || t0 >= t1) {
             return transforms[0];
-        else {
+        } else {
             float nt = (MathUtils.clamp(time, t0, t1) - t0) * inv;
             int idx0 = (int) nt;
             int idx1 = Math.min(idx0 + 1, transforms.length - 1);

@@ -3,6 +3,7 @@ package org.sunflow.core.bucket;
 import org.sunflow.core.BucketOrder;
 
 public class InvertedBucketOrder implements BucketOrder {
+
     private BucketOrder order;
 
     public InvertedBucketOrder(BucketOrder order) {

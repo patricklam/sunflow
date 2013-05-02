@@ -10,6 +10,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public class PhongShader implements Shader {
+
     private Color diff;
     private Color spec;
     private float power;

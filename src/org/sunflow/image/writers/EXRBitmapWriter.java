@@ -12,6 +12,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class EXRBitmapWriter implements BitmapWriter {
+
     private static final byte HALF = 1;
     private static final byte FLOAT = 2;
     private static final int HALF_SIZE = 2;
@@ -24,7 +25,6 @@ public class EXRBitmapWriter implements BitmapWriter {
     private static final int ZIP_COMPRESSION = 3;
     private static final int RLE_MIN_RUN = 3;
     private static final int RLE_MAX_RUN = 127;
-
     private String filename;
     private RandomAccessFile file;
     private long[][] tileOffsets;
@@ -46,13 +46,13 @@ public class EXRBitmapWriter implements BitmapWriter {
 
     public void configure(String option, String value) {
         if (option.equals("compression")) {
-            if (value.equals("none"))
+            if (value.equals("none")) {
                 compression = NO_COMPRESSION;
-            else if (value.equals("rle"))
+            } else if (value.equals("rle")) {
                 compression = RLE_COMPRESSION;
-            else if (value.equals("zip"))
+            } else if (value.equals("zip")) {
                 compression = ZIP_COMPRESSION;
-            else {
+            } else {
                 UI.printWarning(Module.IMG, "EXR - Compression type was not recognized - defaulting to zip");
                 compression = ZIP_COMPRESSION;
             }
@@ -78,8 +78,9 @@ public class EXRBitmapWriter implements BitmapWriter {
     public void writeHeader(int width, int height, int tileSize) throws IOException, UnsupportedOperationException {
         file = new RandomAccessFile(filename, "rw");
         file.setLength(0);
-        if (tileSize <= 0)
+        if (tileSize <= 0) {
             throw new UnsupportedOperationException("Can't use OpenEXR bitmap writer without buckets.");
+        }
         writeRGBAHeader(width, height, tileSize);
     }
 
@@ -95,8 +96,8 @@ public class EXRBitmapWriter implements BitmapWriter {
     }
 
     private void writeRGBAHeader(int w, int h, int tileSize) throws IOException {
-        byte[] chanOut = { 0, channelType, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-                0, 0, 0 };
+        byte[] chanOut = {0, channelType, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+            0, 0, 0};
 
         file.write(ByteUtil.get4Bytes(OE_MAGIC));
 
@@ -219,9 +220,11 @@ public class EXRBitmapWriter implements BitmapWriter {
 
     private void writeTileOffsets() throws IOException {
         file.seek(tileOffsetsPosition);
-        for (int ty = 0; ty < tilesY; ty++)
-            for (int tx = 0; tx < tilesX; tx++)
+        for (int ty = 0; ty < tilesY; ty++) {
+            for (int tx = 0; tx < tilesX; tx++) {
                 file.write(ByteUtil.get8Bytes(tileOffsets[tx][ty]));
+            }
+        }
     }
 
     private synchronized void writeEXRTile(int tileX, int tileY, int w, int h, Color[] tile, float[] alpha) throws IOException {
@@ -236,10 +239,12 @@ public class EXRBitmapWriter implements BitmapWriter {
 
         // lets see if the alignment matches, you can comment this out if
         // need be
-        if ((tileSize != tileRangeX) && (tileX == 0))
+        if ((tileSize != tileRangeX) && (tileX == 0)) {
             System.out.print(" bad X alignment ");
-        if ((tileSize != tileRangeY) && (tileY == 0))
+        }
+        if ((tileSize != tileRangeY) && (tileY == 0)) {
             System.out.print(" bad Y alignment ");
+        }
 
         tileOffsets[tileX][tileY] = file.getFilePointer();
 
@@ -287,8 +292,9 @@ public class EXRBitmapWriter implements BitmapWriter {
 
         writeSize = tileRangeX * tileRangeY * channelSize * 4;
 
-        if (compression != NO_COMPRESSION)
+        if (compression != NO_COMPRESSION) {
             comprSize = compress(compression, tmpbuf, writeSize, comprbuf);
+        }
 
         // lastly, write the size of the tile and the tile itself
         // (compressed or not)
@@ -302,8 +308,9 @@ public class EXRBitmapWriter implements BitmapWriter {
     }
 
     private static final int compress(int tp, byte[] in, int inSize, byte[] out) {
-        if (inSize == 0)
+        if (inSize == 0) {
             return 0;
+        }
 
         int t1 = 0, t2 = (inSize + 1) / 2;
         int inPtr = 0, ret;
@@ -314,15 +321,17 @@ public class EXRBitmapWriter implements BitmapWriter {
         if ((tp == ZIP_COMPRESSION) || (tp == RLE_COMPRESSION)) {
             // reorder the pixel data ~ straight from ImfZipCompressor.cpp :)
             while (true) {
-                if (inPtr < inSize)
+                if (inPtr < inSize) {
                     tmp[t1++] = in[inPtr++];
-                else
+                } else {
                     break;
+                }
 
-                if (inPtr < inSize)
+                if (inPtr < inSize) {
                     tmp[t2++] = in[inPtr++];
-                else
+                } else {
                     break;
+                }
             }
 
             // Predictor ~ straight from ImfZipCompressor.cpp :)
@@ -355,8 +364,9 @@ public class EXRBitmapWriter implements BitmapWriter {
     private static final int rleCompress(byte[] in, int inLen, byte[] out) {
         int runStart = 0, runEnd = 1, outWrite = 0;
         while (runStart < inLen) {
-            while (runEnd < inLen && in[runStart] == in[runEnd] && (runEnd - runStart - 1) < RLE_MAX_RUN)
+            while (runEnd < inLen && in[runStart] == in[runEnd] && (runEnd - runStart - 1) < RLE_MAX_RUN) {
                 runEnd++;
+            }
             if (runEnd - runStart >= RLE_MIN_RUN) {
                 // Compressable run
                 out[outWrite++] = (byte) ((runEnd - runStart) - 1);
@@ -364,11 +374,13 @@ public class EXRBitmapWriter implements BitmapWriter {
                 runStart = runEnd;
             } else {
                 // Uncompressable run
-                while (runEnd < inLen && (((runEnd + 1) >= inLen || in[runEnd] != in[runEnd + 1]) || ((runEnd + 2) >= inLen || in[runEnd + 1] != in[runEnd + 2])) && (runEnd - runStart) < RLE_MAX_RUN)
+                while (runEnd < inLen && (((runEnd + 1) >= inLen || in[runEnd] != in[runEnd + 1]) || ((runEnd + 2) >= inLen || in[runEnd + 1] != in[runEnd + 2])) && (runEnd - runStart) < RLE_MAX_RUN) {
                     runEnd++;
+                }
                 out[outWrite++] = (byte) (runStart - runEnd);
-                while (runStart < runEnd)
+                while (runStart < runEnd) {
                     out[outWrite++] = in[runStart++];
+                }
             }
             runEnd++;
         }

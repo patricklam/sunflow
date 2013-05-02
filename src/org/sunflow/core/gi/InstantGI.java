@@ -17,12 +17,14 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class InstantGI implements GIEngine {
+
     private int numPhotons;
     private int numSets;
     private float c;
     private int numBias;
     private PointLight[][] virtualLights;
 
+    @Override
     public Color getGlobalRadiance(ShadingState state) {
         Point3 p = state.getPoint();
         Vector3 n = state.getNormal();
@@ -49,8 +51,9 @@ public class InstantGI implements GIEngine {
         c = options.getFloat("gi.igi.c", 0.00003f);
         numBias = options.getInt("gi.igi.bias_samples", 0);
         virtualLights = null;
-        if (numSets < 1)
+        if (numSets < 1) {
             numSets = 1;
+        }
         UI.printInfo(Module.LIGHT, "Instant Global Illumination settings:");
         UI.printInfo(Module.LIGHT, "  * Samples:     %d", numPhotons);
         UI.printInfo(Module.LIGHT, "  * Sets:        %d", numSets);
@@ -60,19 +63,22 @@ public class InstantGI implements GIEngine {
         if (numPhotons > 0) {
             for (int i = 0, seed = 0; i < virtualLights.length; i++, seed += numPhotons) {
                 PointLightStore map = new PointLightStore();
-                if (!scene.calculatePhotons(map, "virtual", seed, options))
+                if (!scene.calculatePhotons(map, "virtual", seed, options)) {
                     return false;
+                }
                 virtualLights[i] = map.virtualLights.toArray(new PointLight[map.virtualLights.size()]);
                 UI.printInfo(Module.LIGHT, "Stored %d virtual point lights for set %d of %d", virtualLights[i].length, i + 1, numSets);
             }
         } else {
             // create an empty array
-            for (int i = 0; i < virtualLights.length; i++)
+            for (int i = 0; i < virtualLights.length; i++) {
                 virtualLights[i] = new PointLight[0];
+            }
         }
         return true;
     }
 
+    @Override
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         float b = (float) Math.PI * c / diffuseReflectance.getMax();
         Color irr = Color.black();
@@ -93,8 +99,9 @@ public class InstantGI implements GIEngine {
         }
         // bias compensation
         int nb = (state.getDiffuseDepth() == 0 || numBias <= 0) ? numBias : 1;
-        if (nb <= 0)
+        if (nb <= 0) {
             return irr;
+        }
         OrthoNormalBasis onb = state.getBasis();
         Vector3 w = new Vector3();
         float scale = (float) Math.PI / nb;
@@ -122,8 +129,9 @@ public class InstantGI implements GIEngine {
                     if (cosThetaY > 0) {
                         float g = (cosTheta * cosThetaY) / r2;
                         // was this path accounted for yet?
-                        if (g > b)
+                        if (g > b) {
                             irr.madd(scale * (g - b) / g, temp.getShader().getRadiance(temp));
+                        }
                     }
                 }
             }
@@ -132,21 +140,26 @@ public class InstantGI implements GIEngine {
     }
 
     private static class PointLight {
+
         Point3 p;
         Vector3 n;
         Color power;
     }
 
     private class PointLightStore implements PhotonStore {
+
         ArrayList<PointLight> virtualLights = new ArrayList<PointLight>();
 
+        @Override
         public int numEmit() {
             return numPhotons;
         }
 
+        @Override
         public void prepare(Options options, BoundingBox sceneBounds) {
         }
 
+        @Override
         public void store(ShadingState state, Vector3 dir, Color power, Color diffuse) {
             state.faceforward();
             PointLight vpl = new PointLight();
@@ -158,17 +171,21 @@ public class InstantGI implements GIEngine {
             }
         }
 
+        @Override
         public void init() {
         }
 
+        @Override
         public boolean allowDiffuseBounced() {
             return true;
         }
 
+        @Override
         public boolean allowReflectionBounced() {
             return true;
         }
 
+        @Override
         public boolean allowRefractionBounced() {
             return true;
         }

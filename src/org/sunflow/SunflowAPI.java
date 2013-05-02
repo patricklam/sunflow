@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.codehaus.janino.ClassBodyEvaluator;
 import org.codehaus.janino.CompileException;
@@ -47,9 +49,9 @@ import org.sunflow.system.UI.Module;
  * scene.
  */
 public class SunflowAPI implements SunflowAPIInterface {
+
     public static final String VERSION = "0.07.3";
     public static final String DEFAULT_OPTIONS = "::options";
-
     private Scene scene;
     private SearchPath includeSearchPath;
     private SearchPath textureSearchPath;
@@ -64,11 +66,13 @@ public class SunflowAPI implements SunflowAPIInterface {
     public static void runSystemCheck() {
         final long RECOMMENDED_MAX_SIZE = 800;
         long maxMb = Runtime.getRuntime().maxMemory() / 1048576;
-        if (maxMb < RECOMMENDED_MAX_SIZE)
+        if (maxMb < RECOMMENDED_MAX_SIZE) {
             UI.printError(Module.API, "JVM available memory is below %d MB (found %d MB only).\nPlease make sure you launched the program with the -Xmx command line options.", RECOMMENDED_MAX_SIZE, maxMb);
+        }
         String compiler = System.getProperty("java.vm.name");
-        if (compiler == null || !(compiler.contains("HotSpot") && compiler.contains("Server")))
+        if (compiler == null || !(compiler.contains("HotSpot") && compiler.contains("Server"))) {
             UI.printError(Module.API, "You do not appear to be running Sun's server JVM\nPerformance may suffer");
+        }
         UI.printDetailed(Module.API, "Java environment settings:");
         UI.printDetailed(Module.API, "  * Max memory available : %d MB", maxMb);
         UI.printDetailed(Module.API, "  * Virtual machine name : %s", compiler == null ? "<unknown" : compiler);
@@ -83,6 +87,7 @@ public class SunflowAPI implements SunflowAPIInterface {
         reset();
     }
 
+    @Override
     public final void reset() {
         scene = new Scene();
         includeSearchPath = new SearchPath("include");
@@ -92,59 +97,66 @@ public class SunflowAPI implements SunflowAPIInterface {
         currentFrame = 1;
     }
 
+    @Override
     public final void plugin(String type, String name, String code) {
-        if (type.equals("primitive"))
+        if (type.equals("primitive")) {
             PluginRegistry.primitivePlugins.registerPlugin(name, code);
-        else if (type.equals("tesselatable"))
+        } else if (type.equals("tesselatable")) {
             PluginRegistry.tesselatablePlugins.registerPlugin(name, code);
-        else if (type.equals("shader"))
+        } else if (type.equals("shader")) {
             PluginRegistry.shaderPlugins.registerPlugin(name, code);
-        else if (type.equals("modifier"))
+        } else if (type.equals("modifier")) {
             PluginRegistry.modifierPlugins.registerPlugin(name, code);
-        else if (type.equals("camera_lens"))
+        } else if (type.equals("camera_lens")) {
             PluginRegistry.cameraLensPlugins.registerPlugin(name, code);
-        else if (type.equals("light"))
+        } else if (type.equals("light")) {
             PluginRegistry.lightSourcePlugins.registerPlugin(name, code);
-        else if (type.equals("accel"))
+        } else if (type.equals("accel")) {
             PluginRegistry.accelPlugins.registerPlugin(name, code);
-        else if (type.equals("bucket_order"))
+        } else if (type.equals("bucket_order")) {
             PluginRegistry.bucketOrderPlugins.registerPlugin(name, code);
-        else if (type.equals("filter"))
+        } else if (type.equals("filter")) {
             PluginRegistry.filterPlugins.registerPlugin(name, code);
-        else if (type.equals("gi_engine"))
+        } else if (type.equals("gi_engine")) {
             PluginRegistry.giEnginePlugins.registerPlugin(name, code);
-        else if (type.equals("caustic_photon_map"))
+        } else if (type.equals("caustic_photon_map")) {
             PluginRegistry.causticPhotonMapPlugins.registerPlugin(name, code);
-        else if (type.equals("global_photon_map"))
+        } else if (type.equals("global_photon_map")) {
             PluginRegistry.globalPhotonMapPlugins.registerPlugin(name, code);
-        else if (type.equals("image_sampler"))
+        } else if (type.equals("image_sampler")) {
             PluginRegistry.imageSamplerPlugins.registerPlugin(name, code);
-        else if (type.equals("parser"))
+        } else if (type.equals("parser")) {
             PluginRegistry.parserPlugins.registerPlugin(name, code);
-        else if (type.equals("bitmap_reader"))
+        } else if (type.equals("bitmap_reader")) {
             PluginRegistry.bitmapReaderPlugins.registerPlugin(name, code);
-        else if (type.equals("bitmap_writer"))
+        } else if (type.equals("bitmap_writer")) {
             PluginRegistry.bitmapWriterPlugins.registerPlugin(name, code);
-        else
+        } else {
             UI.printWarning(Module.API, "Unrecognized plugin type: \"%s\" - ignoring declaration of \"%s\"", type, name);
+        }
     }
 
+    @Override
     public final void parameter(String name, String value) {
         parameterList.addString(name, value);
     }
 
+    @Override
     public final void parameter(String name, boolean value) {
         parameterList.addBoolean(name, value);
     }
 
+    @Override
     public final void parameter(String name, int value) {
         parameterList.addInteger(name, value);
     }
 
+    @Override
     public final void parameter(String name, float value) {
         parameterList.addFloat(name, value);
     }
 
+    @Override
     public final void parameter(String name, String colorspace, float... data) {
         try {
             parameterList.addColor(name, ColorFactory.createColor(colorspace, data));
@@ -153,33 +165,40 @@ public class SunflowAPI implements SunflowAPIInterface {
         }
     }
 
+    @Override
     public final void parameter(String name, Point3 value) {
-        parameterList.addPoints(name, InterpolationType.NONE, new float[] {
-                value.x, value.y, value.z });
+        parameterList.addPoints(name, InterpolationType.NONE, new float[]{
+            value.x, value.y, value.z});
     }
 
+    @Override
     public final void parameter(String name, Vector3 value) {
-        parameterList.addVectors(name, InterpolationType.NONE, new float[] {
-                value.x, value.y, value.z });
+        parameterList.addVectors(name, InterpolationType.NONE, new float[]{
+            value.x, value.y, value.z});
     }
 
+    @Override
     public final void parameter(String name, Point2 value) {
-        parameterList.addTexCoords(name, InterpolationType.NONE, new float[] {
-                value.x, value.y });
+        parameterList.addTexCoords(name, InterpolationType.NONE, new float[]{
+            value.x, value.y});
     }
 
+    @Override
     public final void parameter(String name, Matrix4 value) {
         parameterList.addMatrices(name, InterpolationType.NONE, value.asRowMajor());
     }
 
+    @Override
     public final void parameter(String name, int[] value) {
         parameterList.addIntegerArray(name, value);
     }
 
+    @Override
     public final void parameter(String name, String[] value) {
         parameterList.addStringArray(name, value);
     }
 
+    @Override
     public final void parameter(String name, String type, String interpolation, float[] data) {
         InterpolationType interp;
         try {
@@ -188,20 +207,22 @@ public class SunflowAPI implements SunflowAPIInterface {
             UI.printError(Module.API, "Unknown interpolation type: %s -- ignoring parameter \"%s\"", interpolation, name);
             return;
         }
-        if (type.equals("float"))
+        if (type.equals("float")) {
             parameterList.addFloats(name, interp, data);
-        else if (type.equals("point"))
+        } else if (type.equals("point")) {
             parameterList.addPoints(name, interp, data);
-        else if (type.equals("vector"))
+        } else if (type.equals("vector")) {
             parameterList.addVectors(name, interp, data);
-        else if (type.equals("texcoord"))
+        } else if (type.equals("texcoord")) {
             parameterList.addTexCoords(name, interp, data);
-        else if (type.equals("matrix"))
+        } else if (type.equals("matrix")) {
             parameterList.addMatrices(name, interp, data);
-        else
+        } else {
             UI.printError(Module.API, "Unknown parameter type: %s -- ignoring parameter \"%s\"", type, name);
+        }
     }
 
+    @Override
     public void remove(String name) {
         renderObjects.remove(name);
     }
@@ -210,10 +231,10 @@ public class SunflowAPI implements SunflowAPIInterface {
      * Update the specfied object using the currently active parameter list. The
      * object is removed if the update fails to avoid leaving inconsistently set
      * objects in the list.
-     * 
+     *
      * @param name name of the object to update
      * @return <code>true</code> if the update was succesfull, or
-     *         <code>false</code> if the update failed
+     * <code>false</code> if the update failed
      */
     private boolean update(String name) {
         boolean success = renderObjects.update(name, parameterList, this);
@@ -221,22 +242,24 @@ public class SunflowAPI implements SunflowAPIInterface {
         return success;
     }
 
+    @Override
     public final void searchpath(String type, String path) {
-        if (type.equals("include"))
+        if (type.equals("include")) {
             includeSearchPath.addSearchPath(path);
-        else if (type.equals("texture"))
+        } else if (type.equals("texture")) {
             textureSearchPath.addSearchPath(path);
-        else
+        } else {
             UI.printWarning(Module.API, "Invalid searchpath type: \"%s\"", type);
+        }
     }
 
     /**
      * Attempts to resolve the specified filename by checking it against the
      * texture search path.
-     * 
+     *
      * @param filename filename
      * @return a path which matches the filename, or filename if no matches are
-     *         found
+     * found
      */
     public final String resolveTextureFilename(String filename) {
         return textureSearchPath.resolvePath(filename);
@@ -245,15 +268,16 @@ public class SunflowAPI implements SunflowAPIInterface {
     /**
      * Attempts to resolve the specified filename by checking it against the
      * include search path.
-     * 
+     *
      * @param filename filename
      * @return a path which matches the filename, or filename if no matches are
-     *         found
+     * found
      */
     public final String resolveIncludeFilename(String filename) {
         return includeSearchPath.resolvePath(filename);
     }
 
+    @Override
     public final void shader(String name, String shaderType) {
         if (!isIncremental(shaderType)) {
             // we are declaring a shader for the first time
@@ -270,14 +294,15 @@ public class SunflowAPI implements SunflowAPIInterface {
             renderObjects.put(name, shader);
         }
         // update existing shader (only if it is valid)
-        if (lookupShader(name) != null)
+        if (lookupShader(name) != null) {
             update(name);
-        else {
+        } else {
             UI.printError(Module.API, "Unable to update shader \"%s\" - shader object was not found", name);
             parameterList.clear(true);
         }
     }
 
+    @Override
     public final void modifier(String name, String modifierType) {
         if (!isIncremental(modifierType)) {
             // we are declaring a shader for the first time
@@ -294,14 +319,15 @@ public class SunflowAPI implements SunflowAPIInterface {
             renderObjects.put(name, modifier);
         }
         // update existing shader (only if it is valid)
-        if (lookupModifier(name) != null)
+        if (lookupModifier(name) != null) {
             update(name);
-        else {
+        } else {
             UI.printError(Module.API, "Unable to update modifier \"%s\" - modifier object was not found", name);
             parameterList.clear(true);
         }
     }
 
+    @Override
     public final void geometry(String name, String typeName) {
         if (!isIncremental(typeName)) {
             // we are declaring a geometry for the first time
@@ -327,14 +353,15 @@ public class SunflowAPI implements SunflowAPIInterface {
                 renderObjects.put(name, primitives);
             }
         }
-        if (lookupGeometry(name) != null)
+        if (lookupGeometry(name) != null) {
             update(name);
-        else {
+        } else {
             UI.printError(Module.API, "Unable to update geometry \"%s\" - geometry object was not found", name);
             parameterList.clear(true);
         }
     }
 
+    @Override
     public final void instance(String name, String geoname) {
         if (!isIncremental(geoname)) {
             // we are declaring this instance for the first time
@@ -346,14 +373,15 @@ public class SunflowAPI implements SunflowAPIInterface {
             parameter("geometry", geoname);
             renderObjects.put(name, new Instance());
         }
-        if (lookupInstance(name) != null)
+        if (lookupInstance(name) != null) {
             update(name);
-        else {
+        } else {
             UI.printError(Module.API, "Unable to update instance \"%s\" - instance object was not found", name);
             parameterList.clear(true);
         }
     }
 
+    @Override
     public final void light(String name, String lightType) {
         if (!isIncremental(lightType)) {
             // we are declaring this light for the first time
@@ -369,14 +397,15 @@ public class SunflowAPI implements SunflowAPIInterface {
             }
             renderObjects.put(name, light);
         }
-        if (lookupLight(name) != null)
+        if (lookupLight(name) != null) {
             update(name);
-        else {
+        } else {
             UI.printError(Module.API, "Unable to update instance \"%s\" - instance object was not found", name);
             parameterList.clear(true);
         }
     }
 
+    @Override
     public final void camera(String name, String lensType) {
         if (!isIncremental(lensType)) {
             // we are declaring this camera for the first time
@@ -393,14 +422,15 @@ public class SunflowAPI implements SunflowAPIInterface {
             renderObjects.put(name, new Camera(lens));
         }
         // update existing shader (only if it is valid)
-        if (lookupCamera(name) != null)
+        if (lookupCamera(name) != null) {
             update(name);
-        else {
+        } else {
             UI.printError(Module.API, "Unable to update camera \"%s\" - camera object was not found", name);
             parameterList.clear(true);
         }
     }
 
+    @Override
     public final void options(String name) {
         if (lookupOptions(name) == null) {
             if (renderObjects.has(name)) {
@@ -414,14 +444,15 @@ public class SunflowAPI implements SunflowAPIInterface {
         update(name);
     }
 
-    private final boolean isIncremental(String typeName) {
+    private boolean isIncremental(String typeName) {
         return typeName == null || typeName.equals("incremental");
     }
 
     /**
-     * Retrieve a geometry object by its name, or <code>null</code> if no
-     * geometry was found, or if the specified object is not a geometry.
-     * 
+     * Retrieve a geometry object by its name, or
+     * <code>null</code> if no geometry was found, or if the specified object is
+     * not a geometry.
+     *
      * @param name geometry name
      * @return the geometry object associated with that name
      */
@@ -430,35 +461,38 @@ public class SunflowAPI implements SunflowAPIInterface {
     }
 
     /**
-     * Retrieve an instance object by its name, or <code>null</code> if no
-     * instance was found, or if the specified object is not an instance.
-     * 
+     * Retrieve an instance object by its name, or
+     * <code>null</code> if no instance was found, or if the specified object is
+     * not an instance.
+     *
      * @param name instance name
      * @return the instance object associated with that name
      */
-    private final Instance lookupInstance(String name) {
+    private Instance lookupInstance(String name) {
         return renderObjects.lookupInstance(name);
     }
 
     /**
-     * Retrieve a shader object by its name, or <code>null</code> if no shader
-     * was found, or if the specified object is not a shader.
-     * 
+     * Retrieve a shader object by its name, or
+     * <code>null</code> if no shader was found, or if the specified object is
+     * not a shader.
+     *
      * @param name camera name
      * @return the camera object associate with that name
      */
-    private final Camera lookupCamera(String name) {
+    private Camera lookupCamera(String name) {
         return renderObjects.lookupCamera(name);
     }
 
-    private final Options lookupOptions(String name) {
+    private Options lookupOptions(String name) {
         return renderObjects.lookupOptions(name);
     }
 
     /**
-     * Retrieve a shader object by its name, or <code>null</code> if no shader
-     * was found, or if the specified object is not a shader.
-     * 
+     * Retrieve a shader object by its name, or
+     * <code>null</code> if no shader was found, or if the specified object is
+     * not a shader.
+     *
      * @param name shader name
      * @return the shader object associated with that name
      */
@@ -467,9 +501,10 @@ public class SunflowAPI implements SunflowAPIInterface {
     }
 
     /**
-     * Retrieve a modifier object by its name, or <code>null</code> if no
-     * modifier was found, or if the specified object is not a modifier.
-     * 
+     * Retrieve a modifier object by its name, or
+     * <code>null</code> if no modifier was found, or if the specified object is
+     * not a modifier.
+     *
      * @param name modifier name
      * @return the modifier object associated with that name
      */
@@ -478,33 +513,37 @@ public class SunflowAPI implements SunflowAPIInterface {
     }
 
     /**
-     * Retrieve a light object by its name, or <code>null</code> if no shader
-     * was found, or if the specified object is not a light.
-     * 
+     * Retrieve a light object by its name, or
+     * <code>null</code> if no shader was found, or if the specified object is
+     * not a light.
+     *
      * @param name light name
      * @return the light object associated with that name
      */
-    private final LightSource lookupLight(String name) {
+    private LightSource lookupLight(String name) {
         return renderObjects.lookupLight(name);
     }
 
+    @Override
     public final void render(String optionsName, Display display) {
         renderObjects.updateScene(scene);
         Options opt = lookupOptions(optionsName);
-        if (opt == null)
+        if (opt == null) {
             opt = new Options();
+        }
         scene.setCamera(lookupCamera(opt.getString("camera", null)));
 
         // shader override
         String shaderOverrideName = opt.getString("override.shader", "none");
         boolean overridePhotons = opt.getBoolean("override.photons", false);
 
-        if (shaderOverrideName.equals("none"))
+        if (shaderOverrideName.equals("none")) {
             scene.setShaderOverride(null, false);
-        else {
+        } else {
             Shader shader = lookupShader(shaderOverrideName);
-            if (shader == null)
+            if (shader == null) {
                 UI.printWarning(Module.API, "Unable to find shader \"%s\" for override, disabling", shaderOverrideName);
+            }
             scene.setShaderOverride(shader, overridePhotons);
         }
 
@@ -517,16 +556,19 @@ public class SunflowAPI implements SunflowAPIInterface {
                 return;
             }
             scene.setBakingInstance(bakingInstance);
-        } else
+        } else {
             scene.setBakingInstance(null);
+        }
 
         ImageSampler sampler = PluginRegistry.imageSamplerPlugins.createObject(opt.getString("sampler", "bucket"));
         scene.render(opt, sampler, display);
     }
 
+    @Override
     public final boolean include(String filename) {
-        if (filename == null)
+        if (filename == null) {
             return false;
+        }
         filename = includeSearchPath.resolvePath(filename);
         String extension = FileUtils.getExtension(filename);
         SceneParser parser = PluginRegistry.parserPlugins.createObject(extension);
@@ -560,13 +602,14 @@ public class SunflowAPI implements SunflowAPIInterface {
      * Janino and are expected to implement a build method (they implement a
      * derived class of SunflowAPI. The build method is called if the code
      * compiles succesfully. Other files types are handled by the parse method.
-     * 
+     *
      * @param filename filename to load
      * @return a valid SunflowAPI object or <code>null</code> on failure
      */
     public static SunflowAPI create(String filename, int frameNumber) {
-        if (filename == null)
+        if (filename == null) {
             return new SunflowAPI();
+        }
         SunflowAPI api = null;
         if (filename.endsWith(".java")) {
             Timer t = new Timer();
@@ -614,7 +657,7 @@ public class SunflowAPI implements SunflowAPIInterface {
 
     /**
      * Translate specfied file into the native sunflow scene file format.
-     * 
+     *
      * @param filename input filename
      * @param outputFilename output filename
      * @return <code>true</code> upon success, <code>false</code> otherwise
@@ -622,11 +665,11 @@ public class SunflowAPI implements SunflowAPIInterface {
     public static boolean translate(String filename, String outputFilename) {
         FileSunflowAPI api = null;
         try {
-            if (outputFilename.endsWith(".sca"))
+            if (outputFilename.endsWith(".sca")) {
                 api = new AsciiFileSunflowAPI(outputFilename);
-            else if (outputFilename.endsWith(".scb"))
+            } else if (outputFilename.endsWith(".scb")) {
                 api = new BinaryFileSunflowAPI(outputFilename);
-            else {
+            } else {
                 UI.printError(Module.API, "Unable to determine output filetype: \"%s\"", outputFilename);
                 return false;
             }
@@ -643,7 +686,7 @@ public class SunflowAPI implements SunflowAPIInterface {
         try {
             return parser.parse(filename, api);
         } catch (RuntimeException e) {
-            e.printStackTrace();
+            Logger.getLogger(SunflowAPI.class.getName()).log(Level.SEVERE, null, e);
             UI.printError(Module.API, "Error occured during translation: %s", e.getMessage());
             return false;
         } finally {
@@ -655,10 +698,10 @@ public class SunflowAPI implements SunflowAPIInterface {
      * Compile the specified code string via Janino. The code must implement a
      * build method as described above. The build method is not called on the
      * output, it is up the caller to do so.
-     * 
+     *
      * @param code java code string
      * @return a valid SunflowAPI object upon succes, <code>null</code>
-     *         otherwise.
+     * otherwise.
      */
     public static SunflowAPI compile(String code) {
         try {
@@ -687,13 +730,14 @@ public class SunflowAPI implements SunflowAPIInterface {
      * Read the value of the current frame. This value is intended only for
      * procedural animation creation. It is not used by the Sunflow core in
      * anyway. The default value is 1.
-     * 
+     *
      * @return current frame number
      */
     public int currentFrame() {
         return currentFrame;
     }
 
+    @Override
     public void currentFrame(int currentFrame) {
         this.currentFrame = currentFrame;
     }

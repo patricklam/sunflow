@@ -8,6 +8,7 @@ import org.sunflow.core.TextureCache;
 import org.sunflow.image.Color;
 
 public class TexturedShinyDiffuseShader extends ShinyDiffuseShader {
+
     private Texture tex;
 
     public TexturedShinyDiffuseShader() {
@@ -17,8 +18,9 @@ public class TexturedShinyDiffuseShader extends ShinyDiffuseShader {
     @Override
     public boolean update(ParameterList pl, SunflowAPI api) {
         String filename = pl.getString("texture", null);
-        if (filename != null)
+        if (filename != null) {
             tex = TextureCache.getTexture(api.resolveTextureFilename(filename), false);
+        }
         return tex != null && super.update(pl, api);
     }
 

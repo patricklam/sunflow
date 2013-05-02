@@ -10,6 +10,7 @@ import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
 
 public class PerlinModifier implements Modifier {
+
     private int function = 0;
     private float scale = 50;
     private float size = 1;
@@ -60,8 +61,9 @@ public class PerlinModifier implements Modifier {
 
     private static final double turbulence(double x, double y, double z, double freq) {
         double t = -.5;
-        for (; freq <= 300 / 12; freq *= 2)
+        for (; freq <= 300 / 12; freq *= 2) {
             t += Math.abs(noise(x, y, z, freq) / freq);
+        }
         return t;
     }
 

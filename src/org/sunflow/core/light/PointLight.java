@@ -12,6 +12,7 @@ import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
 
 public class PointLight implements LightSource {
+
     private Point3 lightPoint;
     private Color power;
 

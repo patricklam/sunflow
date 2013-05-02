@@ -5,22 +5,25 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 class AccelerationStructureFactory {
+
     static final AccelerationStructure create(String name, int n, boolean primitives) {
         if (name == null || name.equals("auto")) {
             if (primitives) {
-                if (n > 20000000)
+                if (n > 20000000) {
                     name = "uniformgrid";
-                else if (n > 2000000)
+                } else if (n > 2000000) {
                     name = "bih";
-                else if (n > 2)
+                } else if (n > 2) {
                     name = "kdtree";
-                else
+                } else {
                     name = "null";
+                }
             } else {
-                if (n > 2)
+                if (n > 2) {
                     name = "bih";
-                else
+                } else {
                     name = "null";
+                }
             }
         }
         AccelerationStructure accel = PluginRegistry.accelPlugins.createObject(name);

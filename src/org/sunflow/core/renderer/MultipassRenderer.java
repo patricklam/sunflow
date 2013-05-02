@@ -17,6 +17,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class MultipassRenderer implements ImageSampler {
+
     private Scene scene;
     private Display display;
     // resolution
@@ -28,7 +29,6 @@ public class MultipassRenderer implements ImageSampler {
     private int bucketSize;
     private int bucketCounter;
     private int[] bucketCoords;
-
     // anti-aliasing
     private int numSamples;
     private float invNumSamples;
@@ -102,6 +102,7 @@ public class MultipassRenderer implements ImageSampler {
     }
 
     private class BucketThread extends Thread {
+
         private final int threadID;
         private final IntersectionState istate;
         private final ShadingCache cache;
@@ -117,8 +118,9 @@ public class MultipassRenderer implements ImageSampler {
             while (true) {
                 int bx, by;
                 synchronized (MultipassRenderer.this) {
-                    if (bucketCounter >= bucketCoords.length)
+                    if (bucketCounter >= bucketCoords.length) {
                         return;
+                    }
                     UI.taskUpdate(bucketCounter);
                     bx = bucketCoords[bucketCounter + 0];
                     by = bucketCoords[bucketCounter + 1];
@@ -130,8 +132,9 @@ public class MultipassRenderer implements ImageSampler {
 
         void updateStats() {
             scene.accumulateStats(istate);
-            if (shadingCache)
+            if (shadingCache) {
                 scene.accumulateStats(cache);
+            }
         }
     }
 
@@ -173,8 +176,9 @@ public class MultipassRenderer implements ImageSampler {
                 }
                 bucketRGB[i] = c.mul(invNumSamples);
                 bucketAlpha[i] = a * invNumSamples;
-                if (cache != null)
+                if (cache != null) {
                     cache.reset();
+                }
             }
         }
         // update pixels
@@ -183,33 +187,37 @@ public class MultipassRenderer implements ImageSampler {
 
     /**
      * Tent filter warping function.
-     * 
+     *
      * @param x sample in the [0,1) range
      * @return warped sample in the [-1,+1) range
      */
     @SuppressWarnings("unused")
     private static final float warpTent(float x) {
-        if (x < 0.5f)
+        if (x < 0.5f) {
             return -1 + (float) Math.sqrt(2 * x);
-        else
+        } else {
             return +1 - (float) Math.sqrt(2 - 2 * x);
+        }
     }
 
     /**
      * Cubic BSpline warping functions. Formulas from: "Generation of Stratified
      * Samples for B-Spline Pixel Filtering"
      * http://www.cs.utah.edu/~mstark/papers/
-     * 
+     *
      * @param x samples in the [0,1) range
      * @return warped sample in the [-2,+2) range
      */
     private static final double warpCubic(double x) {
-        if (x < (1.0 / 24))
+        if (x < (1.0 / 24)) {
             return qpow(24 * x) - 2;
-        if (x < 0.5f)
+        }
+        if (x < 0.5f) {
             return distb1((24.0 / 11.0) * (x - (1.0 / 24.0))) - 1;
-        if (x < (23.0f / 24))
+        }
+        if (x < (23.0f / 24)) {
             return 1 - distb1((24.0 / 11.0) * ((23.0 / 24.0) - x));
+        }
         return 2 - qpow(24 * (1 - x));
     }
 
@@ -219,8 +227,9 @@ public class MultipassRenderer implements ImageSampler {
 
     private static final double distb1(double x) {
         double u = x;
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++) {
             u = (11 * x + u * u * (6 + u * (8 - 9 * u))) / (4 + 12 * u * (1 + u * (1 - u)));
+        }
         return u;
     }
 }

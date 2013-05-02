@@ -15,6 +15,7 @@ import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
 
 public class ParticleSurface implements PrimitiveList {
+
     private float[] particles;
     private float r, r2;
     private int n;
@@ -36,8 +37,9 @@ public class ParticleSurface implements PrimitiveList {
 
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox();
-        for (int i = 0, i3 = 0; i < n; i++, i3 += 3)
+        for (int i = 0, i3 = 0; i < n; i++, i3 += 3) {
             bounds.include(particles[i3], particles[i3 + 1], particles[i3 + 2]);
+        }
         bounds.include(bounds.getMinimum().x - r, bounds.getMinimum().y - r, bounds.getMinimum().z - r);
         bounds.include(bounds.getMaximum().x + r, bounds.getMaximum().y + r, bounds.getMaximum().z + r);
         return o2w == null ? bounds : o2w.transform(bounds);
@@ -54,12 +56,14 @@ public class ParticleSurface implements PrimitiveList {
         double[] t = Solvers.solveQuadric(qa, qb, qc);
         if (t != null) {
             // early rejection
-            if (t[0] >= r.getMax() || t[1] <= r.getMin())
+            if (t[0] >= r.getMax() || t[1] <= r.getMin()) {
                 return;
-            if (t[0] > r.getMin())
+            }
+            if (t[0] > r.getMin()) {
                 r.setMax((float) t[0]);
-            else
+            } else {
                 r.setMax((float) t[1]);
+            }
             state.setIntersection(primID);
         }
     }
@@ -88,8 +92,9 @@ public class ParticleSurface implements PrimitiveList {
 
     public boolean update(ParameterList pl, SunflowAPI api) {
         FloatParameter p = pl.getPointArray("particles");
-        if (p != null)
+        if (p != null) {
             particles = p.data;
+        }
         r = pl.getFloat("radius", r);
         r2 = r * r;
         n = pl.getInt("num", n);

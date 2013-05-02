@@ -10,6 +10,7 @@ import org.sunflow.math.Vector3;
  * along the ray, tMin and tMax.
  */
 public final class Ray {
+
     public float ox, oy, oz;
     public float dx, dy, dz;
     private float tMin;
@@ -23,7 +24,7 @@ public final class Ray {
      * Creates a new ray that points from the given origin to the given
      * direction. The ray has infinite length. The direction vector is
      * normalized.
-     * 
+     *
      * @param ox ray origin x
      * @param oy ray origin y
      * @param oz ray origin z
@@ -31,7 +32,6 @@ public final class Ray {
      * @param dy ray direction y
      * @param dz ray direction z
      */
-
     public Ray(float ox, float oy, float oz, float dx, float dy, float dz) {
         this.ox = ox;
         this.oy = oy;
@@ -51,7 +51,7 @@ public final class Ray {
      * Creates a new ray that points from the given origin to the given
      * direction. The ray has infinite length. The direction vector is
      * normalized.
-     * 
+     *
      * @param o ray origin
      * @param d ray direction (need not be normalized)
      */
@@ -74,7 +74,7 @@ public final class Ray {
      * Creates a new ray that points from point a to point b. The created ray
      * will set tMin and tMax to limit the ray to the segment (a,b)
      * (non-inclusive of a and b). This is often used to create shadow rays.
-     * 
+     *
      * @param a start point
      * @param b end point
      */
@@ -96,13 +96,15 @@ public final class Ray {
 
     /**
      * Create a new ray by transforming the supplied one by the given matrix. If
-     * the matrix is <code>null</code>, the original ray is returned.
-     * 
+     * the matrix is
+     * <code>null</code>, the original ray is returned.
+     *
      * @param m matrix to transform the ray by
      */
     public Ray transform(Matrix4 m) {
-        if (m == null)
+        if (m == null) {
             return this;
+        }
         Ray r = new Ray();
         r.ox = m.transformPX(ox, oy, oz);
         r.oy = m.transformPY(ox, oy, oz);
@@ -127,7 +129,7 @@ public final class Ray {
 
     /**
      * Gets the minimum distance along the ray - usually 0.
-     * 
+     *
      * @return value of the smallest distance along the ray
      */
     public final float getMin() {
@@ -136,7 +138,7 @@ public final class Ray {
 
     /**
      * Gets the maximum distance along the ray. May be infinite.
-     * 
+     *
      * @return value of the largest distance along the ray
      */
     public final float getMax() {
@@ -145,7 +147,7 @@ public final class Ray {
 
     /**
      * Creates a vector to represent the direction of the ray.
-     * 
+     *
      * @return a vector equal to the direction of this ray
      */
     public final Vector3 getDirection() {
@@ -156,19 +158,19 @@ public final class Ray {
      * Checks to see if the specified distance falls within the valid range on
      * this ray. This should always be used before an intersection with the ray
      * is detected.
-     * 
+     *
      * @param t distance to be tested
      * @return <code>true</code> if t falls between the minimum and maximum
-     *         distance of this ray, <code>false</code> otherwise
+     * distance of this ray, <code>false</code> otherwise
      */
     public final boolean isInside(float t) {
         return (tMin < t) && (t < tMax);
     }
 
     /**
-     * Gets the end point of the ray. A reference to <code>dest</code> is
-     * returned to support chaining.
-     * 
+     * Gets the end point of the ray. A reference to
+     * <code>dest</code> is returned to support chaining.
+     *
      * @param dest reference to the point to store
      * @return reference to <code>dest</code>
      */
@@ -183,7 +185,7 @@ public final class Ray {
      * Computes the dot product of an arbitrary vector with the direction of the
      * ray. This method avoids having to call getDirection() which would
      * instantiate a new Vector object.
-     * 
+     *
      * @param v vector
      * @return dot product of the ray direction and the specified vector
      */
@@ -195,7 +197,7 @@ public final class Ray {
      * Computes the dot product of an arbitrary vector with the direction of the
      * ray. This method avoids having to call getDirection() which would
      * instantiate a new Vector object.
-     * 
+     *
      * @param vx vector x coordinate
      * @param vy vector y coordinate
      * @param vz vector z coordinate
@@ -208,7 +210,7 @@ public final class Ray {
     /**
      * Updates the maximum to the specified distance if and only if the new
      * distance is smaller than the current one.
-     * 
+     *
      * @param t new maximum distance
      */
     public final void setMax(float t) {

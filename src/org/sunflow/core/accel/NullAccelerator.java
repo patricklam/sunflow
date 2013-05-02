@@ -6,6 +6,7 @@ import org.sunflow.core.PrimitiveList;
 import org.sunflow.core.Ray;
 
 public class NullAccelerator implements AccelerationStructure {
+
     private PrimitiveList primitives;
     private int n;
 
@@ -20,7 +21,8 @@ public class NullAccelerator implements AccelerationStructure {
     }
 
     public void intersect(Ray r, IntersectionState state) {
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             primitives.intersectPrimitive(r, i, state);
+        }
     }
 }

@@ -9,6 +9,7 @@ import org.sunflow.core.ParameterList.InterpolationType;
 import org.sunflow.math.Matrix4;
 
 public class SCBinaryParser extends SCAbstractParser {
+
     private DataInputStream stream;
 
     @Override
@@ -145,10 +146,11 @@ public class SCBinaryParser extends SCAbstractParser {
                 }
             }
             default:
-                if (code < 0)
+                if (code < 0) {
                     return Keyword.END_OF_FILE; // normal end of file reached
-                else
+                } else {
                     throw new IOException(String.format("Unknown keyword code: %c", (char) code));
+                }
         }
     }
 }

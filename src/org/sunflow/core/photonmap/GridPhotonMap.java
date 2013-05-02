@@ -14,6 +14,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class GridPhotonMap implements GlobalPhotonMapInterface {
+
     private int numGather;
     private float gatherRadius;
     private int numStoredPhotons;
@@ -24,12 +25,11 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
     private int hashPrime;
     private ReentrantReadWriteLock rwl;
     private int numEmit;
-
     private static final float NORMAL_THRESHOLD = (float) Math.cos(10.0 * Math.PI / 180.0);
-    private static final int[] PRIMES = { 11, 19, 37, 109, 163, 251, 367, 557,
-            823, 1237, 1861, 2777, 4177, 6247, 9371, 21089, 31627, 47431,
-            71143, 106721, 160073, 240101, 360163, 540217, 810343, 1215497,
-            1823231, 2734867, 4102283, 6153409, 9230113, 13845163 };
+    private static final int[] PRIMES = {11, 19, 37, 109, 163, 251, 367, 557,
+        823, 1237, 1861, 2777, 4177, 6247, 9371, 21089, 31627, 47431,
+        71143, 106721, 160073, 240101, 360163, 540217, 810343, 1215497,
+        1823231, 2734867, 4102283, 6153409, 9230113, 13845163};
 
     public GridPhotonMap() {
         numStoredPhotons = 0;
@@ -54,9 +54,11 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         UI.printInfo(Module.LIGHT, "Initializing grid photon map:");
         UI.printInfo(Module.LIGHT, "  * Resolution:  %dx%dx%d", nx, ny, nz);
         UI.printInfo(Module.LIGHT, "  * Total cells: %d", numCells);
-        for (hashPrime = 0; hashPrime < PRIMES.length; hashPrime++)
-            if (PRIMES[hashPrime] > (numCells / 5))
+        for (hashPrime = 0; hashPrime < PRIMES.length; hashPrime++) {
+            if (PRIMES[hashPrime] > (numCells / 5)) {
                 break;
+            }
+        }
         cellHash = new PhotonGroup[PRIMES[hashPrime]];
         UI.printInfo(Module.LIGHT, "  * Initial hash size: %d", cellHash.length);
     }
@@ -67,12 +69,14 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
 
     public void store(ShadingState state, Vector3 dir, Color power, Color diffuse) {
         // don't store on the wrong side of a surface
-        if (Vector3.dot(state.getNormal(), dir) > 0)
+        if (Vector3.dot(state.getNormal(), dir) > 0) {
             return;
+        }
         Point3 pt = state.getPoint();
         // outside grid bounds ?
-        if (!bounds.contains(pt))
+        if (!bounds.contains(pt)) {
             return;
+        }
         Vector3 ext = bounds.getExtents();
         int ix = (int) (((pt.x - bounds.getMinimum().x) * nx) / ext.x);
         int iy = (int) (((pt.y - bounds.getMinimum().y) * ny) / ext.y);
@@ -89,23 +93,26 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
             while (g != null) {
                 if (g.id == id) {
                     hasID = true;
-                    if (Vector3.dot(state.getNormal(), g.normal) > NORMAL_THRESHOLD)
+                    if (Vector3.dot(state.getNormal(), g.normal) > NORMAL_THRESHOLD) {
                         break;
+                    }
                 }
                 last = g;
                 g = g.next;
             }
             if (g == null) {
                 g = new PhotonGroup(id, state.getNormal());
-                if (last == null)
+                if (last == null) {
                     cellHash[hid] = g;
-                else
+                } else {
                     last.next = g;
+                }
                 if (!hasID) {
                     hashSize++; // we have not seen this ID before
                     // resize hash if we have grown too large
-                    if (hashSize > cellHash.length)
+                    if (hashSize > cellHash.length) {
                         growPhotonHash();
+                    }
                 }
             }
             g.count++;
@@ -134,8 +141,9 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
 
     private void growPhotonHash() {
         // enlarge the hash size:
-        if (hashPrime >= PRIMES.length - 1)
+        if (hashPrime >= PRIMES.length - 1) {
             return;
+        }
         PhotonGroup[] temp = new PhotonGroup[PRIMES[++hashPrime]];
         for (int i = 0; i < cellHash.length; i++) {
             PhotonGroup g = cellHash[i];
@@ -143,12 +151,14 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
                 // re-hash into the new table
                 int hid = g.id % temp.length;
                 PhotonGroup last = null;
-                for (PhotonGroup gn = temp[hid]; gn != null; gn = gn.next)
+                for (PhotonGroup gn = temp[hid]; gn != null; gn = gn.next) {
                     last = gn;
-                if (last == null)
+                }
+                if (last == null) {
                     temp[hid] = g;
-                else
+                } else {
                     last.next = g;
+                }
                 PhotonGroup next = g.next;
                 g.next = null;
                 g = next;
@@ -158,8 +168,9 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
     }
 
     public synchronized Color getRadiance(Point3 p, Vector3 n) {
-        if (!bounds.contains(p))
+        if (!bounds.contains(p)) {
             return Color.BLACK;
+        }
         Vector3 ext = bounds.getExtents();
         int ix = (int) (((p.x - bounds.getMinimum().x) * nx) / ext.x);
         int iy = (int) (((p.y - bounds.getMinimum().y) * ny) / ext.y);
@@ -217,8 +228,9 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
                 rwl.readLock().unlock();
                 rwl.writeLock().lock();
                 if (center == null) {
-                    if (ndiff > 0)
+                    if (ndiff > 0) {
                         diff.mul(1.0f / ndiff);
+                    }
                     center = new PhotonGroup(id, n);
                     center.diffuse.set(diff);
                     center.next = cellHash[id % cellHash.length];
@@ -235,16 +247,20 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
 
     private PhotonGroup get(int x, int y, int z) {
         // returns the list associated with the specified location
-        if (x < 0 || x >= nx)
+        if (x < 0 || x >= nx) {
             return null;
-        if (y < 0 || y >= ny)
+        }
+        if (y < 0 || y >= ny) {
             return null;
-        if (z < 0 || z >= nz)
+        }
+        if (z < 0 || z >= nz) {
             return null;
+        }
         return cellHash[(x + y * nx + z * nx * ny) % cellHash.length];
     }
 
     private class PhotonGroup {
+
         int id;
         int count;
         Vector3 normal;

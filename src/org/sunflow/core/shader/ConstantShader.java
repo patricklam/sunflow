@@ -7,6 +7,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 
 public class ConstantShader implements Shader {
+
     private Color c;
 
     public ConstantShader() {

@@ -13,6 +13,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public class Box implements PrimitiveList {
+
     private float minX, minY, minZ;
     private float maxX, maxY, maxZ;
 
@@ -25,8 +26,9 @@ public class Box implements PrimitiveList {
         FloatParameter pts = pl.getPointArray("points");
         if (pts != null) {
             BoundingBox bounds = new BoundingBox();
-            for (int i = 0; i < pts.data.length; i += 3)
+            for (int i = 0; i < pts.data.length; i += 3) {
                 bounds.include(pts.data[i], pts.data[i + 1], pts.data[i + 2]);
+            }
             // cube extents
             minX = bounds.getMinimum().x;
             minY = bounds.getMinimum().y;
@@ -99,8 +101,9 @@ public class Box implements PrimitiveList {
                 sideOut = 0;
             }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgY = r.oy;
         float invDirY = 1 / r.dy;
         t1 = (minY - orgY) * invDirY;
@@ -124,8 +127,9 @@ public class Box implements PrimitiveList {
                 sideOut = 2;
             }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgZ = r.oz;
         float invDirZ = 1 / r.dz;
         t1 = (minZ - orgZ) * invDirZ; // no front wall
@@ -149,8 +153,9 @@ public class Box implements PrimitiveList {
                 sideOut = 4;
             }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         if (r.isInside(intervalMin)) {
             r.setMax(intervalMin);
             state.setIntersection(sideIn);
@@ -186,8 +191,9 @@ public class Box implements PrimitiveList {
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(minX, minY, minZ);
         bounds.include(maxX, maxY, maxZ);
-        if (o2w == null)
+        if (o2w == null) {
             return bounds;
+        }
         return o2w.transform(bounds);
     }
 

@@ -7,6 +7,7 @@ import org.sunflow.system.UI.Module;
  * kernel several times and time the results.
  */
 public class BenchmarkFramework {
+
     private Timer[] timers;
     private int timeLimit; // time limit in seconds
 
@@ -17,8 +18,9 @@ public class BenchmarkFramework {
 
     public void execute(BenchmarkTest test) {
         // clear previous results
-        for (int i = 0; i < timers.length; i++)
+        for (int i = 0; i < timers.length; i++) {
             timers[i] = null;
+        }
         // loop for the specified number of iterations or until the time limit
         long startTime = System.nanoTime();
         for (int i = 0; i < timers.length && ((System.nanoTime() - startTime) / 1000000000) < timeLimit; i++) {
@@ -36,21 +38,24 @@ public class BenchmarkFramework {
         double max = Double.NEGATIVE_INFINITY;
         int n = 0;
         for (Timer t : timers) {
-            if (t == null)
+            if (t == null) {
                 break;
+            }
             double s = t.seconds();
             min = Math.min(min, s);
             max = Math.max(max, s);
             avg += s;
             n++;
         }
-        if (n == 0)
+        if (n == 0) {
             return;
+        }
         avg /= n;
         double stdDev = 0;
         for (Timer t : timers) {
-            if (t == null)
+            if (t == null) {
                 break;
+            }
             double s = t.seconds();
             stdDev += (s - avg) * (s - avg);
         }
@@ -61,7 +66,8 @@ public class BenchmarkFramework {
         UI.printInfo(Module.BENCH, "  * Fastest:    %s", Timer.toString(min));
         UI.printInfo(Module.BENCH, "  * Longest:    %s", Timer.toString(max));
         UI.printInfo(Module.BENCH, "  * Deviation:  %s", Timer.toString(stdDev));
-        for (int i = 0; i < timers.length && timers[i] != null; i++)
+        for (int i = 0; i < timers.length && timers[i] != null; i++) {
             UI.printDetailed(Module.BENCH, "  * Iteration %d: %s", i + 1, timers[i]);
+        }
     }
 }

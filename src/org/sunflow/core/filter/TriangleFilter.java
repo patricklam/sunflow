@@ -3,6 +3,7 @@ package org.sunflow.core.filter;
 import org.sunflow.core.Filter;
 
 public class TriangleFilter implements Filter {
+
     public float getSize() {
         return 2;
     }

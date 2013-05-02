@@ -13,7 +13,8 @@ import org.sunflow.image.formats.BitmapRGB8;
 import org.sunflow.image.formats.BitmapRGBA8;
 
 public class TGABitmapReader implements BitmapReader {
-    private static final int[] CHANNEL_INDEX = { 2, 1, 0, 3 };
+
+    private static final int[] CHANNEL_INDEX = {2, 1, 0, 3};
 
     public Bitmap load(String filename, boolean isLinear) throws IOException, BitmapFormatException {
         InputStream f = new BufferedInputStream(new FileInputStream(filename));
@@ -22,8 +23,9 @@ public class TGABitmapReader implements BitmapReader {
         // read header
         int idsize = f.read();
         int cmaptype = f.read(); // cmap byte (unsupported)
-        if (cmaptype != 0)
+        if (cmaptype != 0) {
             throw new BitmapFormatException(String.format("Colormapping (type: %d) is unsupported", cmaptype));
+        }
         int datatype = f.read();
 
         // colormap info (5 bytes ignored)
@@ -50,24 +52,28 @@ public class TGABitmapReader implements BitmapReader {
         int imgdscr = f.read();
 
         // skip image ID if present
-        if (idsize != 0)
+        if (idsize != 0) {
             f.skip(idsize);
+        }
 
         // allocate byte buffer to hold the image
         byte[] pixels = new byte[width * height * bpp];
         if (datatype == 2 || datatype == 3) {
-            if (bpp != 1 && bpp != 3 && bpp != 4)
+            if (bpp != 1 && bpp != 3 && bpp != 4) {
                 throw new BitmapFormatException(String.format("Invalid bit depth in uncompressed TGA: %d", bits));
+            }
             // uncompressed image
             for (int ptr = 0; ptr < pixels.length; ptr += bpp) {
                 // read bytes
                 f.read(read, 0, bpp);
-                for (int i = 0; i < bpp; i++)
+                for (int i = 0; i < bpp; i++) {
                     pixels[ptr + CHANNEL_INDEX[i]] = read[i];
+                }
             }
         } else if (datatype == 10) {
-            if (bpp != 3 && bpp != 4)
+            if (bpp != 3 && bpp != 4) {
                 throw new BitmapFormatException(String.format("Invalid bit depth in run-length encoded TGA: %d", bits));
+            }
             // RLE encoded image
             for (int ptr = 0; ptr < pixels.length;) {
                 int rle = f.read();
@@ -76,28 +82,32 @@ public class TGABitmapReader implements BitmapReader {
                     // rle packet - decode length and copy pixel
                     f.read(read, 0, bpp);
                     for (int j = 0; j < num; j++) {
-                        for (int i = 0; i < bpp; i++)
+                        for (int i = 0; i < bpp; i++) {
                             pixels[ptr + CHANNEL_INDEX[i]] = read[i];
+                        }
                         ptr += bpp;
                     }
                 } else {
                     // raw packet - decode length and read pixels
                     for (int j = 0; j < num; j++) {
                         f.read(read, 0, bpp);
-                        for (int i = 0; i < bpp; i++)
+                        for (int i = 0; i < bpp; i++) {
                             pixels[ptr + CHANNEL_INDEX[i]] = read[i];
+                        }
                         ptr += bpp;
                     }
                 }
             }
-        } else
+        } else {
             throw new BitmapFormatException(String.format("Unsupported TGA image type: %d", datatype));
+        }
 
         if (!isLinear) {
             // apply reverse correction
             for (int ptr = 0; ptr < pixels.length; ptr += bpp) {
-                for (int i = 0; i < 3 && i < bpp; i++)
+                for (int i = 0; i < 3 && i < bpp; i++) {
                     pixels[ptr + i] = Color.NATIVE_SPACE.rgbToLinear(pixels[ptr + i]);
+                }
             }
         }
 

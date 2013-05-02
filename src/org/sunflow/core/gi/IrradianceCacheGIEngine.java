@@ -18,6 +18,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class IrradianceCacheGIEngine implements GIEngine {
+
     private int samples;
     private float tolerance;
     private float invTolerance;
@@ -44,10 +45,11 @@ public class IrradianceCacheGIEngine implements GIEngine {
         // display settings
         UI.printInfo(Module.LIGHT, "Irradiance cache settings:");
         UI.printInfo(Module.LIGHT, "  * Samples: %d", samples);
-        if (tolerance <= 0)
+        if (tolerance <= 0) {
             UI.printInfo(Module.LIGHT, "  * Tolerance: off");
-        else
+        } else {
             UI.printInfo(Module.LIGHT, "  * Tolerance: %.3f", tolerance);
+        }
         UI.printInfo(Module.LIGHT, "  * Spacing: %.3f to %.3f", minSpacing, maxSpacing);
         // prepare root node
         Vector3 ext = scene.getBounds().getExtents();
@@ -58,17 +60,20 @@ public class IrradianceCacheGIEngine implements GIEngine {
 
     public Color getGlobalRadiance(ShadingState state) {
         if (globalPhotonMap == null) {
-            if (state.getShader() != null)
+            if (state.getShader() != null) {
                 return state.getShader().getRadiance(state);
-            else
+            } else {
                 return Color.BLACK;
-        } else
+            }
+        } else {
             return globalPhotonMap.getRadiance(state.getPoint(), state.getNormal());
+        }
     }
 
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
-        if (samples <= 0)
+        if (samples <= 0) {
             return Color.BLACK;
+        }
         if (state.getDiffuseDepth() > 0) {
             // do simple path tracing for additional bounces (single ray)
             float xi = (float) state.getRandom(0, 0, 1);
@@ -131,8 +136,9 @@ public class IrradianceCacheGIEngine implements GIEngine {
     }
 
     private void insert(Point3 p, Vector3 n, float r0, Color irr) {
-        if (tolerance <= 0)
+        if (tolerance <= 0) {
             return;
+        }
         Node node = root;
         r0 = MathUtils.clamp(r0 * tolerance, minSpacing, maxSpacing) * invTolerance;
         if (root.isInside(p)) {
@@ -157,14 +163,16 @@ public class IrradianceCacheGIEngine implements GIEngine {
     }
 
     private Color getIrradiance(Point3 p, Vector3 n) {
-        if (tolerance <= 0)
+        if (tolerance <= 0) {
             return null;
+        }
         Sample x = new Sample(p, n);
         float w = root.find(x);
         return (x.irr == null) ? null : x.irr.mul(1.0f / w);
     }
 
     private final class Node {
+
         Node[] children;
         Sample first;
         Point3 center;
@@ -174,8 +182,9 @@ public class IrradianceCacheGIEngine implements GIEngine {
 
         Node(Point3 center, float sideLength) {
             children = new Node[8];
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 8; i++) {
                 children[i] = null;
+            }
             this.center = new Point3(center);
             this.sideLength = sideLength;
             halfSideLength = 0.5f * sideLength;
@@ -192,26 +201,31 @@ public class IrradianceCacheGIEngine implements GIEngine {
             for (Sample s = first; s != null; s = s.next) {
                 float c2 = 1.0f - (x.nix * s.nix + x.niy * s.niy + x.niz * s.niz);
                 float d2 = (x.pix - s.pix) * (x.pix - s.pix) + (x.piy - s.piy) * (x.piy - s.piy) + (x.piz - s.piz) * (x.piz - s.piz);
-                if (c2 > tolerance * tolerance || d2 > maxSpacing * maxSpacing)
+                if (c2 > tolerance * tolerance || d2 > maxSpacing * maxSpacing) {
                     continue;
+                }
                 float invWi = (float) (Math.sqrt(d2) * s.invR0 + Math.sqrt(Math.max(c2, 0)));
                 if (invWi < tolerance || d2 < minSpacing * minSpacing) {
                     float wi = Math.min(1e10f, 1.0f / invWi);
-                    if (x.irr != null)
+                    if (x.irr != null) {
                         x.irr.madd(wi, s.irr);
-                    else
+                    } else {
                         x.irr = s.irr.copy().mul(wi);
+                    }
                     weight += wi;
                 }
             }
-            for (int i = 0; i < 8; i++)
-                if ((children[i] != null) && (Math.abs(children[i].center.x - x.pix) <= halfSideLength) && (Math.abs(children[i].center.y - x.piy) <= halfSideLength) && (Math.abs(children[i].center.z - x.piz) <= halfSideLength))
+            for (int i = 0; i < 8; i++) {
+                if ((children[i] != null) && (Math.abs(children[i].center.x - x.pix) <= halfSideLength) && (Math.abs(children[i].center.y - x.piy) <= halfSideLength) && (Math.abs(children[i].center.z - x.piz) <= halfSideLength)) {
                     weight += children[i].find(x);
+                }
+            }
             return weight;
         }
     }
 
     private static final class Sample {
+
         float pix, piy, piz;
         float nix, niy, niz;
         float invR0;

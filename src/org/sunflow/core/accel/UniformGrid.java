@@ -13,6 +13,7 @@ import org.sunflow.system.UI.Module;
 import org.sunflow.util.IntArray;
 
 public final class UniformGrid implements AccelerationStructure {
+
     private int nx, ny, nz;
     private PrimitiveList primitives;
     private BoundingBox bounds;
@@ -28,6 +29,7 @@ public final class UniformGrid implements AccelerationStructure {
         invVoxelwx = invVoxelwy = invVoxelwz = 0;
     }
 
+    @Override
     public void build(PrimitiveList primitives) {
         Timer t = new Timer();
         t.start();
@@ -61,8 +63,9 @@ public final class UniformGrid implements AccelerationStructure {
                 for (int iy = imin[1]; iy <= imax[1]; iy++) {
                     for (int iz = imin[2]; iz <= imax[2]; iz++) {
                         int idx = ix + (nx * iy) + (nx * ny * iz);
-                        if (buildCells[idx] == null)
+                        if (buildCells[idx] == null) {
                             buildCells[idx] = new IntArray();
+                        }
                         buildCells[idx].add(i);
                         numCellsPerObject++;
                     }
@@ -83,8 +86,9 @@ public final class UniformGrid implements AccelerationStructure {
                     cells[i] = cell.trim();
                     numInFull += cell.getSize();
                 }
-            } else
+            } else {
                 numEmpty++;
+            }
             i++;
         }
         t.end();
@@ -99,6 +103,7 @@ public final class UniformGrid implements AccelerationStructure {
         UI.printDetailed(Module.ACCEL, "  * Build time:          %s", t.toString());
     }
 
+    @Override
     public void intersect(Ray r, IntersectionState state) {
         float intervalMin = r.getMin();
         float intervalMax = r.getMax();
@@ -108,52 +113,67 @@ public final class UniformGrid implements AccelerationStructure {
         t1 = (bounds.getMinimum().x - orgX) * invDirX;
         t2 = (bounds.getMaximum().x - orgX) * invDirX;
         if (invDirX > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgY = r.oy;
         float dirY = r.dy, invDirY = 1 / dirY;
         t1 = (bounds.getMinimum().y - orgY) * invDirY;
         t2 = (bounds.getMaximum().y - orgY) * invDirY;
         if (invDirY > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgZ = r.oz;
         float dirZ = r.dz, invDirZ = 1 / dirZ;
         t1 = (bounds.getMinimum().z - orgZ) * invDirZ;
         t2 = (bounds.getMaximum().z - orgZ) * invDirZ;
         if (invDirZ > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         // box is hit at [intervalMin, intervalMax]
         orgX += intervalMin * dirX;
         orgY += intervalMin * dirY;
@@ -167,10 +187,11 @@ public final class UniformGrid implements AccelerationStructure {
         float tnextX, tnextY, tnextZ;
         // stepping factors along X
         indxX = (int) ((orgX - bounds.getMinimum().x) * invVoxelwx);
-        if (indxX < 0)
+        if (indxX < 0) {
             indxX = 0;
-        else if (indxX >= nx)
+        } else if (indxX >= nx) {
             indxX = nx - 1;
+        }
         if (Math.abs(dirX) < 1e-6f) {
             stepX = 0;
             stopX = indxX;
@@ -189,10 +210,11 @@ public final class UniformGrid implements AccelerationStructure {
         }
         // stepping factors along Y
         indxY = (int) ((orgY - bounds.getMinimum().y) * invVoxelwy);
-        if (indxY < 0)
+        if (indxY < 0) {
             indxY = 0;
-        else if (indxY >= ny)
+        } else if (indxY >= ny) {
             indxY = ny - 1;
+        }
         if (Math.abs(dirY) < 1e-6f) {
             stepY = 0;
             stopY = indxY;
@@ -211,10 +233,11 @@ public final class UniformGrid implements AccelerationStructure {
         }
         // stepping factors along Z
         indxZ = (int) ((orgZ - bounds.getMinimum().z) * invVoxelwz);
-        if (indxZ < 0)
+        if (indxZ < 0) {
             indxZ = 0;
-        else if (indxZ >= nz)
+        } else if (indxZ >= nz) {
             indxZ = nz - 1;
+        }
         if (Math.abs(dirZ) < 1e-6f) {
             stepZ = 0;
             stopZ = indxZ;
@@ -239,47 +262,59 @@ public final class UniformGrid implements AccelerationStructure {
         for (;;) {
             if (tnextX < tnextY && tnextX < tnextZ) {
                 if (cells[cell] != null) {
-                    for (int i : cells[cell])
+                    for (int i : cells[cell]) {
                         primitives.intersectPrimitive(r, i, state);
-                    if (state.hit() && (r.getMax() < tnextX && r.getMax() < intervalMax))
+                    }
+                    if (state.hit() && (r.getMax() < tnextX && r.getMax() < intervalMax)) {
                         return;
+                    }
                 }
                 intervalMin = tnextX;
-                if (intervalMin > intervalMax)
+                if (intervalMin > intervalMax) {
                     return;
+                }
                 indxX += stepX;
-                if (indxX == stopX)
+                if (indxX == stopX) {
                     return;
+                }
                 tnextX += deltaX;
                 cell += cellstepX;
             } else if (tnextY < tnextZ) {
                 if (cells[cell] != null) {
-                    for (int i : cells[cell])
+                    for (int i : cells[cell]) {
                         primitives.intersectPrimitive(r, i, state);
-                    if (state.hit() && (r.getMax() < tnextY && r.getMax() < intervalMax))
+                    }
+                    if (state.hit() && (r.getMax() < tnextY && r.getMax() < intervalMax)) {
                         return;
+                    }
                 }
                 intervalMin = tnextY;
-                if (intervalMin > intervalMax)
+                if (intervalMin > intervalMax) {
                     return;
+                }
                 indxY += stepY;
-                if (indxY == stopY)
+                if (indxY == stopY) {
                     return;
+                }
                 tnextY += deltaY;
                 cell += cellstepY;
             } else {
                 if (cells[cell] != null) {
-                    for (int i : cells[cell])
+                    for (int i : cells[cell]) {
                         primitives.intersectPrimitive(r, i, state);
-                    if (state.hit() && (r.getMax() < tnextZ && r.getMax() < intervalMax))
+                    }
+                    if (state.hit() && (r.getMax() < tnextZ && r.getMax() < intervalMax)) {
                         return;
+                    }
                 }
                 intervalMin = tnextZ;
-                if (intervalMin > intervalMax)
+                if (intervalMin > intervalMax) {
                     return;
+                }
                 indxZ += stepZ;
-                if (indxZ == stopZ)
+                if (indxZ == stopZ) {
                     return;
+                }
                 tnextZ += deltaZ;
                 cell += cellstepZ;
             }

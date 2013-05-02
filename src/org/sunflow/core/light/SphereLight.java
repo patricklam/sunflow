@@ -17,6 +17,7 @@ import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
 
 public class SphereLight implements LightSource, Shader {
+
     private Color radiance;
     private int numSamples;
     private Point3 center;
@@ -52,18 +53,20 @@ public class SphereLight implements LightSource, Shader {
     }
 
     public void getSamples(ShadingState state) {
-        if (getNumSamples() <= 0)
+        if (getNumSamples() <= 0) {
             return;
+        }
         Vector3 wc = Point3.sub(center, state.getPoint(), new Vector3());
         float l2 = wc.lengthSquared();
-        if (l2 <= r2)
+        if (l2 <= r2) {
             return; // inside the sphere?
-        // top of the sphere as viewed from the current shading point
+        }        // top of the sphere as viewed from the current shading point
         float topX = wc.x + state.getNormal().x * radius;
         float topY = wc.y + state.getNormal().y * radius;
         float topZ = wc.z + state.getNormal().z * radius;
-        if (state.getNormal().dot(topX, topY, topZ) <= 0)
+        if (state.getNormal().dot(topX, topY, topZ) <= 0) {
             return; // top of the sphere is below the horizon
+        }
         float cosThetaMax = (float) Math.sqrt(Math.max(0, 1 - r2 / Vector3.dot(wc, wc)));
         OrthoNormalBasis basis = OrthoNormalBasis.makeFromW(wc);
         int samples = state.getDiffuseDepth() > 0 ? 1 : getNumSamples();
@@ -84,8 +87,9 @@ public class SphereLight implements LightSource, Shader {
             // check that the direction of the sample is the same as the
             // normal
             float cosNx = Vector3.dot(dir, state.getNormal());
-            if (cosNx <= 0)
+            if (cosNx <= 0) {
                 continue;
+            }
 
             float ocx = state.getPoint().x - center.x;
             float ocy = state.getPoint().y - center.y;
@@ -94,8 +98,9 @@ public class SphereLight implements LightSource, Shader {
             float qb = 2 * ((dir.x * ocx) + (dir.y * ocy) + (dir.z * ocz));
             float qc = ((ocx * ocx) + (ocy * ocy) + (ocz * ocz)) - r2;
             double[] t = Solvers.solveQuadric(qa, qb, qc);
-            if (t == null)
+            if (t == null) {
                 continue;
+            }
             LightSample dest = new LightSample();
             // compute shadow ray to the sampled point
             dest.setShadowRay(new Ray(state.getPoint(), dir));
@@ -136,8 +141,9 @@ public class SphereLight implements LightSource, Shader {
     }
 
     public Color getRadiance(ShadingState state) {
-        if (!state.includeLights())
+        if (!state.includeLights()) {
             return Color.BLACK;
+        }
         state.faceforward();
         // emit constant radiance
         return state.isBehind() ? Color.BLACK : radiance;

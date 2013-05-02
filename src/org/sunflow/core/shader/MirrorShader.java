@@ -9,6 +9,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.Vector3;
 
 public class MirrorShader implements Shader {
+
     private Color color;
 
     public MirrorShader() {
@@ -21,8 +22,9 @@ public class MirrorShader implements Shader {
     }
 
     public Color getRadiance(ShadingState state) {
-        if (!state.includeSpecular())
+        if (!state.includeSpecular()) {
             return Color.BLACK;
+        }
         state.faceforward();
         float cos = state.getCosND();
         float dn = 2 * cos;
@@ -46,8 +48,9 @@ public class MirrorShader implements Shader {
     public void scatterPhoton(ShadingState state, Color power) {
         float avg = color.getAverage();
         double rnd = state.getRandom(0, 0, 1);
-        if (rnd >= avg)
+        if (rnd >= avg) {
             return;
+        }
         state.faceforward();
         float cos = state.getCosND();
         power.mul(color).mul(1.0f / avg);

@@ -1,6 +1,7 @@
 package org.sunflow.image;
 
 public class RegularSpectralCurve extends SpectralCurve {
+
     private final float[] spectrum;
     private final float lambdaMin, lambdaMax;
     private final float delta, invDelta;
@@ -16,8 +17,9 @@ public class RegularSpectralCurve extends SpectralCurve {
     @Override
     public float sample(float lambda) {
         // reject wavelengths outside the valid range
-        if (lambda < lambdaMin || lambda > lambdaMax)
+        if (lambda < lambdaMin || lambda > lambdaMax) {
             return 0;
+        }
         // interpolate the two closest samples linearly
         float x = (lambda - lambdaMin) * invDelta;
         int b0 = (int) x;

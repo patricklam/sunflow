@@ -15,11 +15,11 @@ import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
 
 public class JuliaFractal implements PrimitiveList {
+
     private static float BOUNDING_RADIUS = (float) Math.sqrt(3);
     private static float BOUNDING_RADIUS2 = 3;
     private static float ESCAPE_THRESHOLD = 1e1f;
     private static float DELTA = 1e-4f;
-
     // quaternion constant
     private float cx;
     private float cy;
@@ -49,8 +49,9 @@ public class JuliaFractal implements PrimitiveList {
 
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(BOUNDING_RADIUS);
-        if (o2w != null)
+        if (o2w != null) {
             bounds = o2w.transform(bounds);
+        }
         return bounds;
     }
 
@@ -65,8 +66,9 @@ public class JuliaFractal implements PrimitiveList {
             float qb = 2 * ((r.dx * r.ox) + (r.dy * r.oy) + (r.dz * r.oz));
             double[] t = Solvers.solveQuadric(qa, qb, qc);
             // early rejection
-            if (t == null || t[0] >= r.getMax() || t[1] <= r.getMin())
+            if (t == null || t[0] >= r.getMax() || t[1] <= r.getMin()) {
                 return;
+            }
             qt = (float) t[0];
         }
         float dist = Float.POSITIVE_INFINITY;
@@ -108,8 +110,9 @@ public class JuliaFractal implements PrimitiveList {
                     zw = nw;
                 }
                 dotz = zw * zw + zx * zx + zy * zy + zz * zz;
-                if (dotz > ESCAPE_THRESHOLD)
+                if (dotz > ESCAPE_THRESHOLD) {
                     break;
+                }
 
             }
             float normZ = (float) Math.sqrt(dotz);
@@ -118,14 +121,17 @@ public class JuliaFractal implements PrimitiveList {
             roy += dist * r.dy;
             roz += dist * r.dz;
             qt += dist;
-            if (dist * invRayLength < epsilon)
+            if (dist * invRayLength < epsilon) {
                 break;
-            if (rox * rox + roy * roy + roz * roz > BOUNDING_RADIUS2)
+            }
+            if (rox * rox + roy * roy + roz * roz > BOUNDING_RADIUS2) {
                 return;
+            }
         }
         // now test t value again
-        if (!r.isInside(qt))
+        if (!r.isInside(qt)) {
             return;
+        }
         if (dist * invRayLength < epsilon) {
             // valid hit
             r.setMax(qt);

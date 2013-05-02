@@ -9,6 +9,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.Vector3;
 
 public class GlassShader implements Shader {
+
     private float eta; // refraction index ratio
     private float f0; // fresnel normal incidence
     private Color color;
@@ -33,8 +34,9 @@ public class GlassShader implements Shader {
     }
 
     public Color getRadiance(ShadingState state) {
-        if (!state.includeSpecular())
+        if (!state.includeSpecular()) {
             return Color.BLACK;
+        }
         Vector3 reflDir = new Vector3();
         Vector3 refrDir = new Vector3();
         state.faceforward();
@@ -50,9 +52,9 @@ public class GlassShader implements Shader {
         // refracted ray
         float arg = 1 - (neta * neta * (1 - (cos * cos)));
         boolean tir = arg < 0;
-        if (tir)
+        if (tir) {
             refrDir.x = refrDir.y = refrDir.z = 0;
-        else {
+        } else {
             float nK = (neta * cos) - (float) Math.sqrt(arg);
             refrDir.x = (neta * state.getRay().dx) + (nK * state.getNormal().x);
             refrDir.y = (neta * state.getRay().dy) + (nK * state.getNormal().y);
@@ -73,16 +75,18 @@ public class GlassShader implements Shader {
             // this ray is inside the object and leaving it
             // compute attenuation that occured along the ray
             absorbtion = Color.mul(-state.getRay().getMax() / absorptionDistance, absorptionColor.copy().opposite()).exp();
-            if (absorbtion.isBlack())
+            if (absorbtion.isBlack()) {
                 return Color.BLACK; // nothing goes through
+            }
         }
         // refracted ray
         Color ret = Color.black();
         if (!tir) {
             ret.madd(kt, state.traceRefraction(new Ray(state.getPoint(), refrDir), 0)).mul(color);
         }
-        if (!inside || tir)
+        if (!inside || tir) {
             ret.add(Color.mul(kr, state.traceReflection(new Ray(state.getPoint(), reflDir), 0)).mul(color));
+        }
         return absorbtion != null ? ret.mul(absorbtion) : ret;
     }
 
@@ -95,8 +99,9 @@ public class GlassShader implements Shader {
         if (rnd < avgR) {
             state.faceforward();
             // don't reflect internally
-            if (state.isBehind())
+            if (state.isBehind()) {
                 return;
+            }
             // photon is reflected
             float cos = state.getCosND();
             power.mul(refl).mul(1.0f / avgR);

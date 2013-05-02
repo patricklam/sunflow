@@ -2,6 +2,8 @@ package org.sunflow.core.parser;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.sunflow.SunflowAPIInterface;
 import org.sunflow.core.SceneParser;
@@ -13,6 +15,8 @@ import org.sunflow.util.FloatArray;
 import org.sunflow.util.IntArray;
 
 public class ShaveRibParser implements SceneParser {
+
+    @Override
     public boolean parse(String filename, SunflowAPIInterface api) {
         try {
             Parser p = new Parser(filename);
@@ -35,8 +39,9 @@ public class ShaveRibParser implements SceneParser {
                         if (t == null || t.equals("TransformEnd")) {
                             done = true;
                             break;
-                        } else if (t.equals("Procedural"))
+                        } else if (t.equals("Procedural")) {
                             break;
+                        }
                     }
                 }
                 return true;
@@ -60,10 +65,11 @@ public class ShaveRibParser implements SceneParser {
             boolean done = false;
             p.checkNextToken("Curves");
             do {
-                if (cubic)
+                if (cubic) {
                     p.checkNextToken("cubic");
-                else
+                } else {
                     p.checkNextToken("linear");
+                }
                 int[] nverts = parseIntArray(p);
                 for (int i = 1; i < nverts.length; i++) {
                     if (nverts[0] != nverts[i]) {
@@ -109,23 +115,24 @@ public class ShaveRibParser implements SceneParser {
                     if (t == null || t.equals("TransformEnd")) {
                         done = true;
                         break;
-                    } else if (t.equals("Curves"))
+                    } else if (t.equals("Curves")) {
                         break;
+                    }
                 }
                 index++;
             } while (!done);
             UI.printInfo(Module.USER, "RIB - Finished reading rib file");
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException exp) {
             UI.printError(Module.USER, "RIB - File not found: %s", filename);
-            e.printStackTrace();
+            Logger.getLogger(ShaveRibParser.class.getName()).log(Level.SEVERE, null, exp);
             return false;
-        } catch (ParserException e) {
-            UI.printError(Module.USER, "RIB - Parser exception: %s", e);
-            e.printStackTrace();
+        } catch (ParserException exp) {
+            UI.printError(Module.USER, "RIB - Parser exception: %s", exp);
+            Logger.getLogger(ShaveRibParser.class.getName()).log(Level.SEVERE, null, exp);
             return false;
-        } catch (IOException e) {
-            UI.printError(Module.USER, "RIB - I/O exception: %s", e);
-            e.printStackTrace();
+        } catch (IOException exp) {
+            UI.printError(Module.USER, "RIB - I/O exception: %s", exp);
+            Logger.getLogger(ShaveRibParser.class.getName()).log(Level.SEVERE, null, exp);
             return false;
         }
         return true;
@@ -136,8 +143,9 @@ public class ShaveRibParser implements SceneParser {
         boolean done = false;
         do {
             String s = p.getNextToken();
-            if (s.startsWith("["))
+            if (s.startsWith("[")) {
                 s = s.substring(1);
+            }
             if (s.endsWith("]")) {
                 s = s.substring(0, s.length() - 1);
                 done = true;
@@ -152,8 +160,9 @@ public class ShaveRibParser implements SceneParser {
         boolean done = false;
         do {
             String s = p.getNextToken();
-            if (s.startsWith("["))
+            if (s.startsWith("[")) {
                 s = s.substring(1);
+            }
             if (s.endsWith("]")) {
                 s = s.substring(0, s.length() - 1);
                 done = true;

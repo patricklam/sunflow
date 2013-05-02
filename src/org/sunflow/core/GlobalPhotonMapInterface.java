@@ -12,7 +12,7 @@ public interface GlobalPhotonMapInterface extends PhotonStore {
 
     /**
      * Lookup the global diffuse radiance at the specified surface point.
-     * 
+     *
      * @param p surface position
      * @param n surface normal
      * @return an approximation of global diffuse radiance at this point

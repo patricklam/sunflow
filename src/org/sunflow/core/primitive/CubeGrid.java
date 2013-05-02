@@ -13,6 +13,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public abstract class CubeGrid implements PrimitiveList {
+
     private int nx, ny, nz;
     private float voxelwx, voxelwy, voxelwz;
     private float invVoxelwx, invVoxelwy, invVoxelwz;
@@ -95,19 +96,23 @@ public abstract class CubeGrid implements PrimitiveList {
                 intervalMin = t1;
                 curr = 0;
             }
-            if (t2 < intervalMax)
+            if (t2 < intervalMax) {
                 intervalMax = t2;
-            if (intervalMin > intervalMax)
+            }
+            if (intervalMin > intervalMax) {
                 return;
+            }
         } else {
             if (t2 > intervalMin) {
                 intervalMin = t2;
                 curr = 1;
             }
-            if (t1 < intervalMax)
+            if (t1 < intervalMax) {
                 intervalMax = t1;
-            if (intervalMin > intervalMax)
+            }
+            if (intervalMin > intervalMax) {
                 return;
+            }
         }
         t1 = (-1 - orgY) * invDirY;
         t2 = (+1 - orgY) * invDirY;
@@ -116,19 +121,23 @@ public abstract class CubeGrid implements PrimitiveList {
                 intervalMin = t1;
                 curr = 2;
             }
-            if (t2 < intervalMax)
+            if (t2 < intervalMax) {
                 intervalMax = t2;
-            if (intervalMin > intervalMax)
+            }
+            if (intervalMin > intervalMax) {
                 return;
+            }
         } else {
             if (t2 > intervalMin) {
                 intervalMin = t2;
                 curr = 3;
             }
-            if (t1 < intervalMax)
+            if (t1 < intervalMax) {
                 intervalMax = t1;
-            if (intervalMin > intervalMax)
+            }
+            if (intervalMin > intervalMax) {
                 return;
+            }
         }
         t1 = (-1 - orgZ) * invDirZ;
         t2 = (+1 - orgZ) * invDirZ;
@@ -137,19 +146,23 @@ public abstract class CubeGrid implements PrimitiveList {
                 intervalMin = t1;
                 curr = 4;
             }
-            if (t2 < intervalMax)
+            if (t2 < intervalMax) {
                 intervalMax = t2;
-            if (intervalMin > intervalMax)
+            }
+            if (intervalMin > intervalMax) {
                 return;
+            }
         } else {
             if (t2 > intervalMin) {
                 intervalMin = t2;
                 curr = 5;
             }
-            if (t1 < intervalMax)
+            if (t1 < intervalMax) {
                 intervalMax = t1;
-            if (intervalMin > intervalMax)
+            }
+            if (intervalMin > intervalMax) {
                 return;
+            }
         }
         // box is hit at [intervalMin, intervalMax]
         orgX += intervalMin * dirX;
@@ -164,10 +177,11 @@ public abstract class CubeGrid implements PrimitiveList {
         float tnextX, tnextY, tnextZ;
         // stepping factors along X
         indxX = (int) ((orgX + 1) * invVoxelwx);
-        if (indxX < 0)
+        if (indxX < 0) {
             indxX = 0;
-        else if (indxX >= nx)
+        } else if (indxX >= nx) {
             indxX = nx - 1;
+        }
         if (Math.abs(dirX) < 1e-6f) {
             stepX = 0;
             stopX = indxX;
@@ -186,10 +200,11 @@ public abstract class CubeGrid implements PrimitiveList {
         }
         // stepping factors along Y
         indxY = (int) ((orgY + 1) * invVoxelwy);
-        if (indxY < 0)
+        if (indxY < 0) {
             indxY = 0;
-        else if (indxY >= ny)
+        } else if (indxY >= ny) {
             indxY = ny - 1;
+        }
         if (Math.abs(dirY) < 1e-6f) {
             stepY = 0;
             stopY = indxY;
@@ -208,10 +223,11 @@ public abstract class CubeGrid implements PrimitiveList {
         }
         // stepping factors along Z
         indxZ = (int) ((orgZ + 1) * invVoxelwz);
-        if (indxZ < 0)
+        if (indxZ < 0) {
             indxZ = 0;
-        else if (indxZ >= nz)
+        } else if (indxZ >= nz) {
             indxZ = nz - 1;
+        }
         if (Math.abs(dirZ) < 1e-6f) {
             stepZ = 0;
             stopZ = indxZ;
@@ -236,37 +252,44 @@ public abstract class CubeGrid implements PrimitiveList {
                 // we hit a boundary
                 r.setMax(intervalMin);
                 // if we are inside, the last bit needs to be flipped
-                if (isInside)
+                if (isInside) {
                     curr ^= 1;
+                }
                 state.setIntersection(curr);
                 return;
             }
             if (tnextX < tnextY && tnextX < tnextZ) {
                 curr = dirX > 0 ? 0 : 1;
                 intervalMin = tnextX;
-                if (intervalMin > intervalMax)
+                if (intervalMin > intervalMax) {
                     return;
+                }
                 indxX += stepX;
-                if (indxX == stopX)
+                if (indxX == stopX) {
                     return;
+                }
                 tnextX += deltaX;
             } else if (tnextY < tnextZ) {
                 curr = dirY > 0 ? 2 : 3;
                 intervalMin = tnextY;
-                if (intervalMin > intervalMax)
+                if (intervalMin > intervalMax) {
                     return;
+                }
                 indxY += stepY;
-                if (indxY == stopY)
+                if (indxY == stopY) {
                     return;
+                }
                 tnextY += deltaY;
             } else {
                 curr = dirZ > 0 ? 4 : 5;
                 intervalMin = tnextZ;
-                if (intervalMin > intervalMax)
+                if (intervalMin > intervalMax) {
                     return;
+                }
                 indxZ += stepZ;
-                if (indxZ == stopZ)
+                if (indxZ == stopZ) {
                     return;
+                }
                 tnextZ += deltaZ;
             }
         }
@@ -281,8 +304,9 @@ public abstract class CubeGrid implements PrimitiveList {
     }
 
     public BoundingBox getWorldBounds(Matrix4 o2w) {
-        if (o2w == null)
+        if (o2w == null) {
             return bounds;
+        }
         return o2w.transform(bounds);
     }
 }

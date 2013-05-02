@@ -22,6 +22,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class Hair implements PrimitiveList, Shader {
+
     private int numSegments;
     private float[] points;
     private FloatParameter widths;
@@ -58,8 +59,9 @@ public class Hair implements PrimitiveList, Shader {
             bounds.include(points[i] - w, points[i + 1] - w, points[i + 2] - w);
             bounds.include(points[i] + w, points[i + 1] + w, points[i + 2] + w);
         }
-        if (o2w != null)
+        if (o2w != null) {
             bounds = o2w.transform(bounds);
+        }
         return bounds;
     }
 
@@ -77,8 +79,9 @@ public class Hair implements PrimitiveList, Shader {
     private Vector3 getTangent(int line, int v0, float v) {
         Vector3 vcurr = new Vector3(points[v0 + 3] - points[v0 + 0], points[v0 + 4] - points[v0 + 1], points[v0 + 5] - points[v0 + 2]);
         vcurr.normalize();
-        if (line == 0 || line == numSegments - 1)
+        if (line == 0 || line == numSegments - 1) {
             return vcurr;
+        }
         if (v <= 0.5f) {
             // get previous segment
             Vector3 vprev = new Vector3(points[v0 + 0] - points[v0 - 3], points[v0 + 1] - points[v0 - 2], points[v0 + 2] - points[v0 - 1]);
@@ -132,8 +135,9 @@ public class Hair implements PrimitiveList, Shader {
             float q = (vx * qx + vy * qy + vz * qz) / (vx * vx + vy * vy + vz * vz);
             if (q <= 0) {
                 // don't included rounded tip at root
-                if (line == 0)
+                if (line == 0) {
                     return;
+                }
                 float dx = points[v0 + 0] - px;
                 float dy = points[v0 + 1] - py;
                 float dz = points[v0 + 2] - pz;
@@ -201,9 +205,9 @@ public class Hair implements PrimitiveList, Shader {
         }
         FloatParameter pointsP = pl.getPointArray("points");
         if (pointsP != null) {
-            if (pointsP.interp != InterpolationType.VERTEX)
+            if (pointsP.interp != InterpolationType.VERTEX) {
                 UI.printError(Module.HAIR, "Point interpolation type must be set to \"vertex\" - was \"%s\"", pointsP.interp.name().toLowerCase(Locale.ENGLISH));
-            else {
+            } else {
                 points = pointsP.data;
             }
         }
@@ -215,10 +219,11 @@ public class Hair implements PrimitiveList, Shader {
         pl.setVertexCount(points.length / 3);
         FloatParameter widthsP = pl.getFloatArray("widths");
         if (widthsP != null) {
-            if (widthsP.interp == InterpolationType.NONE || widthsP.interp == InterpolationType.VERTEX)
+            if (widthsP.interp == InterpolationType.NONE || widthsP.interp == InterpolationType.VERTEX) {
                 widths = widthsP;
-            else
+            } else {
                 UI.printWarning(Module.HAIR, "Width interpolation type %s is not supported -- ignoring", widthsP.interp.name().toLowerCase(Locale.ENGLISH));
+            }
         }
         return true;
     }

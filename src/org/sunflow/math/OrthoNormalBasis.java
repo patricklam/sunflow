@@ -1,6 +1,7 @@
 package org.sunflow.math;
 
 public final class OrthoNormalBasis {
+
     private Vector3 u, v, w;
 
     private OrthoNormalBasis() {

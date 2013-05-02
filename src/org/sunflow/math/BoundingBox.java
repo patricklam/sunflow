@@ -5,6 +5,7 @@ package org.sunflow.math;
  * points.
  */
 public class BoundingBox {
+
     private Point3 minimum;
     private Point3 maximum;
 
@@ -20,7 +21,7 @@ public class BoundingBox {
 
     /**
      * Creates a copy of the given box.
-     * 
+     *
      * @param b bounding box to copy
      */
     public BoundingBox(BoundingBox b) {
@@ -30,7 +31,7 @@ public class BoundingBox {
 
     /**
      * Creates a bounding box containing only the specified point.
-     * 
+     *
      * @param p point to include
      */
     public BoundingBox(Point3 p) {
@@ -39,7 +40,7 @@ public class BoundingBox {
 
     /**
      * Creates a bounding box containing only the specified point.
-     * 
+     *
      * @param x x coordinate of the point to include
      * @param y y coordinate of the point to include
      * @param z z coordinate of the point to include
@@ -51,7 +52,7 @@ public class BoundingBox {
 
     /**
      * Creates a bounding box centered around the origin.
-     * 
+     *
      * @param size half edge length of the bounding box
      */
     public BoundingBox(float size) {
@@ -64,7 +65,7 @@ public class BoundingBox {
      * coordinates on each axis. Note that the returned reference is not cloned
      * for efficiency purposes so care must be taken not to change the
      * coordinates of the point.
-     * 
+     *
      * @return a reference to the minimum corner
      */
     public final Point3 getMinimum() {
@@ -76,7 +77,7 @@ public class BoundingBox {
      * coordinates on each axis. Note that the returned reference is not cloned
      * for efficiency purposes so care must be taken not to change the
      * coordinates of the point.
-     * 
+     *
      * @return a reference to the maximum corner
      */
     public final Point3 getMaximum() {
@@ -85,7 +86,7 @@ public class BoundingBox {
 
     /**
      * Gets the center of the box, computed as (min + max) / 2.
-     * 
+     *
      * @return a reference to the center of the box
      */
     public final Point3 getCenter() {
@@ -96,7 +97,7 @@ public class BoundingBox {
      * Gets a corner of the bounding box. The index scheme uses the binary
      * representation of the index to decide which corner to return. Corner 0 is
      * equivalent to the minimum and corner 7 is equivalent to the maximum.
-     * 
+     *
      * @param i a corner index, from 0 to 7
      * @return the corresponding corner
      */
@@ -109,7 +110,7 @@ public class BoundingBox {
 
     /**
      * Gets a specific coordinate of the surface's bounding box.
-     * 
+     *
      * @param i index of a side from 0 to 5
      * @return value of the request bounding box side
      */
@@ -136,7 +137,7 @@ public class BoundingBox {
      * Gets the extents vector for the box. This vector is computed as (max -
      * min). Its coordinates are always positive and represent the dimensions of
      * the box along the three axes.
-     * 
+     *
      * @return a refreence to the extent vector
      * @see org.sunflow.math.Vector3#length()
      */
@@ -146,7 +147,7 @@ public class BoundingBox {
 
     /**
      * Gets the surface area of the box.
-     * 
+     *
      * @return surface area
      */
     public final float getArea() {
@@ -159,7 +160,7 @@ public class BoundingBox {
 
     /**
      * Gets the box's volume
-     * 
+     *
      * @return volume
      */
     public final float getVolume() {
@@ -185,27 +186,30 @@ public class BoundingBox {
     }
 
     /**
-     * Returns <code>true</code> when the box has just been initialized, and
-     * is still empty. This method might also return true if the state of the
-     * box becomes inconsistent and some component of the minimum corner is
-     * larger than the corresponding coordinate of the maximum corner.
-     * 
+     * Returns
+     * <code>true</code> when the box has just been initialized, and is still
+     * empty. This method might also return true if the state of the box becomes
+     * inconsistent and some component of the minimum corner is larger than the
+     * corresponding coordinate of the maximum corner.
+     *
      * @return <code>true</code> if the box is empty, <code>false</code>
-     *         otherwise
+     * otherwise
      */
     public final boolean isEmpty() {
         return (maximum.x < minimum.x) || (maximum.y < minimum.y) || (maximum.z < minimum.z);
     }
 
     /**
-     * Returns <code>true</code> if the specified bounding box intersects this
-     * one. The boxes are treated as volumes, so a box inside another will
-     * return true. Returns <code>false</code> if the parameter is
+     * Returns
+     * <code>true</code> if the specified bounding box intersects this one. The
+     * boxes are treated as volumes, so a box inside another will return true.
+     * Returns
+     * <code>false</code> if the parameter is
      * <code>null</code>.
-     * 
+     *
      * @param b box to be tested for intersection
      * @return <code>true</code> if the boxes overlap, <code>false</code>
-     *         otherwise
+     * otherwise
      */
     public final boolean intersects(BoundingBox b) {
         return ((b != null) && (minimum.x <= b.maximum.x) && (maximum.x >= b.minimum.x) && (minimum.y <= b.maximum.y) && (maximum.y >= b.minimum.y) && (minimum.z <= b.maximum.z) && (maximum.z >= b.minimum.z));
@@ -213,12 +217,13 @@ public class BoundingBox {
 
     /**
      * Checks to see if the specified {@link org.sunflow.math.Point3 point}is
-     * inside the volume defined by this box. Returns <code>false</code> if
-     * the parameter is <code>null</code>.
-     * 
+     * inside the volume defined by this box. Returns
+     * <code>false</code> if the parameter is
+     * <code>null</code>.
+     *
      * @param p point to be tested for containment
      * @return <code>true</code> if the point is inside the box,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     public final boolean contains(Point3 p) {
         return ((p != null) && (p.x >= minimum.x) && (p.x <= maximum.x) && (p.y >= minimum.y) && (p.y <= maximum.y) && (p.z >= minimum.z) && (p.z <= maximum.z));
@@ -227,12 +232,12 @@ public class BoundingBox {
     /**
      * Check to see if the specified point is inside the volume defined by this
      * box.
-     * 
+     *
      * @param x x coordinate of the point to be tested
      * @param y y coordinate of the point to be tested
      * @param z z coordinate of the point to be tested
      * @return <code>true</code> if the point is inside the box,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     public final boolean contains(float x, float y, float z) {
         return ((x >= minimum.x) && (x <= maximum.x) && (y >= minimum.y) && (y <= maximum.y) && (z >= minimum.z) && (z <= maximum.z));
@@ -241,70 +246,90 @@ public class BoundingBox {
     /**
      * Changes the extents of the box as needed to include the given
      * {@link org.sunflow.math.Point3 point}into this box. Does nothing if the
-     * parameter is <code>null</code>.
-     * 
+     * parameter is
+     * <code>null</code>.
+     *
      * @param p point to be included
      */
     public final void include(Point3 p) {
         if (p != null) {
-            if (p.x < minimum.x)
+            if (p.x < minimum.x) {
                 minimum.x = p.x;
-            if (p.x > maximum.x)
+            }
+            if (p.x > maximum.x) {
                 maximum.x = p.x;
-            if (p.y < minimum.y)
+            }
+            if (p.y < minimum.y) {
                 minimum.y = p.y;
-            if (p.y > maximum.y)
+            }
+            if (p.y > maximum.y) {
                 maximum.y = p.y;
-            if (p.z < minimum.z)
+            }
+            if (p.z < minimum.z) {
                 minimum.z = p.z;
-            if (p.z > maximum.z)
+            }
+            if (p.z > maximum.z) {
                 maximum.z = p.z;
+            }
         }
     }
 
     /**
      * Changes the extents of the box as needed to include the given point into
      * this box.
-     * 
+     *
      * @param x x coordinate of the point
      * @param y y coordinate of the point
      * @param z z coordinate of the point
      */
     public final void include(float x, float y, float z) {
-        if (x < minimum.x)
+        if (x < minimum.x) {
             minimum.x = x;
-        if (x > maximum.x)
+        }
+        if (x > maximum.x) {
             maximum.x = x;
-        if (y < minimum.y)
+        }
+        if (y < minimum.y) {
             minimum.y = y;
-        if (y > maximum.y)
+        }
+        if (y > maximum.y) {
             maximum.y = y;
-        if (z < minimum.z)
+        }
+        if (z < minimum.z) {
             minimum.z = z;
-        if (z > maximum.z)
+        }
+        if (z > maximum.z) {
             maximum.z = z;
+        }
     }
 
     /**
      * Changes the extents of the box as needed to include the given box into
-     * this box. Does nothing if the parameter is <code>null</code>.
-     * 
+     * this box. Does nothing if the parameter is
+     * <code>null</code>.
+     *
      * @param b box to be included
      */
     public final void include(BoundingBox b) {
         if (b != null) {
-            if (b.minimum.x < minimum.x)
+            if (b.minimum.x < minimum.x) {
                 minimum.x = b.minimum.x;
-            if (b.maximum.x > maximum.x)
+            }
+            if (b.maximum.x > maximum.x) {
                 maximum.x = b.maximum.x;
-            if (b.minimum.y < minimum.y)
+            }
+            if (b.minimum.y < minimum.y) {
                 minimum.y = b.minimum.y;
-            if (b.maximum.y > maximum.y)
+            }
+            if (b.maximum.y > maximum.y) {
                 maximum.y = b.maximum.y;
-            if (b.minimum.z < minimum.z)
+            }
+            if (b.minimum.z < minimum.z) {
                 minimum.z = b.minimum.z;
-            if (b.maximum.z > maximum.z)
+            }
+            if (b.maximum.z > maximum.z) {
                 maximum.z = b.maximum.z;
+            }
         }
     }
 

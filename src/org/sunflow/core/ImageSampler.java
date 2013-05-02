@@ -6,9 +6,10 @@ package org.sunflow.core;
  * filtering.
  */
 public interface ImageSampler {
+
     /**
      * Prepare the sampler for rendering an image of w x h pixels
-     * 
+     *
      * @param w width of the image
      * @param h height of the image
      */
@@ -18,7 +19,7 @@ public interface ImageSampler {
      * Render the image to the specified display. The sampler can assume the
      * display has been opened and that it will be closed after the method
      * returns.
-     * 
+     *
      * @param display Display driver to send image data to
      */
     public void render(Display display);

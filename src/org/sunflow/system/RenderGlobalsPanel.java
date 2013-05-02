@@ -3,6 +3,8 @@ package org.sunflow.system;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -32,6 +34,7 @@ import javax.swing.border.TitledBorder;
  */
 @SuppressWarnings("serial")
 public class RenderGlobalsPanel extends JTabbedPane {
+
     private JPanel generalPanel;
     private JComboBox maxSamplingComboxBox;
     private JPanel samplingPanel;
@@ -57,7 +60,6 @@ public class RenderGlobalsPanel extends JTabbedPane {
      * This method initializes this
      */
     private void initialize() {
-
     }
 
     /**
@@ -179,8 +181,8 @@ public class RenderGlobalsPanel extends JTabbedPane {
                             jLabel5.setText("Min:");
                         }
                         {
-                            ComboBoxModel minSamplingComboBoxModel = new DefaultComboBoxModel(new String[] {
-                                    "Item One", "Item Two" });
+                            ComboBoxModel minSamplingComboBoxModel = new DefaultComboBoxModel(new String[]{
+                                "Item One", "Item Two"});
                             minSamplingComboBox = new JComboBox();
                             samplingPanel.add(minSamplingComboBox);
                             minSamplingComboBox.setModel(minSamplingComboBoxModel);
@@ -191,8 +193,8 @@ public class RenderGlobalsPanel extends JTabbedPane {
                             jLabel6.setText("Max:");
                         }
                         {
-                            ComboBoxModel maxSamplingComboxBoxModel = new DefaultComboBoxModel(new String[] {
-                                    "Item One", "Item Two" });
+                            ComboBoxModel maxSamplingComboxBoxModel = new DefaultComboBoxModel(new String[]{
+                                "Item One", "Item Two"});
                             maxSamplingComboxBox = new JComboBox();
                             samplingPanel.add(maxSamplingComboxBox);
                             maxSamplingComboxBox.setModel(maxSamplingComboxBoxModel);
@@ -201,7 +203,7 @@ public class RenderGlobalsPanel extends JTabbedPane {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.getLogger(RenderGlobalsPanel.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 }

@@ -7,6 +7,7 @@ package org.sunflow.math;
  */
 public final class Matrix4 {
     // matrix elements, m(row,col)
+
     private float m00;
     private float m01;
     private float m02;
@@ -19,7 +20,6 @@ public final class Matrix4 {
     private float m21;
     private float m22;
     private float m23;
-
     // usefull constant matrices
     public static final Matrix4 ZERO = new Matrix4();
     public static final Matrix4 IDENTITY = Matrix4.scale(1);
@@ -32,7 +32,7 @@ public final class Matrix4 {
 
     /**
      * Creates a matrix with the specified elements
-     * 
+     *
      * @param m00 value at row 0, col 0
      * @param m01 value at row 0, col 1
      * @param m02 value at row 0, col 2
@@ -64,10 +64,10 @@ public final class Matrix4 {
     /**
      * Initialize a matrix from the specified 16 element array. The matrix may
      * be given in row or column major form.
-     * 
+     *
      * @param m a 16 element array in row or column major form
      * @param rowMajor <code>true</code> if the array is in row major form,
-     *            <code>false</code>if it is in column major form
+     * <code>false</code>if it is in column major form
      */
     public Matrix4(float[] m, boolean rowMajor) {
         if (rowMajor) {
@@ -83,8 +83,9 @@ public final class Matrix4 {
             m21 = m[9];
             m22 = m[10];
             m23 = m[11];
-            if (m[12] != 0 || m[13] != 0 || m[14] != 0 || m[15] != 1)
+            if (m[12] != 0 || m[13] != 0 || m[14] != 0 || m[15] != 1) {
                 throw new RuntimeException(String.format("Matrix is not affine! Bottom row is: [%.3f, %.3f, %.3f, %.3f]", m[12], m[13], m[14], m[15]));
+            }
         } else {
             m00 = m[0];
             m01 = m[4];
@@ -98,8 +99,9 @@ public final class Matrix4 {
             m21 = m[6];
             m22 = m[10];
             m23 = m[14];
-            if (m[3] != 0 || m[7] != 0 || m[11] != 0 || m[15] != 1)
+            if (m[3] != 0 || m[7] != 0 || m[11] != 0 || m[15] != 1) {
                 throw new RuntimeException(String.format("Matrix is not affine! Bottom row is: [%.3f, %.3f, %.3f, %.3f]", m[12], m[13], m[14], m[15]));
+            }
         }
     }
 
@@ -108,26 +110,28 @@ public final class Matrix4 {
     }
 
     public final boolean equals(Matrix4 m) {
-        if (m == null)
+        if (m == null) {
             return false;
-        if (this == m)
+        }
+        if (this == m) {
             return true;
+        }
         return m00 == m.m00 && m01 == m.m01 && m02 == m.m02 && m03 == m.m03 && m10 == m.m10 && m11 == m.m11 && m12 == m.m12 && m13 == m.m13 && m20 == m.m20 && m21 == m.m21 && m22 == m.m22 && m23 == m.m23;
     }
 
     public final float[] asRowMajor() {
-        return new float[] { m00, m01, m02, m03, m10, m11, m12, m13, m20, m21,
-                m22, m23, 0, 0, 0, 1 };
+        return new float[]{m00, m01, m02, m03, m10, m11, m12, m13, m20, m21,
+            m22, m23, 0, 0, 0, 1};
     }
 
     public final float[] asColMajor() {
-        return new float[] { m00, m10, m20, 0, m01, m11, m21, 0, m02, m12, m22,
-                0, m03, m13, m23, 1 };
+        return new float[]{m00, m10, m20, 0, m01, m11, m21, 0, m02, m12, m22,
+            0, m03, m13, m23, 1};
     }
 
     /**
      * Compute the matrix determinant.
-     * 
+     *
      * @return determinant of this matrix
      */
     public final float determinant() {
@@ -140,18 +144,20 @@ public final class Matrix4 {
 
     /**
      * Compute the inverse of this matrix and return it as a new object. If the
-     * matrix is not invertible, <code>null</code> is returned.
-     * 
+     * matrix is not invertible,
+     * <code>null</code> is returned.
+     *
      * @return the inverse of this matrix, or <code>null</code> if not
-     *         invertible
+     * invertible
      */
     public final Matrix4 inverse() {
         float A0 = m00 * m11 - m01 * m10;
         float A1 = m00 * m12 - m02 * m10;
         float A3 = m01 * m12 - m02 * m11;
         float det = A0 * m22 - A1 * m21 + A3 * m20;
-        if (Math.abs(det) < 1e-12f)
+        if (Math.abs(det) < 1e-12f) {
             return null; // matrix is not invertible
+        }
         float invDet = 1 / det;
         float A2 = m00 * m13 - m03 * m10;
         float A4 = m01 * m13 - m03 * m11;
@@ -174,7 +180,7 @@ public final class Matrix4 {
 
     /**
      * Computes this*m and return the result as a new Matrix4
-     * 
+     *
      * @param m right hand side of the multiplication
      * @return a new Matrix4 object equal to <code>this*m</code>
      */
@@ -201,27 +207,30 @@ public final class Matrix4 {
     /**
      * Transforms each corner of the specified axis-aligned bounding box and
      * returns a new bounding box which incloses the transformed corners.
-     * 
+     *
      * @param b original bounding box
      * @return a new BoundingBox object which encloses the transform version of
-     *         b
+     * b
      */
     public final BoundingBox transform(BoundingBox b) {
-        if (b.isEmpty())
+        if (b.isEmpty()) {
             return new BoundingBox();
+        }
         // special case extreme corners
         BoundingBox rb = new BoundingBox(transformP(b.getMinimum()));
         rb.include(transformP(b.getMaximum()));
         // do internal corners
-        for (int i = 1; i < 7; i++)
+        for (int i = 1; i < 7; i++) {
             rb.include(transformP(b.getCorner(i)));
+        }
         return rb;
     }
 
     /**
      * Computes this*v and returns the result as a new Vector3 object. This
-     * method assumes the bottom row of the matrix is <code>[0,0,0,1]</code>.
-     * 
+     * method assumes the bottom row of the matrix is
+     * <code>[0,0,0,1]</code>.
+     *
      * @param v vector to multiply
      * @return a new Vector3 object equal to <code>this*v</code>
      */
@@ -235,8 +244,9 @@ public final class Matrix4 {
 
     /**
      * Computes (this^T)*v and returns the result as a new Vector3 object. This
-     * method assumes the bottom row of the matrix is <code>[0,0,0,1]</code>.
-     * 
+     * method assumes the bottom row of the matrix is
+     * <code>[0,0,0,1]</code>.
+     *
      * @param v vector to multiply
      * @return a new Vector3 object equal to <code>(this^T)*v</code>
      */
@@ -250,8 +260,9 @@ public final class Matrix4 {
 
     /**
      * Computes this*p and returns the result as a new Point3 object. This
-     * method assumes the bottom row of the matrix is <code>[0,0,0,1]</code>.
-     * 
+     * method assumes the bottom row of the matrix is
+     * <code>[0,0,0,1]</code>.
+     *
      * @param p point to multiply
      * @return a new Point3 object equal to <code>this*v</code>
      */
@@ -265,7 +276,7 @@ public final class Matrix4 {
 
     /**
      * Computes the x component of this*(x,y,z,0).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -277,7 +288,7 @@ public final class Matrix4 {
 
     /**
      * Computes the y component of this*(x,y,z,0).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -289,7 +300,7 @@ public final class Matrix4 {
 
     /**
      * Computes the z component of this*(x,y,z,0).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -301,7 +312,7 @@ public final class Matrix4 {
 
     /**
      * Computes the x component of (this^T)*(x,y,z,0).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -313,7 +324,7 @@ public final class Matrix4 {
 
     /**
      * Computes the y component of (this^T)*(x,y,z,0).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -325,7 +336,7 @@ public final class Matrix4 {
 
     /**
      * Computes the z component of (this^T)*(x,y,z,0).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -337,7 +348,7 @@ public final class Matrix4 {
 
     /**
      * Computes the x component of this*(x,y,z,1).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -349,7 +360,7 @@ public final class Matrix4 {
 
     /**
      * Computes the y component of this*(x,y,z,1).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -361,7 +372,7 @@ public final class Matrix4 {
 
     /**
      * Computes the z component of this*(x,y,z,1).
-     * 
+     *
      * @param x x coordinate of the vector to multiply
      * @param y y coordinate of the vector to multiply
      * @param z z coordinate of the vector to multiply
@@ -373,7 +384,7 @@ public final class Matrix4 {
 
     /**
      * Create a translation matrix for the specified vector.
-     * 
+     *
      * @param x x component of translation
      * @param y y component of translation
      * @param z z component of translation
@@ -390,7 +401,7 @@ public final class Matrix4 {
 
     /**
      * Creates a rotation matrix about the X axis.
-     * 
+     *
      * @param theta angle to rotate about the X axis in radians
      * @return a new Matrix4 object representing the rotation
      */
@@ -407,7 +418,7 @@ public final class Matrix4 {
 
     /**
      * Creates a rotation matrix about the Y axis.
-     * 
+     *
      * @param theta angle to rotate about the Y axis in radians
      * @return a new Matrix4 object representing the rotation
      */
@@ -424,7 +435,7 @@ public final class Matrix4 {
 
     /**
      * Creates a rotation matrix about the Z axis.
-     * 
+     *
      * @param theta angle to rotate about the Z axis in radians
      * @return a new Matrix4 object representing the rotation
      */
@@ -442,7 +453,7 @@ public final class Matrix4 {
     /**
      * Creates a rotation matrix about the specified axis. The axis vector need
      * not be normalized.
-     * 
+     *
      * @param x x component of the axis vector
      * @param y y component of the axis vector
      * @param z z component of the axis vector
@@ -478,7 +489,7 @@ public final class Matrix4 {
 
     /**
      * Create a uniform scaling matrix.
-     * 
+     *
      * @param s scale factor for all three axes
      * @return a new Matrix4 object representing the uniform scale
      */
@@ -490,7 +501,7 @@ public final class Matrix4 {
 
     /**
      * Creates a non-uniform scaling matrix.
-     * 
+     *
      * @param sx scale factor in the x dimension
      * @param sy scale factor in the y dimension
      * @param sz scale factor in the z dimension
@@ -506,7 +517,7 @@ public final class Matrix4 {
 
     /**
      * Creates a rotation matrix from an OrthonormalBasis.
-     * 
+     *
      * @param basis
      */
     public final static Matrix4 fromBasis(OrthoNormalBasis basis) {
@@ -529,7 +540,7 @@ public final class Matrix4 {
     /**
      * Creates a camera positioning matrix from the given eye and target points
      * and up vector.
-     * 
+     *
      * @param eye location of the eye
      * @param target location of the target
      * @param up vector pointing upwards

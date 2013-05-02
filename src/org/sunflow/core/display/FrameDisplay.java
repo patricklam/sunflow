@@ -13,6 +13,7 @@ import org.sunflow.image.Color;
 import org.sunflow.system.ImagePanel;
 
 public class FrameDisplay implements Display {
+
     private String filename;
     private RenderFrame frame;
 
@@ -25,6 +26,7 @@ public class FrameDisplay implements Display {
         frame = null;
     }
 
+    @Override
     public void imageBegin(int w, int h, int bucketSize) {
         if (frame == null) {
             frame = new RenderFrame();
@@ -34,37 +36,46 @@ public class FrameDisplay implements Display {
             if (w >= (screenRes.getWidth() - 200) || h >= (screenRes.getHeight() - 200)) {
                 frame.imagePanel.setPreferredSize(new Dimension((int) screenRes.getWidth() - 200, (int) screenRes.getHeight() - 200));
                 needFit = true;
-            } else
+            } else {
                 frame.imagePanel.setPreferredSize(new Dimension(w, h));
+            }
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
-            if (needFit)
+            if (needFit) {
                 frame.imagePanel.fit();
-        } else
+            }
+        } else {
             frame.imagePanel.imageBegin(w, h, bucketSize);
+        }
     }
 
+    @Override
     public void imagePrepare(int x, int y, int w, int h, int id) {
         frame.imagePanel.imagePrepare(x, y, w, h, id);
     }
 
+    @Override
     public void imageUpdate(int x, int y, int w, int h, Color[] data, float[] alpha) {
         frame.imagePanel.imageUpdate(x, y, w, h, data, alpha);
     }
 
+    @Override
     public void imageFill(int x, int y, int w, int h, Color c, float alpha) {
         frame.imagePanel.imageFill(x, y, w, h, c, alpha);
     }
 
+    @Override
     public void imageEnd() {
         frame.imagePanel.imageEnd();
-        if (filename != null)
+        if (filename != null) {
             frame.imagePanel.save(filename);
+        }
     }
 
     @SuppressWarnings("serial")
     private static class RenderFrame extends JFrame {
+
         ImagePanel imagePanel;
 
         RenderFrame() {
@@ -73,8 +84,9 @@ public class FrameDisplay implements Display {
             addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                         System.exit(0);
+                    }
                 }
             });
             imagePanel = new ImagePanel();

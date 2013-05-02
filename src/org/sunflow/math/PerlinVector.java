@@ -7,6 +7,7 @@ package org.sunflow.math;
  * (http://sourceforge.net/projects/mrclasses/).
  */
 public class PerlinVector {
+
     private static final float P1x = 0.34f;
     private static final float P1y = 0.66f;
     private static final float P1z = 0.237f;

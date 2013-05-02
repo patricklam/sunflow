@@ -22,6 +22,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class BucketRenderer implements ImageSampler {
+
     private Scene scene;
     private Display display;
     // resolution
@@ -34,7 +35,6 @@ public class BucketRenderer implements ImageSampler {
     private int bucketCounter;
     private int[] bucketCoords;
     private boolean dumpBuckets;
-
     // anti-aliasing
     private int minAADepth;
     private int maxAADepth;
@@ -42,7 +42,6 @@ public class BucketRenderer implements ImageSampler {
     private float contrastThreshold;
     private boolean jitter;
     private boolean displayAA;
-
     // derived quantities
     private double invSuperSampling;
     private int subPixelSize;
@@ -52,7 +51,6 @@ public class BucketRenderer implements ImageSampler {
     private int sigmaLength;
     private float thresh;
     private boolean useJitter;
-
     // filtering
     private String filterName;
     private Filter filter;
@@ -98,10 +96,11 @@ public class BucketRenderer implements ImageSampler {
         // compute AA stepping sizes
         subPixelSize = (maxAADepth > 0) ? (1 << maxAADepth) : 1;
         minStepSize = maxAADepth >= 0 ? 1 : 1 << (-maxAADepth);
-        if (minAADepth == maxAADepth)
+        if (minAADepth == maxAADepth) {
             maxStepSize = minStepSize;
-        else
+        } else {
             maxStepSize = minAADepth > 0 ? 1 << minAADepth : subPixelSize << (-minAADepth);
+        }
         useJitter = jitter && maxAADepth > 0;
         // compute anti-aliasing contrast thresholds
         contrastThreshold = MathUtils.clamp(contrastThreshold, 0, 1);
@@ -125,10 +124,11 @@ public class BucketRenderer implements ImageSampler {
         UI.printInfo(Module.BCKT, "  * Resolution:         %dx%d", imageWidth, imageHeight);
         UI.printInfo(Module.BCKT, "  * Bucket size:        %d", bucketSize);
         UI.printInfo(Module.BCKT, "  * Number of buckets:  %dx%d", numBucketsX, numBucketsY);
-        if (minAADepth != maxAADepth)
+        if (minAADepth != maxAADepth) {
             UI.printInfo(Module.BCKT, "  * Anti-aliasing:      %s -> %s (adaptive)", aaDepthToString(minAADepth), aaDepthToString(maxAADepth));
-        else
+        } else {
             UI.printInfo(Module.BCKT, "  * Anti-aliasing:      %s (fixed)", aaDepthToString(minAADepth));
+        }
         UI.printInfo(Module.BCKT, "  * Rays per sample:    %d", superSampling);
         UI.printInfo(Module.BCKT, "  * Subpixel jitter:    %s", useJitter ? "on" : (jitter ? "auto-off" : "off"));
         UI.printInfo(Module.BCKT, "  * Contrast threshold: %.2f", contrastThreshold);
@@ -173,6 +173,7 @@ public class BucketRenderer implements ImageSampler {
     }
 
     private class BucketThread extends Thread {
+
         private final int threadID;
         private final IntersectionState istate;
 
@@ -186,16 +187,18 @@ public class BucketRenderer implements ImageSampler {
             while (true) {
                 int bx, by;
                 synchronized (BucketRenderer.this) {
-                    if (bucketCounter >= bucketCoords.length)
+                    if (bucketCounter >= bucketCoords.length) {
                         return;
+                    }
                     UI.taskUpdate(bucketCounter);
                     bx = bucketCoords[bucketCounter + 0];
                     by = bucketCoords[bucketCounter + 1];
                     bucketCounter += 2;
                 }
                 renderBucket(display, bx, by, threadID, istate);
-                if (UI.taskCanceled())
+                if (UI.taskCanceled()) {
                     return;
+                }
             }
         }
 
@@ -250,15 +253,19 @@ public class BucketRenderer implements ImageSampler {
                 samples[index] = new ImageSample(rx, ry, i);
             }
         }
-        for (int x = 0; x < sbw - 1; x += maxStepSize)
-            for (int y = 0; y < sbh - 1; y += maxStepSize)
+        for (int x = 0; x < sbw - 1; x += maxStepSize) {
+            for (int y = 0; y < sbh - 1; y += maxStepSize) {
                 refineSamples(samples, sbw, x, y, maxStepSize, thresh, istate);
+            }
+        }
         if (dumpBuckets) {
             UI.printInfo(Module.BCKT, "Dumping bucket [%d, %d] to file ...", bx, by);
             GenericBitmap bitmap = new GenericBitmap(sbw, sbh);
-            for (int y = sbh - 1, index = 0; y >= 0; y--)
-                for (int x = 0; x < sbw; x++, index++)
+            for (int y = sbh - 1, index = 0; y >= 0; y--) {
+                for (int x = 0; x < sbw; x++, index++) {
                     bitmap.writePixel(x, y, samples[index].c, samples[index].alpha);
+                }
+            }
             bitmap.save(String.format("bucket_%04d_%04d.png", bx, by));
         }
         if (displayAA) {
@@ -291,11 +298,13 @@ public class BucketRenderer implements ImageSampler {
                     for (int j = -fs, sy = y * subPixelSize; j <= fs; j++, sy++) {
                         for (int i = -fs, sx = x * subPixelSize, s = sx + sy * sbw; i <= fs; i++, sx++, s++) {
                             float dx = samples[s].rx - cx;
-                            if (Math.abs(dx) > fhs)
+                            if (Math.abs(dx) > fhs) {
                                 continue;
+                            }
                             float dy = samples[s].ry - cy;
-                            if (Math.abs(dy) > fhs)
+                            if (Math.abs(dy) > fhs) {
                                 continue;
+                            }
                             float f = filter.get(dx, dy);
                             c.madd(f, samples[s].c);
                             a += f * samples[s].alpha;
@@ -345,14 +354,18 @@ public class BucketRenderer implements ImageSampler {
         ImageSample s01 = samples[i00 + dy];
         ImageSample s10 = samples[i00 + dx];
         ImageSample s11 = samples[i00 + dx + dy];
-        if (!s00.sampled())
+        if (!s00.sampled()) {
             computeSubPixel(s00, istate);
-        if (!s01.sampled())
+        }
+        if (!s01.sampled()) {
             computeSubPixel(s01, istate);
-        if (!s10.sampled())
+        }
+        if (!s10.sampled()) {
             computeSubPixel(s10, istate);
-        if (!s11.sampled())
+        }
+        if (!s11.sampled()) {
             computeSubPixel(s11, istate);
+        }
         if (stepSize > minStepSize) {
             if (s00.isDifferent(s01, thresh) || s00.isDifferent(s10, thresh) || s00.isDifferent(s11, thresh) || s01.isDifferent(s11, thresh) || s10.isDifferent(s11, thresh) || s01.isDifferent(s10, thresh)) {
                 stepSize >>= 1;
@@ -367,13 +380,17 @@ public class BucketRenderer implements ImageSampler {
 
         // interpolate remaining samples
         float ds = 1.0f / stepSize;
-        for (int i = 0; i <= stepSize; i++)
-            for (int j = 0; j <= stepSize; j++)
-                if (!samples[x + i + (y + j) * sbw].processed())
+        for (int i = 0; i <= stepSize; i++) {
+            for (int j = 0; j <= stepSize; j++) {
+                if (!samples[x + i + (y + j) * sbw].processed()) {
                     ImageSample.bilerp(samples[x + i + (y + j) * sbw], s00, s01, s10, s11, i * ds, j * ds);
+                }
+            }
+        }
     }
 
     private static final class ImageSample {
+
         float rx, ry;
         int i, n;
         Color c;
@@ -395,9 +412,9 @@ public class BucketRenderer implements ImageSampler {
         }
 
         final void set(ShadingState state) {
-            if (state == null)
+            if (state == null) {
                 c = Color.BLACK;
-            else {
+            } else {
                 c = state.getResult();
                 shader = state.getShader();
                 instance = state.getInstance();
@@ -412,8 +429,9 @@ public class BucketRenderer implements ImageSampler {
         }
 
         final void add(ShadingState state) {
-            if (n == 0)
+            if (n == 0) {
                 c = Color.black();
+            }
             if (state != null) {
                 c.add(state.getResult());
                 alpha += state.getInstance() == null ? 0 : 1;
@@ -435,14 +453,18 @@ public class BucketRenderer implements ImageSampler {
         }
 
         final boolean isDifferent(ImageSample sample, float thresh) {
-            if (instance != sample.instance)
+            if (instance != sample.instance) {
                 return true;
-            if (shader != sample.shader)
+            }
+            if (shader != sample.shader) {
                 return true;
-            if (Color.hasContrast(c, sample.c, thresh))
+            }
+            if (Color.hasContrast(c, sample.c, thresh)) {
                 return true;
-            if (Math.abs(alpha - sample.alpha) / (alpha + sample.alpha) > thresh)
+            }
+            if (Math.abs(alpha - sample.alpha) / (alpha + sample.alpha) > thresh) {
                 return true;
+            }
             // only compare normals if this pixel has not been averaged
             float dot = (nx * sample.nx + ny * sample.ny + nz * sample.nz);
             return dot < 0.9f;

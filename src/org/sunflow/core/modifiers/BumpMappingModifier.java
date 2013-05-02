@@ -9,6 +9,7 @@ import org.sunflow.core.TextureCache;
 import org.sunflow.math.OrthoNormalBasis;
 
 public class BumpMappingModifier implements Modifier {
+
     private Texture bumpTexture;
     private float scale;
 
@@ -19,8 +20,9 @@ public class BumpMappingModifier implements Modifier {
 
     public boolean update(ParameterList pl, SunflowAPI api) {
         String filename = pl.getString("texture", null);
-        if (filename != null)
+        if (filename != null) {
             bumpTexture = TextureCache.getTexture(api.resolveTextureFilename(filename), true);
+        }
         scale = pl.getFloat("scale", scale);
         return bumpTexture != null;
     }

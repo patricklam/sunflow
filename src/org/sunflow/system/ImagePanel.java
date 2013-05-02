@@ -8,6 +8,8 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -18,15 +20,17 @@ import org.sunflow.image.Color;
 
 @SuppressWarnings("serial")
 public class ImagePanel extends JPanel implements Display {
-    private static final int[] BORDERS = { Color.RED.toRGB(),
-            Color.GREEN.toRGB(), Color.BLUE.toRGB(), Color.YELLOW.toRGB(),
-            Color.CYAN.toRGB(), Color.MAGENTA.toRGB() };
+
+    private static final int[] BORDERS = {Color.RED.toRGB(),
+        Color.GREEN.toRGB(), Color.BLUE.toRGB(), Color.YELLOW.toRGB(),
+        Color.CYAN.toRGB(), Color.MAGENTA.toRGB()};
     private BufferedImage image;
     private float xo, yo;
     private float w, h;
     private long repaintCounter;
 
     private class ScrollZoomListener extends MouseInputAdapter {
+
         int mx;
         int my;
         boolean dragging;
@@ -44,10 +48,11 @@ public class ImagePanel extends JPanel implements Display {
                 case MouseEvent.BUTTON2: {
                     dragging = zooming = false;
                     // if CTRL is pressed
-                    if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)
+                    if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
                         fit();
-                    else
+                    } else {
                         reset();
+                    }
                     break;
                 }
                 case MouseEvent.BUTTON3:
@@ -64,10 +69,12 @@ public class ImagePanel extends JPanel implements Display {
         public void mouseDragged(MouseEvent e) {
             int mx2 = e.getX();
             int my2 = e.getY();
-            if (dragging)
+            if (dragging) {
                 drag(mx2 - mx, my2 - my);
-            if (zooming)
+            }
+            if (zooming) {
                 zoom(mx2 - mx, my2 - my);
+            }
             mx = mx2;
             my = my2;
         }
@@ -96,11 +103,10 @@ public class ImagePanel extends JPanel implements Display {
     }
 
     public void save(String filename) {
-        // Bitmap.save(image, filename);
         try {
-            ImageIO.write(image, "png", new File(filename));
-        } catch (IOException e) {
-            e.printStackTrace();
+                ImageIO.write(image, "png", new File(filename));
+        } catch (IOException ex) {
+            Logger.getLogger(ImagePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -113,10 +119,12 @@ public class ImagePanel extends JPanel implements Display {
     private synchronized void zoom(int dx, int dy) {
         int a = Math.max(dx, dy);
         int b = Math.min(dx, dy);
-        if (Math.abs(b) > Math.abs(a))
+        if (Math.abs(b) > Math.abs(a)) {
             a = b;
-        if (a == 0)
+        }
+        if (a == 0) {
             return;
+        }
         // window center
         float cx = getWidth() * 0.5f;
         float cy = getHeight() * 0.5f;
@@ -175,6 +183,7 @@ public class ImagePanel extends JPanel implements Display {
         }
     }
 
+    @Override
     public synchronized void imageBegin(int w, int h, int bucketSize) {
         if (image != null && w == image.getWidth() && h == image.getHeight()) {
             // dull image if it has same resolution (75%)
@@ -196,37 +205,47 @@ public class ImagePanel extends JPanel implements Display {
         repaint();
     }
 
+    @Override
     public synchronized void imagePrepare(int x, int y, int w, int h, int id) {
         int border = BORDERS[id % BORDERS.length] | 0xFF000000;
         for (int by = 0; by < h; by++) {
             for (int bx = 0; bx < w; bx++) {
                 if (bx == 0 || bx == w - 1) {
-                    if (5 * by < h || 5 * (h - by - 1) < h)
+                    if (5 * by < h || 5 * (h - by - 1) < h) {
                         image.setRGB(x + bx, y + by, border);
+                    }
                 } else if (by == 0 || by == h - 1) {
-                    if (5 * bx < w || 5 * (w - bx - 1) < w)
+                    if (5 * bx < w || 5 * (w - bx - 1) < w) {
                         image.setRGB(x + bx, y + by, border);
+                    }
                 }
             }
         }
         repaint();
     }
 
+    @Override
     public synchronized void imageUpdate(int x, int y, int w, int h, Color[] data, float[] alpha) {
-        for (int j = 0, index = 0; j < h; j++)
-            for (int i = 0; i < w; i++, index++)
+        for (int j = 0, index = 0; j < h; j++) {
+            for (int i = 0; i < w; i++, index++) {
                 image.setRGB(x + i, y + j, data[index].copy().mul(1.0f / alpha[index]).toNonLinear().toRGBA(alpha[index]));
+            }
+        }
         repaint();
     }
 
+    @Override
     public synchronized void imageFill(int x, int y, int w, int h, Color c, float alpha) {
         int rgba = c.copy().mul(1.0f / alpha).toNonLinear().toRGBA(alpha);
-        for (int j = 0, index = 0; j < h; j++)
-            for (int i = 0; i < w; i++, index++)
+        for (int j = 0, index = 0; j < h; j++) {
+            for (int i = 0; i < w; i++, index++) {
                 image.setRGB(x + i, y + j, rgba);
+            }
+        }
         fastRepaint();
     }
 
+    @Override
     public void imageEnd() {
         repaint();
     }
@@ -242,8 +261,9 @@ public class ImagePanel extends JPanel implements Display {
     @Override
     public synchronized void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (image == null)
+        if (image == null) {
             return;
+        }
         int x = Math.round(xo + (getWidth() - w) * 0.5f);
         int y = Math.round(yo + (getHeight() - h) * 0.5f);
         int iw = Math.round(w);

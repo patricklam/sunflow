@@ -27,6 +27,7 @@ import org.sunflow.math.Vector3;
 
 public class SunSkyLight implements LightSource, PrimitiveList, Shader {
     // sunflow parameters
+
     private int numSkySamples;
     private OrthoNormalBasis basis;
     private boolean groundExtendSky;
@@ -47,35 +48,34 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
     private float[] colHistogram;
     private float[][] imageHistogram;
     // constant data
-    private static final float[] solAmplitudes = { 165.5f, 162.3f, 211.2f,
-            258.8f, 258.2f, 242.3f, 267.6f, 296.6f, 305.4f, 300.6f, 306.6f,
-            288.3f, 287.1f, 278.2f, 271.0f, 272.3f, 263.6f, 255.0f, 250.6f,
-            253.1f, 253.5f, 251.3f, 246.3f, 241.7f, 236.8f, 232.1f, 228.2f,
-            223.4f, 219.7f, 215.3f, 211.0f, 207.3f, 202.4f, 198.7f, 194.3f,
-            190.7f, 186.3f, 182.6f };
+    private static final float[] solAmplitudes = {165.5f, 162.3f, 211.2f,
+        258.8f, 258.2f, 242.3f, 267.6f, 296.6f, 305.4f, 300.6f, 306.6f,
+        288.3f, 287.1f, 278.2f, 271.0f, 272.3f, 263.6f, 255.0f, 250.6f,
+        253.1f, 253.5f, 251.3f, 246.3f, 241.7f, 236.8f, 232.1f, 228.2f,
+        223.4f, 219.7f, 215.3f, 211.0f, 207.3f, 202.4f, 198.7f, 194.3f,
+        190.7f, 186.3f, 182.6f};
     private static final RegularSpectralCurve solCurve = new RegularSpectralCurve(solAmplitudes, 380, 750);
-    private static final float[] k_oWavelengths = { 300, 305, 310, 315, 320,
-            325, 330, 335, 340, 345, 350, 355, 445, 450, 455, 460, 465, 470,
-            475, 480, 485, 490, 495, 500, 505, 510, 515, 520, 525, 530, 535,
-            540, 545, 550, 555, 560, 565, 570, 575, 580, 585, 590, 595, 600,
-            605, 610, 620, 630, 640, 650, 660, 670, 680, 690, 700, 710, 720,
-            730, 740, 750, 760, 770, 780, 790, };
-    private static final float[] k_oAmplitudes = { 10.0f, 4.8f, 2.7f, 1.35f,
-            .8f, .380f, .160f, .075f, .04f, .019f, .007f, .0f, .003f, .003f,
-            .004f, .006f, .008f, .009f, .012f, .014f, .017f, .021f, .025f,
-            .03f, .035f, .04f, .045f, .048f, .057f, .063f, .07f, .075f, .08f,
-            .085f, .095f, .103f, .110f, .12f, .122f, .12f, .118f, .115f, .12f,
-            .125f, .130f, .12f, .105f, .09f, .079f, .067f, .057f, .048f, .036f,
-            .028f, .023f, .018f, .014f, .011f, .010f, .009f, .007f, .004f, .0f,
-            .0f };
-    private static final float[] k_gWavelengths = { 759, 760, 770, 771 };
-    private static final float[] k_gAmplitudes = { 0, 3.0f, 0.210f, 0 };
-    private static final float[] k_waWavelengths = { 689, 690, 700, 710, 720,
-            730, 740, 750, 760, 770, 780, 790, 800 };
-    private static final float[] k_waAmplitudes = { 0f, 0.160e-1f, 0.240e-1f,
-            0.125e-1f, 0.100e+1f, 0.870f, 0.610e-1f, 0.100e-2f, 0.100e-4f,
-            0.100e-4f, 0.600e-3f, 0.175e-1f, 0.360e-1f };
-
+    private static final float[] k_oWavelengths = {300, 305, 310, 315, 320,
+        325, 330, 335, 340, 345, 350, 355, 445, 450, 455, 460, 465, 470,
+        475, 480, 485, 490, 495, 500, 505, 510, 515, 520, 525, 530, 535,
+        540, 545, 550, 555, 560, 565, 570, 575, 580, 585, 590, 595, 600,
+        605, 610, 620, 630, 640, 650, 660, 670, 680, 690, 700, 710, 720,
+        730, 740, 750, 760, 770, 780, 790,};
+    private static final float[] k_oAmplitudes = {10.0f, 4.8f, 2.7f, 1.35f,
+        .8f, .380f, .160f, .075f, .04f, .019f, .007f, .0f, .003f, .003f,
+        .004f, .006f, .008f, .009f, .012f, .014f, .017f, .021f, .025f,
+        .03f, .035f, .04f, .045f, .048f, .057f, .063f, .07f, .075f, .08f,
+        .085f, .095f, .103f, .110f, .12f, .122f, .12f, .118f, .115f, .12f,
+        .125f, .130f, .12f, .105f, .09f, .079f, .067f, .057f, .048f, .036f,
+        .028f, .023f, .018f, .014f, .011f, .010f, .009f, .007f, .004f, .0f,
+        .0f};
+    private static final float[] k_gWavelengths = {759, 760, 770, 771};
+    private static final float[] k_gAmplitudes = {0, 3.0f, 0.210f, 0};
+    private static final float[] k_waWavelengths = {689, 690, 700, 710, 720,
+        730, 740, 750, 760, 770, 780, 790, 800};
+    private static final float[] k_waAmplitudes = {0f, 0.160e-1f, 0.240e-1f,
+        0.125e-1f, 0.100e+1f, 0.870f, 0.610e-1f, 0.100e-2f, 0.100e-4f,
+        0.100e-4f, 0.600e-3f, 0.175e-1f, 0.360e-1f};
     private static final IrregularSpectralCurve k_oCurve = new IrregularSpectralCurve(k_oWavelengths, k_oAmplitudes);
     private static final IrregularSpectralCurve k_gCurve = new IrregularSpectralCurve(k_gWavelengths, k_gAmplitudes);
     private static final IrregularSpectralCurve k_waCurve = new IrregularSpectralCurve(k_waWavelengths, k_waAmplitudes);
@@ -110,7 +110,7 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
             // Attenuation due to water vapor absorption
             double tauWA = Math.exp(-0.2385 * k_waCurve.sample(lambda) * w * m / Math.pow(1.0 + 20.07 * k_waCurve.sample(lambda) * w * m, 0.45));
             // 100.0 comes from solAmplitudes begin in wrong units.
-            double amp = /* 100.0 * */solCurve.sample(lambda) * tauR * tauA * tauO * tauG * tauWA;
+            double amp = /* 100.0 * */ solCurve.sample(lambda) * tauR * tauA * tauO * tauG * tauWA;
             data[i] = (float) amp;
         }
         return new RegularSpectralCurve(data, 350, 800);
@@ -175,27 +175,32 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
                 float v = (y + 0.5f) * dv;
                 Color c = getSkyRGB(getDirection(u, v));
                 imageHistogram[x][y] = c.getLuminance() * (float) Math.sin(Math.PI * v);
-                if (y > 0)
+                if (y > 0) {
                     imageHistogram[x][y] += imageHistogram[x][y - 1];
+                }
             }
             colHistogram[x] = imageHistogram[x][h - 1];
-            if (x > 0)
+            if (x > 0) {
                 colHistogram[x] += colHistogram[x - 1];
-            for (int y = 0; y < h; y++)
+            }
+            for (int y = 0; y < h; y++) {
                 imageHistogram[x][y] /= imageHistogram[x][h - 1];
+            }
         }
-        for (int x = 0; x < w; x++)
+        for (int x = 0; x < w; x++) {
             colHistogram[x] /= colHistogram[w - 1];
+        }
         jacobian = (float) (2 * Math.PI * Math.PI) / (w * h);
     }
 
     public boolean update(ParameterList pl, SunflowAPI api) {
         Vector3 up = pl.getVector("up", null);
         Vector3 east = pl.getVector("east", null);
-        if (up != null && east != null)
+        if (up != null && east != null) {
             basis = OrthoNormalBasis.makeFromWV(up, east);
-        else if (up != null)
+        } else if (up != null) {
             basis = OrthoNormalBasis.makeFromW(up);
+        }
         numSkySamples = pl.getInt("samples", numSkySamples);
         sunDirWorld = pl.getVector("sundir", sunDirWorld);
         turbidity = pl.getFloat("turbidity", turbidity);
@@ -207,10 +212,12 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
     }
 
     private Color getSkyRGB(Vector3 dir) {
-        if (dir.z < 0 && !groundExtendSky)
+        if (dir.z < 0 && !groundExtendSky) {
             return groundColor;
-        if (dir.z < 0.001f)
+        }
+        if (dir.z < 0.001f) {
             dir.z = 0.001f;
+        }
         dir.normalize();
         double theta = Math.acos(MathUtils.clamp(dir.z, -1, 1));
         double gamma = Math.acos(MathUtils.clamp(Vector3.dot(dir, sunDir), -1, 1));
@@ -253,12 +260,14 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
             double randY = state.getRandom(i, 1, n);
 
             int x = 0;
-            while (randX >= colHistogram[x] && x < colHistogram.length - 1)
+            while (randX >= colHistogram[x] && x < colHistogram.length - 1) {
                 x++;
+            }
             float[] rowHistogram = imageHistogram[x];
             int y = 0;
-            while (randY >= rowHistogram[y] && y < rowHistogram.length - 1)
+            while (randY >= rowHistogram[y] && y < rowHistogram.length - 1) {
                 y++;
+            }
             // sample from (x, y)
             float u = (float) ((x == 0) ? (randX / colHistogram[0]) : ((randX - colHistogram[x - 1]) / (colHistogram[x] - colHistogram[x - 1])));
             float v = (float) ((y == 0) ? (randY / rowHistogram[0]) : ((randY - rowHistogram[y - 1]) / (rowHistogram[y] - rowHistogram[y - 1])));
@@ -302,13 +311,15 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
     }
 
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
-        if (r.getMax() == Float.POSITIVE_INFINITY)
+        if (r.getMax() == Float.POSITIVE_INFINITY) {
             state.setIntersection(0);
+        }
     }
 
     public void prepareShadingState(ShadingState state) {
-        if (state.includeLights())
+        if (state.includeLights()) {
             state.setShader(this);
+        }
     }
 
     public Color getRadiance(ShadingState state) {

@@ -16,6 +16,7 @@ import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
 
 public class Torus implements PrimitiveList {
+
     private float ri2, ro2;
     private float ri, ro;
 
@@ -38,8 +39,9 @@ public class Torus implements PrimitiveList {
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(-ro - ri, -ro - ri, -ri);
         bounds.include(ro + ri, ro + ri, ri);
-        if (o2w != null)
+        if (o2w != null) {
             bounds = o2w.transform(bounds);
+        }
         return bounds;
     }
 
@@ -77,8 +79,9 @@ public class Torus implements PrimitiveList {
 
         double phi = Math.asin(MathUtils.clamp(p.z / ri, -1, 1));
         double theta = Math.atan2(p.y, p.x);
-        if (theta < 0)
+        if (theta < 0) {
             theta += 2 * Math.PI;
+        }
         state.getUV().x = (float) (theta / (2 * Math.PI));
         state.getUV().y = (float) ((phi + Math.PI / 2) / Math.PI);
         state.setShader(parent.getShader(0));
@@ -115,8 +118,9 @@ public class Torus implements PrimitiveList {
         double[] t = Solvers.solveQuartic(A, B, C, D, E);
         if (t != null) {
             // early rejection
-            if (t[0] >= r.getMax() || t[t.length - 1] <= r.getMin())
+            if (t[0] >= r.getMax() || t[t.length - 1] <= r.getMin()) {
                 return;
+            }
             // find first intersection in front of the ray
             for (int i = 0; i < t.length; i++) {
                 if (t[i] > r.getMin()) {

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Parser {
+
     private FileReader file;
     private BufferedReader bf;
     private String[] lineTokens;
@@ -20,37 +21,43 @@ public class Parser {
     }
 
     public void close() throws IOException {
-        if (file != null)
+        if (file != null) {
             file.close();
+        }
         bf = null;
     }
 
     public String getNextToken() throws IOException {
         while (true) {
             String tok = fetchNextToken();
-            if (tok == null)
+            if (tok == null) {
                 return null;
+            }
             if (tok.equals("/*")) {
                 do {
                     tok = fetchNextToken();
-                    if (tok == null)
+                    if (tok == null) {
                         return null;
+                    }
                 } while (!tok.equals("*/"));
-            } else
+            } else {
                 return tok;
+            }
         }
     }
 
     public boolean peekNextToken(String tok) throws IOException {
         while (true) {
             String t = fetchNextToken();
-            if (t == null)
+            if (t == null) {
                 return false; // nothing left
+            }
             if (t.equals("/*")) {
                 do {
                     t = fetchNextToken();
-                    if (t == null)
+                    if (t == null) {
                         return false; // nothing left
+                    }
                 } while (!t.equals("*/"));
             } else if (t.equals(tok)) {
                 // we found the right token, keep parsing
@@ -64,44 +71,49 @@ public class Parser {
     }
 
     private String fetchNextToken() throws IOException {
-        if (bf == null)
+        if (bf == null) {
             return null;
+        }
         while (true) {
-            if (index < lineTokens.length)
+            if (index < lineTokens.length) {
                 return lineTokens[index++];
-            else if (!getNextLine())
+            } else if (!getNextLine()) {
                 return null;
+            }
         }
     }
 
     private boolean getNextLine() throws IOException {
         String line = bf.readLine();
 
-        if (line == null)
+        if (line == null) {
             return false;
+        }
 
         ArrayList<String> tokenList = new ArrayList<String>();
-        String current = new String();
+        StringBuilder current = new StringBuilder(80);
         boolean inQuotes = false;
 
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
-            if (current.length() == 0 && (c == '%' || c == '#'))
+            if (current.length() == 0 && (c == '%' || c == '#')) {
                 break;
+            }
 
             boolean quote = c == '\"';
             inQuotes = inQuotes ^ quote;
 
-            if (!quote && (inQuotes || !Character.isWhitespace(c)))
-                current += c;
-            else if (current.length() > 0) {
-                tokenList.add(current);
-                current = new String();
+            if (!quote && (inQuotes || !Character.isWhitespace(c))) {
+                current.append(c);
+            } else if (current.length() > 0) {
+                tokenList.add(current.toString());
+                current = new StringBuilder(80);
             }
         }
 
-        if (current.length() > 0)
-            tokenList.add(current);
+        if (current.length() > 0) {
+            tokenList.add(current.toString());
+        }
         lineTokens = tokenList.toArray(new String[0]);
         index = 0;
         return true;
@@ -109,20 +121,14 @@ public class Parser {
 
     public String getNextCodeBlock() throws ParserException, IOException {
         // read a java code block
-        String code = new String();
+        StringBuilder code = new StringBuilder(80);
         checkNextToken("<code>");
         while (true) {
-            String line;
-            try {
-                line = bf.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
+            String line = bf.readLine();
+            if (line.trim().equals("</code>")) {
+                return code.toString();
             }
-            if (line.trim().equals("</code>"))
-                return code;
-            code += line;
-            code += "\n";
+            code.append(line).append("\n");
         }
     }
 
@@ -148,6 +154,7 @@ public class Parser {
 
     @SuppressWarnings("serial")
     public static class ParserException extends Exception {
+
         private ParserException(String token, String found) {
             super(String.format("Expecting %s found %s", token, found));
         }

@@ -11,6 +11,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class FileDisplay implements Display {
+
     private BitmapWriter writer;
     private String filename;
 
@@ -24,9 +25,11 @@ public class FileDisplay implements Display {
         writer = PluginRegistry.bitmapWriterPlugins.createObject(extension);
     }
 
+    @Override
     public void imageBegin(int w, int h, int bucketSize) {
-        if (writer == null)
+        if (writer == null) {
             return;
+        }
         try {
             writer.openFile(filename);
             writer.writeHeader(w, h, bucketSize);
@@ -35,13 +38,16 @@ public class FileDisplay implements Display {
         }
     }
 
+    @Override
     public void imagePrepare(int x, int y, int w, int h, int id) {
         // does nothing for files
     }
 
+    @Override
     public void imageUpdate(int x, int y, int w, int h, Color[] data, float[] alpha) {
-        if (writer == null)
+        if (writer == null) {
             return;
+        }
         try {
             writer.writeTile(x, y, w, h, data, alpha);
         } catch (IOException e) {
@@ -49,9 +55,11 @@ public class FileDisplay implements Display {
         }
     }
 
+    @Override
     public void imageFill(int x, int y, int w, int h, Color c, float alpha) {
-        if (writer == null)
+        if (writer == null) {
             return;
+        }
         Color[] colorTile = new Color[w * h];
         float[] alphaTile = new float[w * h];
         for (int i = 0; i < colorTile.length; i++) {
@@ -61,9 +69,11 @@ public class FileDisplay implements Display {
         imageUpdate(x, y, w, h, colorTile, alphaTile);
     }
 
+    @Override
     public void imageEnd() {
-        if (writer == null)
+        if (writer == null) {
             return;
+        }
         try {
             writer.closeFile();
         } catch (IOException e) {

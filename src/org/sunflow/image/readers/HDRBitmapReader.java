@@ -10,6 +10,7 @@ import org.sunflow.image.BitmapReader;
 import org.sunflow.image.formats.BitmapRGBE;
 
 public class HDRBitmapReader implements BitmapReader {
+
     public Bitmap load(String filename, boolean isLinear) throws IOException, BitmapFormatException {
         // load radiance rgbe file
         InputStream f = new BufferedInputStream(new FileInputStream(filename));
@@ -42,10 +43,11 @@ public class HDRBitmapReader implements BitmapReader {
                 case '7':
                 case '8':
                 case '9':
-                    if (parseHeight)
+                    if (parseHeight) {
                         height = 10 * height + (n - '0');
-                    else if (parseWidth)
+                    } else if (parseWidth) {
                         width = 10 * width + (n - '0');
+                    }
                     break;
                 default:
                     parseWidth = parseHeight = false;
@@ -74,14 +76,16 @@ public class HDRBitmapReader implements BitmapReader {
                     break;
                 }
 
-                if (((b << 8) | e) != width)
+                if (((b << 8) | e) != width) {
                     throw new BitmapFormatException("Invalid scanline width");
+                }
                 int p = 0;
                 // read each of the four channels for the scanline into
                 // the buffer
                 for (int i = 0; i < 4; i++) {
-                    if (p % width != 0)
+                    if (p % width != 0) {
                         throw new BitmapFormatException("Unaligned access to scanline data");
+                    }
                     int end = (i + 1) * width;
                     while (p < end) {
                         int b0 = f.read();
@@ -89,8 +93,9 @@ public class HDRBitmapReader implements BitmapReader {
                         if (b0 > 128) {
                             // a run of the same value
                             int count = b0 - 128;
-                            if ((count == 0) || (count > (end - p)))
+                            if ((count == 0) || (count > (end - p))) {
                                 throw new BitmapFormatException("Bad scanline data - invalid RLE run");
+                            }
 
                             while (count-- > 0) {
                                 scanlineBuffer[p] = b1;
@@ -99,13 +104,15 @@ public class HDRBitmapReader implements BitmapReader {
                         } else {
                             // a non-run
                             int count = b0;
-                            if ((count == 0) || (count > (end - p)))
+                            if ((count == 0) || (count > (end - p))) {
                                 throw new BitmapFormatException("Bad scanline data - invalid count");
+                            }
                             scanlineBuffer[p] = b1;
                             p++;
                             if (--count > 0) {
-                                for (int x = 0; x < count; x++)
+                                for (int x = 0; x < count; x++) {
                                     scanlineBuffer[p + x] = f.read();
+                                }
                                 p += count;
                             }
                         }

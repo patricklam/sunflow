@@ -7,6 +7,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 
 public class SimpleShader implements Shader {
+
     public boolean update(ParameterList pl, SunflowAPI api) {
         return true;
     }

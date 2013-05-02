@@ -8,6 +8,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.Vector3;
 
 public class IDShader implements Shader {
+
     public boolean update(ParameterList pl, SunflowAPI api) {
         return true;
     }

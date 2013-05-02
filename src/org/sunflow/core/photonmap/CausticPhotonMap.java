@@ -16,6 +16,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public final class CausticPhotonMap implements CausticPhotonMapInterface {
+
     private ArrayList<Photon> photonList;
     private Photon[] photons;
     private int storedPhotons;
@@ -56,8 +57,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                 float dist1d = photons[i].getDist1(np.px, np.py, np.pz);
                 dist1d2[level] = dist1d * dist1d;
                 i += i;
-                if (dist1d > 0.0f)
+                if (dist1d > 0.0f) {
                     i++;
+                }
                 chosen[level++] = i;
             }
             np.checkAddNearest(photons[i]);
@@ -65,8 +67,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                 cameFrom = i;
                 i >>= 1;
                 level--;
-                if (i == 0)
+                if (i == 0) {
                     return;
+                }
             } while ((dist1d2[level] >= np.dist2[0]) || (cameFrom != chosen[level]));
             np.checkAddNearest(photons[i]);
             i = chosen[level++] ^ 1;
@@ -74,8 +77,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
     }
 
     private void balance() {
-        if (storedPhotons == 0)
+        if (storedPhotons == 0) {
             return;
+        }
         photons = photonList.toArray(new Photon[photonList.size()]);
         photonList = null;
         Photon[] temp = new Photon[storedPhotons + 1];
@@ -87,19 +91,22 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
 
     private void balanceSegment(Photon[] temp, int index, int start, int end) {
         int median = 1;
-        while ((4 * median) <= (end - start + 1))
+        while ((4 * median) <= (end - start + 1)) {
             median += median;
+        }
         if ((3 * median) <= (end - start + 1)) {
             median += median;
             median += (start - 1);
-        } else
+        } else {
             median = end - median + 1;
+        }
         int axis = Photon.SPLIT_Z;
         Vector3 extents = bounds.getExtents();
-        if ((extents.x > extents.y) && (extents.x > extents.z))
+        if ((extents.x > extents.y) && (extents.x > extents.z)) {
             axis = Photon.SPLIT_X;
-        else if (extents.y > extents.z)
+        } else if (extents.y > extents.z) {
             axis = Photon.SPLIT_Y;
+        }
         int left = start;
         int right = end;
         while (right > left) {
@@ -111,15 +118,18 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                 }
                 while ((photons[--j].getCoord(axis) > v) && (j > left)) {
                 }
-                if (i >= j)
+                if (i >= j) {
                     break;
+                }
                 swap(i, j);
             }
             swap(i, right);
-            if (i >= median)
+            if (i >= median) {
                 right = i - 1;
-            if (i <= median)
+            }
+            if (i <= median) {
                 left = i + 1;
+            }
         }
         temp[index] = photons[median];
         temp[index].setSplitAxis(axis);
@@ -145,8 +155,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                         balanceSegment(temp, 2 * index, start, median - 1);
                         bounds.getMaximum().z = tmp;
                 }
-            } else
+            } else {
                 temp[2 * index] = photons[start];
+            }
         }
         if (median < end) {
             if ((median + 1) < end) {
@@ -170,8 +181,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                         balanceSegment(temp, (2 * index) + 1, median + 1, end);
                         bounds.getMinimum().z = tmp;
                 }
-            } else
+            } else {
                 temp[(2 * index) + 1] = photons[end];
+            }
         }
     }
 
@@ -207,17 +219,20 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         UI.printInfo(Module.LIGHT, "  * Estimate radius:  %.3f", gatherRadius);
         UI.printInfo(Module.LIGHT, "  * Maximum radius:   %.3f", maxRadius);
         UI.printInfo(Module.LIGHT, "  * Balancing time:   %s", t.toString());
-        if (gatherRadius > maxRadius)
+        if (gatherRadius > maxRadius) {
             gatherRadius = maxRadius;
+        }
     }
 
     public void getSamples(ShadingState state) {
-        if (storedPhotons == 0)
+        if (storedPhotons == 0) {
             return;
+        }
         NearestPhotons np = new NearestPhotons(state.getPoint(), gatherNum, gatherRadius * gatherRadius);
         locatePhotons(np);
-        if (np.found < 8)
+        if (np.found < 8) {
             return;
+        }
         Point3 ppos = new Point3();
         Vector3 pdir = new Vector3();
         Vector3 pvec = new Vector3();
@@ -245,6 +260,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
     }
 
     private static class NearestPhotons {
+
         int found;
         float px, py, pz;
         private int max;
@@ -293,10 +309,12 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                             dst2 = dist2[k];
                             while (parent <= halfFound) {
                                 j = parent + parent;
-                                if ((j < found) && (dist2[j] < dist2[j + 1]))
+                                if ((j < found) && (dist2[j] < dist2[j + 1])) {
                                     j++;
-                                if (dst2 >= dist2[j])
+                                }
+                                if (dst2 >= dist2[j]) {
                                     break;
+                                }
                                 dist2[parent] = dist2[j];
                                 index[parent] = index[j];
                                 parent = j;
@@ -309,10 +327,12 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                     parent = 1;
                     j = 2;
                     while (j <= found) {
-                        if ((j < found) && (dist2[j] < dist2[j + 1]))
+                        if ((j < found) && (dist2[j] < dist2[j + 1])) {
                             j++;
-                        if (fdist2 > dist2[j])
+                        }
+                        if (fdist2 > dist2[j]) {
                             break;
+                        }
                         dist2[parent] = dist2[j];
                         index[parent] = index[j];
                         parent = j;
@@ -327,13 +347,13 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
     }
 
     private static class Photon {
+
         float x;
         float y;
         float z;
         short dir;
         int power;
         int flags;
-
         static final int SPLIT_X = 0;
         static final int SPLIT_Y = 1;
         static final int SPLIT_Z = 2;

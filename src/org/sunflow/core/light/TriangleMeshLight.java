@@ -16,6 +16,7 @@ import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
 
 public class TriangleMeshLight extends TriangleMesh implements Shader, LightSource {
+
     private Color radiance;
     private int numSamples;
     private float[] areas;
@@ -48,8 +49,9 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                 ngs[i].normalize();
                 totalArea += areas[i];
             }
-        } else
+        } else {
             return false;
+        }
         return true;
     }
 
@@ -73,29 +75,34 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         float edge2z = points[a + 2] - r.oz;
         float va = nx * edge2x + ny * edge2y + nz * edge2z;
         float t = iv * va;
-        if (t <= 0)
+        if (t <= 0) {
             return false;
+        }
         float ix = edge2y * r.dz - edge2z * r.dy;
         float iy = edge2z * r.dx - edge2x * r.dz;
         float iz = edge2x * r.dy - edge2y * r.dx;
         float v1 = ix * edge1x + iy * edge1y + iz * edge1z;
         float beta = iv * v1;
-        if (beta < 0)
+        if (beta < 0) {
             return false;
+        }
         float v2 = ix * edge0x + iy * edge0y + iz * edge0z;
-        if ((v1 + v2) * v > v * v)
+        if ((v1 + v2) * v > v * v) {
             return false;
+        }
         float gamma = iv * v2;
-        if (gamma < 0)
+        if (gamma < 0) {
             return false;
+        }
         // FIXME: arbitrary bias, should handle as in other places
         r.setMax(t - 1e-3f);
         return true;
     }
 
     public Color getRadiance(ShadingState state) {
-        if (!state.includeLights())
+        if (!state.includeLights()) {
             return Color.BLACK;
+        }
         state.faceforward();
         // emit constant radiance
         return state.isBehind() ? Color.BLACK : radiance;
@@ -151,21 +158,24 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
     }
 
     public void getSamples(ShadingState state) {
-        if (numSamples == 0)
+        if (numSamples == 0) {
             return;
+        }
         Vector3 n = state.getNormal();
         Point3 p = state.getPoint();
         for (int tri3 = 0, i = 0; tri3 < triangles.length; tri3 += 3, i++) {
             // vector towards each vertex of the light source
             Vector3 p0 = Point3.sub(getPoint(triangles[tri3 + 0]), p, new Vector3());
             // cull triangle if it is facing the wrong way
-            if (Vector3.dot(p0, ngs[i]) >= 0)
+            if (Vector3.dot(p0, ngs[i]) >= 0) {
                 continue;
+            }
             Vector3 p1 = Point3.sub(getPoint(triangles[tri3 + 1]), p, new Vector3());
             Vector3 p2 = Point3.sub(getPoint(triangles[tri3 + 2]), p, new Vector3());
             // if all three vertices are below the hemisphere, stop
-            if (Vector3.dot(p0, n) <= 0 && Vector3.dot(p1, n) <= 0 && Vector3.dot(p2, n) <= 0)
+            if (Vector3.dot(p0, n) <= 0 && Vector3.dot(p1, n) <= 0 && Vector3.dot(p2, n) <= 0) {
                 continue;
+            }
             p0.normalize();
             p1.normalize();
             p2.normalize();
@@ -175,28 +185,32 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
             h.y = p2.y - dot * p0.y;
             h.z = p2.z - dot * p0.z;
             float hlen = h.length();
-            if (hlen > 1e-6f)
+            if (hlen > 1e-6f) {
                 h.div(hlen);
-            else
+            } else {
                 continue;
+            }
             Vector3 n0 = Vector3.cross(p0, p1, new Vector3());
             float len0 = n0.length();
-            if (len0 > 1e-6f)
+            if (len0 > 1e-6f) {
                 n0.div(len0);
-            else
+            } else {
                 continue;
+            }
             Vector3 n1 = Vector3.cross(p1, p2, new Vector3());
             float len1 = n1.length();
-            if (len1 > 1e-6f)
+            if (len1 > 1e-6f) {
                 n1.div(len1);
-            else
+            } else {
                 continue;
+            }
             Vector3 n2 = Vector3.cross(p2, p0, new Vector3());
             float len2 = n2.length();
-            if (len2 > 1e-6f)
+            if (len2 > 1e-6f) {
                 n2.div(len2);
-            else
+            } else {
                 continue;
+            }
 
             float cosAlpha = MathUtils.clamp(-Vector3.dot(n2, n0), -1.0f, 1.0f);
             float cosBeta = MathUtils.clamp(-Vector3.dot(n0, n1), -1.0f, 1.0f);
@@ -229,8 +243,9 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
 
                 float q = (-v + cosAlpha * (cosPhi * -v + sinPhi * u)) / (salpha * (sinPhi * -v - cosPhi * u));
                 float q1 = 1.0f - q * q;
-                if (q1 < 0.0f)
+                if (q1 < 0.0f) {
                     q1 = 0.0f;
+                }
 
                 float sqrtq1 = (float) Math.sqrt(q1);
                 float ncx = q * p0.x + sqrtq1 * h.x;
@@ -239,8 +254,9 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                 dot = p1.dot(ncx, ncy, ncz);
                 float z = 1.0f - (float) randY * (1.0f - dot);
                 float z1 = 1.0f - z * z;
-                if (z1 < 0.0f)
+                if (z1 < 0.0f) {
                     z1 = 0.0f;
+                }
                 Vector3 nd = new Vector3();
                 nd.x = ncx - dot * p1.x;
                 nd.y = ncy - dot * p1.y;
@@ -257,8 +273,9 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                 if (Vector3.dot(result, n) > 0 && Vector3.dot(result, state.getGeoNormal()) > 0 && Vector3.dot(result, ngs[i]) < 0) {
                     // compute intersection with triangle (if any)
                     Ray shadowRay = new Ray(state.getPoint(), result);
-                    if (!intersectTriangleKensler(tri3, shadowRay))
+                    if (!intersectTriangleKensler(tri3, shadowRay)) {
                         continue;
+                    }
                     LightSample dest = new LightSample();
                     dest.setShadowRay(shadowRay);
                     // prepare sample

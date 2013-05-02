@@ -12,6 +12,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class PathTracingGIEngine implements GIEngine {
+
     private int samples;
 
     public boolean init(Options options, Scene scene) {
@@ -23,8 +24,9 @@ public class PathTracingGIEngine implements GIEngine {
     }
 
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
-        if (samples <= 0)
+        if (samples <= 0) {
             return Color.BLACK;
+        }
         // compute new sample
         Color irr = Color.black();
         OrthoNormalBasis onb = state.getBasis();
@@ -45,8 +47,9 @@ public class PathTracingGIEngine implements GIEngine {
             ShadingState temp = state.traceFinalGather(new Ray(state.getPoint(), w), i);
             if (temp != null) {
                 temp.getInstance().prepareShadingState(temp);
-                if (temp.getShader() != null)
+                if (temp.getShader() != null) {
                     irr.add(temp.getShader().getRadiance(temp));
+                }
             }
         }
         irr.mul((float) Math.PI / n);

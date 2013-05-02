@@ -1,6 +1,7 @@
 package org.sunflow.math;
 
 public final class Point2 {
+
     public float x, y;
 
     public Point2() {

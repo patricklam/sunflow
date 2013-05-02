@@ -16,6 +16,7 @@ import org.sunflow.system.Timer;
 
 @SuppressWarnings("serial")
 public class FastDisplay extends JPanel implements Display {
+
     private JFrame frame;
     private BufferedImage image;
     private int[] pixels;
@@ -31,6 +32,7 @@ public class FastDisplay extends JPanel implements Display {
         seconds = 0;
     }
 
+    @Override
     public synchronized void imageBegin(int w, int h, int bucketSize) {
         if (frame != null && image != null && w == image.getWidth() && h == image.getHeight()) {
             // nothing to do
@@ -46,8 +48,9 @@ public class FastDisplay extends JPanel implements Display {
                 frame.addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent e) {
-                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                             System.exit(0);
+                        }
                     }
                 });
                 frame.setContentPane(this);
@@ -60,28 +63,36 @@ public class FastDisplay extends JPanel implements Display {
         t.start();
     }
 
+    @Override
     public void imagePrepare(int x, int y, int w, int h, int id) {
     }
 
+    @Override
     public void imageUpdate(int x, int y, int w, int h, Color[] data, float[] alpha) {
         int iw = image.getWidth();
         int off = x + iw * y;
         iw -= w;
-        for (int j = 0, index = 0; j < h; j++, off += iw)
-            for (int i = 0; i < w; i++, index++, off++)
+        for (int j = 0, index = 0; j < h; j++, off += iw) {
+            for (int i = 0; i < w; i++, index++, off++) {
                 pixels[off] = 0xFF000000 | data[index].toRGB();
+            }
+        }
     }
 
+    @Override
     public void imageFill(int x, int y, int w, int h, Color c, float alpha) {
         int iw = image.getWidth();
         int off = x + iw * y;
         iw -= w;
         int rgb = 0xFF000000 | c.toRGB();
-        for (int j = 0, index = 0; j < h; j++, off += iw)
-            for (int i = 0; i < w; i++, index++, off++)
+        for (int j = 0, index = 0; j < h; j++, off += iw) {
+            for (int i = 0; i < w; i++, index++, off++) {
                 pixels[off] = rgb;
+            }
+        }
     }
 
+    @Override
     public synchronized void imageEnd() {
         // copy buffer
         image.setRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
@@ -100,8 +111,9 @@ public class FastDisplay extends JPanel implements Display {
 
     @Override
     public synchronized void paint(Graphics g) {
-        if (image == null)
+        if (image == null) {
             return;
+        }
         g.drawImage(image, 0, 0, null);
     }
 }

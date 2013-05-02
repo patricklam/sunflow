@@ -6,14 +6,16 @@ import java.util.Iterator;
  * Fast hash map implementation which uses array storage along with quadratic
  * probing to resolve collisions. The capacity is doubled when the load goes
  * beyond 50% and is halved when the load drops below 20%.
- * 
+ *
  * @param <K>
  * @param <V>
  */
 public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
+
     private static final int MIN_SIZE = 4;
 
     public static class Entry<K, V> {
+
         private final K k;
         private V v;
 
@@ -38,7 +40,6 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
             return v;
         }
     }
-
     private Entry<K, V>[] entries;
     private int size;
 
@@ -46,7 +47,7 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
         clear();
     }
 
-    public void clear() {
+    public final void clear() {
         size = 0;
         entries = alloc(MIN_SIZE);
     }
@@ -56,11 +57,11 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
         int pos = entries.length; // mark invalid position
         for (;;) {
             hash &= entries.length - 1;
-            if (entries[hash] == null)
+            if (entries[hash] == null) {
                 break; // done probing
-            else if (entries[hash].isRemoved() && pos == entries.length)
+            } else if (entries[hash].isRemoved() && pos == entries.length) {
                 pos = hash; // store, but keep searching
-            else if (entries[hash].k.equals(k)) {
+            } else if (entries[hash].k.equals(k)) {
                 // update entry
                 V old = entries[hash].v;
                 entries[hash].v = v;
@@ -70,12 +71,14 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
             hash += t;
         }
         // did we find a spot for insertion among the deleted values ?
-        if (pos < entries.length)
+        if (pos < entries.length) {
             hash = pos;
+        }
         entries[hash] = new Entry<K, V>(k, v);
         size++;
-        if (size * 2 > entries.length)
+        if (size * 2 > entries.length) {
             resize(entries.length * 2);
+        }
         return null;
     }
 
@@ -83,10 +86,11 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
         int hash = k.hashCode(), t = 0;
         for (;;) {
             hash &= entries.length - 1;
-            if (entries[hash] == null)
+            if (entries[hash] == null) {
                 return null;
-            else if (!entries[hash].isRemoved() && entries[hash].k.equals(k))
+            } else if (!entries[hash].isRemoved() && entries[hash].k.equals(k)) {
                 return entries[hash].v;
+            }
             t++;
             hash += t;
         }
@@ -96,10 +100,11 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
         int hash = k.hashCode(), t = 0;
         for (;;) {
             hash &= entries.length - 1;
-            if (entries[hash] == null)
+            if (entries[hash] == null) {
                 return false;
-            else if (!entries[hash].isRemoved() && entries[hash].k.equals(k))
+            } else if (!entries[hash].isRemoved() && entries[hash].k.equals(k)) {
                 return true;
+            }
             t++;
             hash += t;
         }
@@ -109,9 +114,9 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
         int hash = k.hashCode(), t = 0;
         for (;;) {
             hash &= entries.length - 1;
-            if (entries[hash] == null)
+            if (entries[hash] == null) {
                 return; // not found, return
-            else if (!entries[hash].isRemoved() && entries[hash].k.equals(k)) {
+            } else if (!entries[hash].isRemoved() && entries[hash].k.equals(k)) {
                 entries[hash].remove(); // flag as removed
                 size--;
                 break;
@@ -120,14 +125,15 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
             hash += t;
         }
         // do we need to shrink?
-        if (entries.length > MIN_SIZE && size * 10 < 2 * entries.length)
+        if (entries.length > MIN_SIZE && size * 10 < 2 * entries.length) {
             resize(entries.length / 2);
+        }
     }
 
     /**
      * Resize internal storage to the specified capacity. The capacity must be a
      * power of two.
-     * 
+     *
      * @param capacity new capacity for the internal array
      */
     private void resize(int capacity) {
@@ -135,13 +141,15 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
         assert capacity >= MIN_SIZE;
         Entry<K, V>[] newentries = alloc(capacity);
         for (Entry<K, V> e : entries) {
-            if (e == null || e.isRemoved())
+            if (e == null || e.isRemoved()) {
                 continue;
+            }
             int hash = e.k.hashCode(), t = 0;
             for (;;) {
                 hash &= newentries.length - 1;
-                if (newentries[hash] == null)
+                if (newentries[hash] == null) {
                     break;
+                }
                 assert !newentries[hash].k.equals(e.k);
                 t++;
                 hash += t;
@@ -155,7 +163,7 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
     /**
      * Wrap the entry array allocation because it requires silencing some
      * generics warnings.
-     * 
+     *
      * @param size number of elements to allocate
      * @return
      */
@@ -165,12 +173,14 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
     }
 
     private class EntryIterator implements Iterator<Entry<K, V>> {
+
         private int index;
 
         private EntryIterator() {
             index = 0;
-            if (!readable())
+            if (!readable()) {
                 inc();
+            }
         }
 
         private boolean readable() {
@@ -183,10 +193,12 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
             } while (hasNext() && !readable());
         }
 
+        @Override
         public boolean hasNext() {
             return index < entries.length;
         }
 
+        @Override
         public Entry<K, V> next() {
             try {
                 return entries[index];
@@ -195,11 +207,13 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
             }
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
     }
 
+    @Override
     public Iterator<Entry<K, V>> iterator() {
         return new EntryIterator();
     }

@@ -9,6 +9,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.sunflow.SunflowAPIInterface;
 import org.sunflow.core.SceneParser;
@@ -16,6 +18,8 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class RA3Parser implements SceneParser {
+
+    @Override
     public boolean parse(String filename, SunflowAPIInterface api) {
         try {
             UI.printInfo(Module.USER, "RA3 - Reading geometry: \"%s\" ...", filename);
@@ -29,12 +33,14 @@ public class RA3Parser implements SceneParser {
             int numTris = ints.get(1);
             UI.printInfo(Module.USER, "RA3 -   * Reading %d vertices ...", numVerts);
             float[] verts = new float[3 * numVerts];
-            for (int i = 0; i < verts.length; i++)
+            for (int i = 0; i < verts.length; i++) {
                 verts[i] = buffer.get(2 + i);
+            }
             UI.printInfo(Module.USER, "RA3 -   * Reading %d triangles ...", numTris);
             int[] tris = new int[3 * numTris];
-            for (int i = 0; i < tris.length; i++)
+            for (int i = 0; i < tris.length; i++) {
                 tris[i] = ints.get(2 + verts.length + i);
+            }
             stream.close();
             UI.printInfo(Module.USER, "RA3 -   * Creating mesh ...");
 
@@ -50,10 +56,10 @@ public class RA3Parser implements SceneParser {
             api.parameter("shaders", "ra3shader");
             api.instance(filename + ".instance", filename);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Logger.getLogger(RA3Parser.class.getName()).log(Level.SEVERE, null, e);
             return false;
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(RA3Parser.class.getName()).log(Level.SEVERE, null, e);
             return false;
         }
         return true;

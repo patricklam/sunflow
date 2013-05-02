@@ -11,6 +11,7 @@ import org.sunflow.core.parser.SCAbstractParser.Keyword;
 import org.sunflow.math.Matrix4;
 
 class AsciiFileSunflowAPI extends FileSunflowAPI {
+
     private OutputStream stream;
 
     AsciiFileSunflowAPI(String filename) throws IOException {
@@ -19,10 +20,11 @@ class AsciiFileSunflowAPI extends FileSunflowAPI {
 
     @Override
     protected void writeBoolean(boolean value) {
-        if (value)
+        if (value) {
             writeString("true");
-        else
+        } else {
             writeString("false");
+        }
     }
 
     @Override
@@ -48,16 +50,18 @@ class AsciiFileSunflowAPI extends FileSunflowAPI {
     @Override
     protected void writeMatrix(Matrix4 value) {
         writeString("row");
-        for (float f : value.asRowMajor())
+        for (float f : value.asRowMajor()) {
             writeFloat(f);
+        }
     }
 
     @Override
     protected void writeNewline(int indentNext) {
         try {
             stream.write('\n');
-            for (int i = 0; i < indentNext; i++)
+            for (int i = 0; i < indentNext; i++) {
                 stream.write('\t');
+            }
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -67,10 +71,11 @@ class AsciiFileSunflowAPI extends FileSunflowAPI {
     protected void writeString(String string) {
         try {
             // check if we need to write string with quotes
-            if (string.contains(" ") && !string.contains("<code>"))
+            if (string.contains(" ") && !string.contains("<code>")) {
                 stream.write(String.format("\"%s\"", string).getBytes());
-            else
+            } else {
                 stream.write(string.getBytes());
+            }
             stream.write(' ');
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());

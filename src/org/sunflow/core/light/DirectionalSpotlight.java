@@ -13,6 +13,7 @@ import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
 
 public class DirectionalSpotlight implements LightSource {
+
     private Point3 src;
     private Vector3 dir;
     private OrthoNormalBasis basis;

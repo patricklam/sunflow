@@ -3,6 +3,7 @@ package org.sunflow.image;
 import org.sunflow.math.MathUtils;
 
 public final class RGBSpace {
+
     public static final RGBSpace ADOBE = new RGBSpace(0.6400f, 0.3300f, 0.2100f, 0.7100f, 0.1500f, 0.0600f, 0.31271f, 0.32902f, 2.2f, 0);
     public static final RGBSpace APPLE = new RGBSpace(0.6250f, 0.3400f, 0.2800f, 0.5950f, 0.1550f, 0.0700f, 0.31271f, 0.32902f, 1.8f, 0);
     public static final RGBSpace NTSC = new RGBSpace(0.6700f, 0.3300f, 0.2100f, 0.7100f, 0.1400f, 0.0800f, 0.31010f, 0.31620f, 20.0f / 9.0f, 0.018f);
@@ -13,7 +14,6 @@ public final class RGBSpace {
     public static final RGBSpace SMPTE_C = new RGBSpace(0.6300f, 0.3400f, 0.3100f, 0.5950f, 0.1550f, 0.0700f, 0.31271f, 0.32902f, 20.0f / 9.0f, 0.018f);
     public static final RGBSpace SMPTE_240M = new RGBSpace(0.6300f, 0.3400f, 0.3100f, 0.5950f, 0.1550f, 0.0700f, 0.31271f, 0.32902f, 20.0f / 9.0f, 0.018f);
     public static final RGBSpace WIDE_GAMUT = new RGBSpace(0.7347f, 0.2653f, 0.1152f, 0.8264f, 0.1566f, 0.0177f, 0.3457f, 0.3585f, 2.2f, 0);
-
     private final float gamma, breakPoint;
     private final float slope, slopeMatch, segmentOffset;
     private final float xr, yr, zr, xg, yg, zg, xb, yb, zb;
@@ -126,25 +126,31 @@ public final class RGBSpace {
     }
 
     public final float gammaCorrect(float v) {
-        if (v <= 0)
-            return 0;
-        else if (v >= 1)
-            return 1;
-        else if (v <= breakPoint)
-            return slope * v;
-        else
-            return slopeMatch * (float) Math.pow(v, 1 / gamma) - segmentOffset;
+        float gammac = 0;
+        if (v >= 0) {
+            if (v >= 1) {
+                gammac = 1f;
+            } else if (v <= breakPoint) {
+                gammac = slope * v;
+            } else {
+                gammac = slopeMatch * (float) Math.pow(v, 1 / gamma) - segmentOffset;
+            }
+        }
+        return gammac;
     }
 
     public final float ungammaCorrect(float vp) {
-        if (vp <= 0)
-            return 0;
-        else if (vp >= 1)
-            return 1;
-        else if (vp <= breakPoint * slope)
-            return vp / slope;
-        else
-            return (float) Math.pow((vp + segmentOffset) / slopeMatch, gamma);
+        float gammac = 0;
+        if (vp > 0) {
+            if (vp >= 1) {
+                gammac = 1f;
+            } else if (vp <= breakPoint * slope) {
+                gammac = vp / slope;
+            } else {
+                gammac = (float) Math.pow((vp + segmentOffset) / slopeMatch, gamma);
+            }
+        }
+        return gammac;
     }
 
     public final int rgbToNonLinear(int rgb) {
@@ -174,21 +180,23 @@ public final class RGBSpace {
 
     @Override
     public final String toString() {
-        String info = "Gamma function parameters:\n";
-        info += String.format("  * Gamma:          %7.4f\n", gamma);
-        info += String.format("  * Breakpoint:     %7.4f\n", breakPoint);
-        info += String.format("  * Slope:          %7.4f\n", slope);
-        info += String.format("  * Slope Match:    %7.4f\n", slopeMatch);
-        info += String.format("  * Segment Offset: %7.4f\n", segmentOffset);
-        info += "XYZ -> RGB Matrix:\n";
-        info += String.format("| %7.4f %7.4f %7.4f|\n", rx, ry, rz);
-        info += String.format("| %7.4f %7.4f %7.4f|\n", gx, gy, gz);
-        info += String.format("| %7.4f %7.4f %7.4f|\n", bx, by, bz);
-        info += "RGB -> XYZ Matrix:\n";
-        info += String.format("| %7.4f %7.4f %7.4f|\n", xr, xg, xb);
-        info += String.format("| %7.4f %7.4f %7.4f|\n", yr, yg, yb);
-        info += String.format("| %7.4f %7.4f %7.4f|\n", zr, zg, zb);
-        return info;
+        String MATRIX_FORMAT = "| %7.4f %7.4f %7.4f|\n";
+        StringBuilder info = new StringBuilder(200);
+        info.append("Gamma function parameters:\n");
+        info.append(String.format("  * Gamma:          %7.4f\n", gamma));
+        info.append(String.format("  * Breakpoint:     %7.4f\n", breakPoint));
+        info.append(String.format("  * Slope:          %7.4f\n", slope));
+        info.append(String.format("  * Slope Match:    %7.4f\n", slopeMatch));
+        info.append(String.format("  * Segment Offset: %7.4f\n", segmentOffset));
+        info.append("XYZ -> RGB Matrix:\n");
+        info.append(String.format(MATRIX_FORMAT, rx, ry, rz));
+        info.append(String.format(MATRIX_FORMAT, gx, gy, gz));
+        info.append(String.format(MATRIX_FORMAT, bx, by, bz));
+        info.append("RGB -> XYZ Matrix:\n");
+        info.append(String.format(MATRIX_FORMAT, xr, xg, xb));
+        info.append(String.format(MATRIX_FORMAT, yr, yg, yb));
+        info.append(String.format(MATRIX_FORMAT, zr, zg, zb));
+        return info.toString();
     }
 
     public static void main(String[] args) {

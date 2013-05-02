@@ -1,6 +1,7 @@
 package org.sunflow.image;
 
 public final class XYZColor {
+
     private float X, Y, Z;
 
     public XYZColor() {
@@ -33,8 +34,9 @@ public final class XYZColor {
 
     public final void normalize() {
         float XYZ = X + Y + Z;
-        if (XYZ < 1e-6f)
+        if (XYZ < 1e-6f) {
             return;
+        }
         float s = 1 / XYZ;
         X *= s;
         Y *= s;

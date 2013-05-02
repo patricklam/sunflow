@@ -10,10 +10,11 @@ import org.sunflow.math.Vector3;
 /**
  * This is a quick way to get a bit of ambient lighting into your scene with
  * hardly any overhead. It's based on the formula found here:
- * 
+ *
  * @link http://www.cs.utah.edu/~shirley/papers/rtrt/node7.html#SECTION00031100000000000000
  */
 public class FakeGIEngine implements GIEngine {
+
     private Vector3 up;
     private Color sky;
     private Color ground;
@@ -22,10 +23,11 @@ public class FakeGIEngine implements GIEngine {
         float cosTheta = Vector3.dot(up, state.getNormal());
         float sin2 = (1 - cosTheta * cosTheta);
         float sine = sin2 > 0 ? (float) Math.sqrt(sin2) * 0.5f : 0;
-        if (cosTheta > 0)
+        if (cosTheta > 0) {
             return Color.blend(sky, ground, sine);
-        else
+        } else {
             return Color.blend(ground, sky, sine);
+        }
     }
 
     public Color getGlobalRadiance(ShadingState state) {

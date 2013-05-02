@@ -14,6 +14,7 @@ import org.sunflow.image.XYZColor;
  * http://www2.indigorenderer.com/joomla/forum/viewtopic.php?p=11430
  */
 public class IGIBitmapWriter implements BitmapWriter {
+
     private String filename;
     private int width, height;
     private float[] xyz;
@@ -55,8 +56,9 @@ public class IGIBitmapWriter implements BitmapWriter {
         write32(stream, width * height * 12); // data size
         write32(stream, 0); // colorspace
         stream.write(new byte[5000]);
-        for (float f : xyz)
+        for (float f : xyz) {
             write32(stream, f);
+        }
         stream.close();
     }
 

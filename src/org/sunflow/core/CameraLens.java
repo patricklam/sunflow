@@ -5,6 +5,7 @@ package org.sunflow.core;
  * responsible for determining what ray to cast through each pixel.
  */
 public interface CameraLens extends RenderObject {
+
     /**
      * Create a new {@link Ray ray}to be cast through pixel (x,y) on the image
      * plane. Two sampling parameters are provided for lens sampling. They are
@@ -14,7 +15,7 @@ public interface CameraLens extends RenderObject {
      * Note that the {@link Camera} class already handles camera movement motion
      * blur. Rays should be generated in camera space - that is, with the eye at
      * the origin, looking down the -Z axis, with +Y pointing up.
-     * 
+     *
      * @param x x coordinate of the (sub)pixel
      * @param y y coordinate of the (sub)pixel
      * @param imageWidth image width in pixels

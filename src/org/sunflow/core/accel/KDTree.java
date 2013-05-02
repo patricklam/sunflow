@@ -2,6 +2,8 @@ package org.sunflow.core.accel;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.sunflow.core.AccelerationStructure;
 import org.sunflow.core.IntersectionState;
@@ -17,18 +19,16 @@ import org.sunflow.system.UI.Module;
 import org.sunflow.util.IntArray;
 
 public class KDTree implements AccelerationStructure {
+
     private int[] tree;
     private int[] primitives;
     private PrimitiveList primitiveList;
     private BoundingBox bounds;
-
     private int maxPrims;
-
     private static final float INTERSECT_COST = 0.5f;
     private static final float TRAVERSAL_COST = 1;
     private static final float EMPTY_BONUS = 0.2f;
     private static final int MAX_DEPTH = 64;
-
     private static boolean dump = false;
     private static String dumpPrefix = "kdtree";
 
@@ -41,6 +41,7 @@ public class KDTree implements AccelerationStructure {
     }
 
     private static class BuildStats {
+
         private int numNodes;
         private int numLeaves;
         private int sumObjects;
@@ -131,6 +132,7 @@ public class KDTree implements AccelerationStructure {
         KDTree.dumpPrefix = prefix;
     }
 
+    @Override
     public void build(PrimitiveList primitives) {
         UI.printDetailed(Module.ACCEL, "KDTree settings");
         UI.printDetailed(Module.ACCEL, "  * Max Leaf Size:  %d", maxPrims);
@@ -204,14 +206,15 @@ public class KDTree implements AccelerationStructure {
                 for (int n = 0; n <= maxN; n++) {
                     float blend = (float) n / (float) maxN;
                     Color nc;
-                    if (blend < 0.25)
+                    if (blend < 0.25) {
                         nc = Color.blend(Color.BLUE, Color.GREEN, blend / 0.25f);
-                    else if (blend < 0.5)
+                    } else if (blend < 0.5) {
                         nc = Color.blend(Color.GREEN, Color.YELLOW, (blend - 0.25f) / 0.25f);
-                    else if (blend < 0.75)
+                    } else if (blend < 0.75) {
                         nc = Color.blend(Color.YELLOW, Color.RED, (blend - 0.50f) / 0.25f);
-                    else
+                    } else {
                         nc = Color.MAGENTA;
+                    }
                     mtlFile.write(String.format("newmtl mtl%d\n", n));
                     float[] rgb = nc.getRGB();
                     mtlFile.write("Ka 0.1 0.1 0.1\n");
@@ -224,15 +227,18 @@ public class KDTree implements AccelerationStructure {
                 objFile.close();
                 mtlFile.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.getLogger(KDTree.class.getName()).log(Level.SEVERE, null, e);
             }
         }
     }
 
     private int dumpObj(int offset, int vertOffset, int maxN, BoundingBox bounds, FileWriter file, FileWriter mtlFile) throws IOException {
-        if (offset == 0)
+        if (offset == 0) {
             file.write(String.format("mtllib %s.mtl\n", dumpPrefix));
+        }
         int nextOffset = tree[offset];
+        String FACE_FORMAT = "f %d %d %d %d\n";
+        String VERTEX_FORMAT = "v %g %g %g\n";
         if ((nextOffset & (3 << 30)) == (3 << 30)) {
             // leaf
             int n = tree[offset + 1];
@@ -241,23 +247,23 @@ public class KDTree implements AccelerationStructure {
                 Point3 min = bounds.getMinimum();
                 Point3 max = bounds.getMaximum();
                 file.write(String.format("o node%d\n", offset));
-                file.write(String.format("v %g %g %g\n", max.x, max.y, min.z));
-                file.write(String.format("v %g %g %g\n", max.x, min.y, min.z));
-                file.write(String.format("v %g %g %g\n", min.x, min.y, min.z));
-                file.write(String.format("v %g %g %g\n", min.x, max.y, min.z));
-                file.write(String.format("v %g %g %g\n", max.x, max.y, max.z));
-                file.write(String.format("v %g %g %g\n", max.x, min.y, max.z));
-                file.write(String.format("v %g %g %g\n", min.x, min.y, max.z));
-                file.write(String.format("v %g %g %g\n", min.x, max.y, max.z));
+                file.write(String.format(VERTEX_FORMAT, max.x, max.y, min.z));
+                file.write(String.format(VERTEX_FORMAT, max.x, min.y, min.z));
+                file.write(String.format(VERTEX_FORMAT, min.x, min.y, min.z));
+                file.write(String.format(VERTEX_FORMAT, min.x, max.y, min.z));
+                file.write(String.format(VERTEX_FORMAT, max.x, max.y, max.z));
+                file.write(String.format(VERTEX_FORMAT, max.x, min.y, max.z));
+                file.write(String.format(VERTEX_FORMAT, min.x, min.y, max.z));
+                file.write(String.format(VERTEX_FORMAT, min.x, max.y, max.z));
                 int v0 = vertOffset;
                 file.write(String.format("usemtl mtl%d\n", n));
                 file.write("s off\n");
-                file.write(String.format("f %d %d %d %d\n", v0 + 1, v0 + 2, v0 + 3, v0 + 4));
-                file.write(String.format("f %d %d %d %d\n", v0 + 5, v0 + 8, v0 + 7, v0 + 6));
-                file.write(String.format("f %d %d %d %d\n", v0 + 1, v0 + 5, v0 + 6, v0 + 2));
-                file.write(String.format("f %d %d %d %d\n", v0 + 2, v0 + 6, v0 + 7, v0 + 3));
-                file.write(String.format("f %d %d %d %d\n", v0 + 3, v0 + 7, v0 + 8, v0 + 4));
-                file.write(String.format("f %d %d %d %d\n", v0 + 5, v0 + 1, v0 + 4, v0 + 8));
+                file.write(String.format(FACE_FORMAT, v0 + 1, v0 + 2, v0 + 3, v0 + 4));
+                file.write(String.format(FACE_FORMAT, v0 + 5, v0 + 8, v0 + 7, v0 + 6));
+                file.write(String.format(FACE_FORMAT, v0 + 1, v0 + 5, v0 + 6, v0 + 2));
+                file.write(String.format(FACE_FORMAT, v0 + 2, v0 + 6, v0 + 7, v0 + 3));
+                file.write(String.format(FACE_FORMAT, v0 + 3, v0 + 7, v0 + 8, v0 + 4));
+                file.write(String.format(FACE_FORMAT, v0 + 5, v0 + 1, v0 + 4, v0 + 8));
                 vertOffset += 8;
             }
             return vertOffset;
@@ -308,7 +314,6 @@ public class KDTree implements AccelerationStructure {
             return v0;
         }
     }
-
     // type is encoded as 2 shifted bits
     private static final long CLOSED = 0L << 30;
     private static final long PLANAR = 1L << 30;
@@ -404,6 +409,7 @@ public class KDTree implements AccelerationStructure {
     }
 
     private static class BuildTask {
+
         long[] splits;
         int numObjects;
         int n;
@@ -443,13 +449,13 @@ public class KDTree implements AccelerationStructure {
             float area = (dx * dy + dy * dz + dz * dx);
             float ISECT_COST = INTERSECT_COST / area;
             // setup counts for each axis
-            int[] nl = { 0, 0, 0 };
-            int[] nr = { task.numObjects, task.numObjects, task.numObjects };
+            int[] nl = {0, 0, 0};
+            int[] nr = {task.numObjects, task.numObjects, task.numObjects};
             // setup bounds for each axis
-            float[] dp = { dy * dz, dz * dx, dx * dy };
-            float[] ds = { dy + dz, dz + dx, dx + dy };
-            float[] nodeMin = { minx, miny, minz };
-            float[] nodeMax = { maxx, maxy, maxz };
+            float[] dp = {dy * dz, dz * dx, dx * dy};
+            float[] ds = {dy + dz, dz + dx, dx + dy};
+            float[] nodeMin = {minx, miny, minz};
+            float[] nodeMax = {maxx, maxy, maxz};
             // search for best cost
             int nSplits = task.n;
             long[] splits = task.splits;
@@ -519,8 +525,9 @@ public class KDTree implements AccelerationStructure {
             for (int axis = 0; axis < 3; axis++) {
                 int numLeft = nl[axis];
                 int numRight = nr[axis];
-                if (numLeft != task.numObjects || numRight != 0)
+                if (numLeft != task.numObjects || numRight != 0) {
                     UI.printError(Module.ACCEL, "Didn't scan full range of objects @depth=%d. Left overs for axis %d: [L: %d] [R: %d]", depth, axis, numLeft, numRight);
+                }
             }
             // found best split?
             if (bestAxis != -1) {
@@ -632,14 +639,16 @@ public class KDTree implements AccelerationStructure {
             }
         }
         stats.updateLeaf(depth, n);
-        if (n != task.numObjects)
+        if (n != task.numObjects) {
             UI.printError(Module.ACCEL, "Error creating leaf node - expecting %d found %d", task.numObjects, n);
+        }
         tempTree.set(offset + 0, (3 << 30) | listOffset);
         tempTree.set(offset + 1, task.numObjects);
         // free some memory
         task.splits = null;
     }
 
+    @Override
     public void intersect(Ray r, IntersectionState state) {
         float intervalMin = r.getMin();
         float intervalMax = r.getMax();
@@ -649,52 +658,67 @@ public class KDTree implements AccelerationStructure {
         t1 = (bounds.getMinimum().x - orgX) * invDirX;
         t2 = (bounds.getMaximum().x - orgX) * invDirX;
         if (invDirX > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgY = r.oy;
         float dirY = r.dy, invDirY = 1 / dirY;
         t1 = (bounds.getMinimum().y - orgY) * invDirY;
         t2 = (bounds.getMaximum().y - orgY) * invDirY;
         if (invDirY > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgZ = r.oz;
         float dirZ = r.dz, invDirZ = 1 / dirZ;
         t1 = (bounds.getMinimum().z - orgZ) * invDirZ;
         t2 = (bounds.getMaximum().z - orgZ) * invDirZ;
         if (invDirZ > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
 
         // compute custom offsets from direction sign bit
         int offsetXFront = (Float.floatToRawIntBits(dirX) & (1 << 31)) >>> 30;
@@ -718,11 +742,13 @@ public class KDTree implements AccelerationStructure {
                     float d = (Float.intBitsToFloat(tree[node + 1]) - orgX) * invDirX;
                     int back = offset + offsetXBack;
                     node = back;
-                    if (d < intervalMin)
+                    if (d < intervalMin) {
                         continue;
+                    }
                     node = offset + offsetXFront; // front
-                    if (d > intervalMax)
+                    if (d > intervalMax) {
                         continue;
+                    }
                     // push back node
                     stack[stackPos].node = back;
                     stack[stackPos].near = (d >= intervalMin) ? d : intervalMin;
@@ -737,11 +763,13 @@ public class KDTree implements AccelerationStructure {
                     float d = (Float.intBitsToFloat(tree[node + 1]) - orgY) * invDirY;
                     int back = offset + offsetYBack;
                     node = back;
-                    if (d < intervalMin)
+                    if (d < intervalMin) {
                         continue;
+                    }
                     node = offset + offsetYFront; // front
-                    if (d > intervalMax)
+                    if (d > intervalMax) {
                         continue;
+                    }
                     // push back node
                     stack[stackPos].node = back;
                     stack[stackPos].near = (d >= intervalMin) ? d : intervalMin;
@@ -756,11 +784,13 @@ public class KDTree implements AccelerationStructure {
                     float d = (Float.intBitsToFloat(tree[node + 1]) - orgZ) * invDirZ;
                     int back = offset + offsetZBack;
                     node = back;
-                    if (d < intervalMin)
+                    if (d < intervalMin) {
                         continue;
+                    }
                     node = offset + offsetZFront; // front
-                    if (d > intervalMax)
+                    if (d > intervalMax) {
                         continue;
+                    }
                     // push back node
                     stack[stackPos].node = back;
                     stack[stackPos].near = (d >= intervalMin) ? d : intervalMin;
@@ -778,17 +808,20 @@ public class KDTree implements AccelerationStructure {
                         n--;
                         offset++;
                     }
-                    if (r.getMax() < intervalMax)
+                    if (r.getMax() < intervalMax) {
                         return;
+                    }
                     do {
                         // stack is empty?
-                        if (stackPos == 0)
+                        if (stackPos == 0) {
                             return;
+                        }
                         // move back up the stack
                         stackPos--;
                         intervalMin = stack[stackPos].near;
-                        if (r.getMax() < intervalMin)
+                        if (r.getMax() < intervalMin) {
                             continue;
+                        }
                         node = stack[stackPos].node;
                         intervalMax = stack[stackPos].far;
                         break;

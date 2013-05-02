@@ -18,14 +18,17 @@ import org.sunflow.util.FastHashMap;
  * named variables as a unified way of getting data into user objects.
  */
 public class ParameterList {
+
     protected final FastHashMap<String, Parameter> list;
     private int numVerts, numFaces, numFaceVerts;
 
     private enum ParameterType {
+
         STRING, INT, BOOL, FLOAT, POINT, VECTOR, TEXCOORD, MATRIX, COLOR
     }
 
     public enum InterpolationType {
+
         NONE, FACE, VERTEX, FACEVARYING
     }
 
@@ -44,8 +47,9 @@ public class ParameterList {
     public void clear(boolean showUnused) {
         if (showUnused) {
             for (FastHashMap.Entry<String, Parameter> e : list) {
-                if (!e.getValue().checked)
+                if (!e.getValue().checked) {
                     UI.printWarning(Module.API, "Unused parameter: %s - %s", e.getKey(), e.getValue());
+                }
             }
         }
         list.clear();
@@ -55,7 +59,7 @@ public class ParameterList {
     /**
      * Setup how many faces should be used to check member count on "face"
      * interpolated parameters.
-     * 
+     *
      * @param numFaces number of faces
      */
     public void setFaceCount(int numFaces) {
@@ -65,7 +69,7 @@ public class ParameterList {
     /**
      * Setup how many vertices should be used to check member count of "vertex"
      * interpolated parameters.
-     * 
+     *
      * @param numVerts number of vertices
      */
     public void setVertexCount(int numVerts) {
@@ -76,7 +80,7 @@ public class ParameterList {
      * Setup how many "face-vertices" should be used to check member count of
      * "facevarying" interpolated parameters. This should be equal to the sum of
      * the number of vertices on each face.
-     * 
+     *
      * @param numFaceVerts number of "face-vertices"
      */
     public void setFaceVertexCount(int numFaceVerts) {
@@ -84,9 +88,9 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified string as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified string as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -95,9 +99,9 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified integer as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified integer as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -106,9 +110,9 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified boolean as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified boolean as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -117,9 +121,9 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified float as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified float as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -128,48 +132,51 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified color as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified color as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param value parameter value
      */
     public void addColor(String name, Color value) {
-        if (value == null)
+        if (value == null) {
             throw new NullPointerException();
+        }
         add(name, new Parameter(value));
     }
 
     /**
-     * Add the specified array of integers as a parameter. <code>null</code>
-     * values are not permitted.
-     * 
+     * Add the specified array of integers as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param array parameter value
      */
     public void addIntegerArray(String name, int[] array) {
-        if (array == null)
+        if (array == null) {
             throw new NullPointerException();
+        }
         add(name, new Parameter(array));
     }
 
     /**
-     * Add the specified array of integers as a parameter. <code>null</code>
-     * values are not permitted.
-     * 
+     * Add the specified array of integers as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param array parameter value
      */
     public void addStringArray(String name, String[] array) {
-        if (array == null)
+        if (array == null) {
             throw new NullPointerException();
+        }
         add(name, new Parameter(array));
     }
 
     /**
-     * Add the specified floats as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified floats as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -183,9 +190,9 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified points as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified points as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -199,14 +206,13 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified vectors as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified vectors as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
      */
-
     public void addVectors(String name, InterpolationType interp, float[] data) {
         if (data == null || data.length % 3 != 0) {
             UI.printError(Module.API, "Cannot create vector parameter %s -- invalid data length", name);
@@ -216,9 +222,9 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified texture coordinates as a parameter. <code>null</code>
-     * values are not permitted.
-     * 
+     * Add the specified texture coordinates as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -232,9 +238,9 @@ public class ParameterList {
     }
 
     /**
-     * Add the specified matrices as a parameter. <code>null</code> values are
-     * not permitted.
-     * 
+     * Add the specified matrices as a parameter.
+     * <code>null</code> values are not permitted.
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -248,182 +254,194 @@ public class ParameterList {
     }
 
     private void add(String name, Parameter param) {
-        if (name == null)
+        if (name == null) {
             UI.printError(Module.API, "Cannot declare parameter with null name");
-        else if (list.put(name, param) != null)
+        } else if (list.put(name, param) != null) {
             UI.printWarning(Module.API, "Parameter %s was already defined -- overwriting", name);
+        }
     }
 
     /**
      * Get the specified string parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public String getString(String name, String defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.STRING, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.STRING, InterpolationType.NONE, 1, p)) {
             return p.getStringValue();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified string array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public String[] getStringArray(String name, String[] defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.STRING, InterpolationType.NONE, -1, p))
+        if (isValidParameter(name, ParameterType.STRING, InterpolationType.NONE, -1, p)) {
             return p.getStrings();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified integer parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public int getInt(String name, int defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.INT, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.INT, InterpolationType.NONE, 1, p)) {
             return p.getIntValue();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified integer array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
-     * @return the value of the parameter specified or <code>null</code> if
-     *         not found
+     * @return the value of the parameter specified or <code>null</code> if not
+     * found
      */
     public int[] getIntArray(String name) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.INT, InterpolationType.NONE, -1, p))
+        if (isValidParameter(name, ParameterType.INT, InterpolationType.NONE, -1, p)) {
             return p.getInts();
+        }
         return null;
     }
 
     /**
      * Get the specified boolean parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public boolean getBoolean(String name, boolean defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.BOOL, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.BOOL, InterpolationType.NONE, 1, p)) {
             return p.getBoolValue();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified float parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public float getFloat(String name, float defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.FLOAT, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.FLOAT, InterpolationType.NONE, 1, p)) {
             return p.getFloatValue();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified color parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public Color getColor(String name, Color defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.COLOR, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.COLOR, InterpolationType.NONE, 1, p)) {
             return p.getColor();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified point parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public Point3 getPoint(String name, Point3 defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.POINT, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.POINT, InterpolationType.NONE, 1, p)) {
             return p.getPoint();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified vector parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public Vector3 getVector(String name, Vector3 defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.VECTOR, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.VECTOR, InterpolationType.NONE, 1, p)) {
             return p.getVector();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified texture coordinate parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public Point2 getTexCoord(String name, Point2 defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.TEXCOORD, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.TEXCOORD, InterpolationType.NONE, 1, p)) {
             return p.getTexCoord();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified matrix parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
-     *         found
+     * found
      */
     public Matrix4 getMatrix(String name, Matrix4 defaultValue) {
         Parameter p = list.get(name);
-        if (isValidParameter(name, ParameterType.MATRIX, InterpolationType.NONE, 1, p))
+        if (isValidParameter(name, ParameterType.MATRIX, InterpolationType.NONE, 1, p)) {
             return p.getMatrix();
+        }
         return defaultValue;
     }
 
     /**
      * Get the specified float array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
-     * @return the value of the parameter specified or <code>null</code> if
-     *         not found
+     * @return the value of the parameter specified or <code>null</code> if not
+     * found
      */
     public FloatParameter getFloatArray(String name) {
         return getFloatParameter(name, ParameterType.FLOAT, list.get(name));
@@ -431,10 +449,10 @@ public class ParameterList {
 
     /**
      * Get the specified point array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
-     * @return the value of the parameter specified or <code>null</code> if
-     *         not found
+     * @return the value of the parameter specified or <code>null</code> if not
+     * found
      */
     public FloatParameter getPointArray(String name) {
         return getFloatParameter(name, ParameterType.POINT, list.get(name));
@@ -442,10 +460,10 @@ public class ParameterList {
 
     /**
      * Get the specified vector array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
-     * @return the value of the parameter specified or <code>null</code> if
-     *         not found
+     * @return the value of the parameter specified or <code>null</code> if not
+     * found
      */
     public FloatParameter getVectorArray(String name) {
         return getFloatParameter(name, ParameterType.VECTOR, list.get(name));
@@ -453,10 +471,10 @@ public class ParameterList {
 
     /**
      * Get the specified texture coordinate array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
-     * @return the value of the parameter specified or <code>null</code> if
-     *         not found
+     * @return the value of the parameter specified or <code>null</code> if not
+     * found
      */
     public FloatParameter getTexCoordArray(String name) {
         return getFloatParameter(name, ParameterType.TEXCOORD, list.get(name));
@@ -464,18 +482,19 @@ public class ParameterList {
 
     /**
      * Get the specified matrix array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
-     * @return the value of the parameter specified or <code>null</code> if
-     *         not found
+     * @return the value of the parameter specified or <code>null</code> if not
+     * found
      */
     public FloatParameter getMatrixArray(String name) {
         return getFloatParameter(name, ParameterType.MATRIX, list.get(name));
     }
 
     private boolean isValidParameter(String name, ParameterType type, InterpolationType interp, int requestedSize, Parameter p) {
-        if (p == null)
+        if (p == null) {
             return false;
+        }
         if (p.type != type) {
             UI.printWarning(Module.API, "Parameter %s requested as a %s - declared as %s", name, type.name().toLowerCase(Locale.ENGLISH), p.type.name().toLowerCase(Locale.ENGLISH));
             return false;
@@ -493,24 +512,29 @@ public class ParameterList {
     }
 
     private FloatParameter getFloatParameter(String name, ParameterType type, Parameter p) {
-        if (p == null)
+        if (p == null) {
             return null;
+        }
         switch (p.interp) {
             case NONE:
-                if (!isValidParameter(name, type, p.interp, -1, p))
+                if (!isValidParameter(name, type, p.interp, -1, p)) {
                     return null;
+                }
                 break;
             case VERTEX:
-                if (!isValidParameter(name, type, p.interp, numVerts, p))
+                if (!isValidParameter(name, type, p.interp, numVerts, p)) {
                     return null;
+                }
                 break;
             case FACE:
-                if (!isValidParameter(name, type, p.interp, numFaces, p))
+                if (!isValidParameter(name, type, p.interp, numFaces, p)) {
                     return null;
+                }
                 break;
             case FACEVARYING:
-                if (!isValidParameter(name, type, p.interp, numFaceVerts, p))
+                if (!isValidParameter(name, type, p.interp, numFaceVerts, p)) {
                     return null;
+                }
                 break;
             default:
                 return null;
@@ -525,6 +549,7 @@ public class ParameterList {
      * when applicable.
      */
     public static final class FloatParameter {
+
         public final InterpolationType interp;
         public final float[] data;
 
@@ -533,7 +558,7 @@ public class ParameterList {
         }
 
         public FloatParameter(float f) {
-            this(InterpolationType.NONE, new float[] { f });
+            this(InterpolationType.NONE, new float[]{f});
         }
 
         private FloatParameter(InterpolationType interp, float[] data) {
@@ -545,16 +570,18 @@ public class ParameterList {
     public final MovingMatrix4 getMovingMatrix(String name, MovingMatrix4 defaultValue) {
         // step 1: check for a non-moving specification:
         Matrix4 m = getMatrix(name, null);
-        if (m != null)
+        if (m != null) {
             return new MovingMatrix4(m);
+        }
         // step 2: check to see if the time range has been updated
         FloatParameter times = getFloatArray(name + ".times");
         if (times != null) {
-            if (times.data.length <= 1)
+            if (times.data.length <= 1) {
                 defaultValue.updateTimes(0, 0);
-            else {
-                if (times.data.length != 2)
+            } else {
+                if (times.data.length != 2) {
                     UI.printWarning(Module.API, "Time value specification using only endpoints of %d values specified", times.data.length);
+                }
                 // get endpoint times - we might allow multiple time values
                 // later
                 float t0 = times.data[0];
@@ -571,13 +598,15 @@ public class ParameterList {
         } else {
             // update each element
             defaultValue.setSteps(steps);
-            for (int i = 0; i < steps; i++)
+            for (int i = 0; i < steps; i++) {
                 defaultValue.updateData(i, getMatrix(String.format("%s[%d]", name, i), defaultValue.getData(i)));
+            }
         }
         return defaultValue;
     }
 
     protected static final class Parameter {
+
         private ParameterType type;
         private InterpolationType interp;
         private Object obj;
@@ -586,14 +615,14 @@ public class ParameterList {
         private Parameter(String value) {
             type = ParameterType.STRING;
             interp = InterpolationType.NONE;
-            obj = new String[] { value };
+            obj = new String[]{value};
             checked = false;
         }
 
         private Parameter(int value) {
             type = ParameterType.INT;
             interp = InterpolationType.NONE;
-            obj = new int[] { value };
+            obj = new int[]{value};
             checked = false;
         }
 
@@ -607,7 +636,7 @@ public class ParameterList {
         private Parameter(float value) {
             type = ParameterType.FLOAT;
             interp = InterpolationType.NONE;
-            obj = new float[] { value };
+            obj = new float[]{value};
             checked = false;
         }
 

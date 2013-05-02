@@ -9,7 +9,7 @@ public interface Modifier extends RenderObject {
 
     /**
      * Modify the shading state for the point to be shaded.
-     * 
+     *
      * @param state shading state to modify
      */
     public void modify(ShadingState state);

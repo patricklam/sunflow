@@ -21,6 +21,7 @@ import org.sunflow.system.UI.Module;
 import org.sunflow.system.UI.PrintLevel;
 
 public class Benchmark implements BenchmarkTest, UserInterface, Display {
+
     private int resolution;
     private boolean showOutput;
     private boolean showBenchmarkOutput;
@@ -30,6 +31,8 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
     private int[] referenceImage;
     private int[] validationImage;
     private int errorThreshold;
+    final String DIFFUSE = "diffuse";
+    final String TRANSFORM = "transform";
 
     public static void main(String[] args) {
         if (args.length == 0) {
@@ -39,7 +42,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
             System.out.println("                                Default: threads=0 (auto-detect cpus), resolution=256");
             System.out.println("  -show                         Render the benchmark scene into a window without performing validation");
         } else if (args[0].equals("-regen")) {
-            int[] sizes = { 32, 64, 96, 128, 256, 384, 512 };
+            int[] sizes = {32, 64, 96, 128, 256, 384, 512};
             for (int s : sizes) {
                 // run a single iteration to generate the reference image
                 Benchmark b = new Benchmark(s, true, false, true);
@@ -47,10 +50,12 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
             }
         } else if (args[0].equals("-bench")) {
             int threads = 0, resolution = 256;
-            if (args.length > 1)
+            if (args.length > 1) {
                 threads = Integer.parseInt(args[1]);
-            if (args.length > 2)
+            }
+            if (args.length > 2) {
                 resolution = Integer.parseInt(args[2]);
+            }
             Benchmark benchmark = new Benchmark(resolution, false, true, false, threads, false);
             benchmark.kernelBegin();
             benchmark.kernelMain();
@@ -79,20 +84,25 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
         this.threads = threads;
         errorThreshold = 6;
         // fetch reference image from resources (jar file or classpath)
-        if (saveOutput)
+        if (saveOutput) {
             return;
+        }
         URL imageURL = Benchmark.class.getResource(String.format("/resources/golden_%04X.png", resolution));
-        if (imageURL == null)
+        if (imageURL == null) {
             UI.printError(Module.BENCH, "Unable to find reference frame!");
+        }
         UI.printInfo(Module.BENCH, "Loading reference image from: %s", imageURL);
         try {
             BufferedImage bi = ImageIO.read(imageURL);
-            if (bi.getWidth() != resolution || bi.getHeight() != resolution)
+            if (bi.getWidth() != resolution || bi.getHeight() != resolution) {
                 UI.printError(Module.BENCH, "Reference image has invalid resolution! Expected %dx%d found %dx%d", resolution, resolution, bi.getWidth(), bi.getHeight());
+            }
             referenceImage = new int[resolution * resolution];
-            for (int y = 0, i = 0; y < resolution; y++)
-                for (int x = 0; x < resolution; x++, i++)
+            for (int y = 0, i = 0; y < resolution; y++) {
+                for (int x = 0; x < resolution; x++, i++) {
                     referenceImage[i] = bi.getRGB(x, resolution - 1 - y); // flip
+                }
+            }
         } catch (IOException e) {
             UI.printError(Module.BENCH, "Unable to load reference frame!");
         }
@@ -105,6 +115,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
     }
 
     private class BenchmarkScene extends SunflowAPI {
+
         public BenchmarkScene() {
             build();
             render(SunflowAPI.DEFAULT_OPTIONS, showWindow ? new FrameDisplay() : saveOutput ? new FileDisplay(String.format("resources/golden_%04X.png", resolution)) : Benchmark.this);
@@ -136,7 +147,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
 
         private void buildCornellBox() {
             // camera
-            parameter("transform", Matrix4.lookAt(new Point3(0, 0, -600), new Point3(0, 0, 0), new Vector3(0, 1, 0)));
+            parameter(TRANSFORM, Matrix4.lookAt(new Point3(0, 0, -600), new Point3(0, 0, 0), new Vector3(0, 1, 0)));
             parameter("fov", 45.0f);
             camera("main_camera", "pinhole");
             parameter("camera", "main_camera");
@@ -149,34 +160,34 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
             float minZ = -250;
             float maxZ = 200;
 
-            float[] verts = new float[] { minX, minY, minZ, maxX, minY, minZ,
-                    maxX, minY, maxZ, minX, minY, maxZ, minX, maxY, minZ, maxX,
-                    maxY, minZ, maxX, maxY, maxZ, minX, maxY, maxZ, };
-            int[] indices = new int[] { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 1,
-                    2, 5, 5, 6, 2, 2, 3, 6, 6, 7, 3, 0, 3, 4, 4, 7, 3 };
+            float[] verts = new float[]{minX, minY, minZ, maxX, minY, minZ,
+                maxX, minY, maxZ, minX, minY, maxZ, minX, maxY, minZ, maxX,
+                maxY, minZ, maxX, maxY, maxZ, minX, maxY, maxZ,};
+            int[] indices = new int[]{0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 1,
+                2, 5, 5, 6, 2, 2, 3, 6, 6, 7, 3, 0, 3, 4, 4, 7, 3};
 
-            parameter("diffuse", null, 0.70f, 0.70f, 0.70f);
-            shader("gray_shader", "diffuse");
-            parameter("diffuse", null, 0.80f, 0.25f, 0.25f);
-            shader("red_shader", "diffuse");
-            parameter("diffuse", null, 0.25f, 0.25f, 0.80f);
-            shader("blue_shader", "diffuse");
+            parameter(DIFFUSE, null, 0.70f, 0.70f, 0.70f);
+            shader("gray_shader", DIFFUSE);
+            parameter(DIFFUSE, null, 0.80f, 0.25f, 0.25f);
+            shader("red_shader", DIFFUSE);
+            parameter(DIFFUSE, null, 0.25f, 0.25f, 0.80f);
+            shader("blue_shader", DIFFUSE);
 
             // build walls
             parameter("triangles", indices);
             parameter("points", "point", "vertex", verts);
-            parameter("faceshaders", new int[] { 0, 0, 0, 0, 1, 1, 0, 0, 2, 2 });
+            parameter("faceshaders", new int[]{0, 0, 0, 0, 1, 1, 0, 0, 2, 2});
             geometry("walls", "triangle_mesh");
 
             // instance walls
-            parameter("shaders", new String[] { "gray_shader", "red_shader",
-                    "blue_shader" });
+            parameter("shaders", new String[]{"gray_shader", "red_shader",
+                "blue_shader"});
             instance("walls.instance", "walls");
 
             // create mesh light
-            parameter("points", "point", "vertex", new float[] { -50, maxY - 1,
-                    -50, 50, maxY - 1, -50, 50, maxY - 1, 50, -50, maxY - 1, 50 });
-            parameter("triangles", new int[] { 0, 1, 2, 2, 3, 0 });
+            parameter("points", "point", "vertex", new float[]{-50, maxY - 1,
+                -50, 50, maxY - 1, -50, 50, maxY - 1, 50, -50, maxY - 1, 50});
+            parameter("triangles", new int[]{0, 1, 2, 2, 3, 0});
             parameter("radiance", null, 15, 15, 15);
             parameter("samples", 8);
             light("light", "triangle_mesh");
@@ -191,17 +202,17 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
 
             // scanned model
             geometry("teapot", "teapot");
-            parameter("transform", Matrix4.translation(80, -50, 100).multiply(Matrix4.rotateX((float) -Math.PI / 6)).multiply(Matrix4.rotateY((float) Math.PI / 4)).multiply(Matrix4.rotateX((float) -Math.PI / 2).multiply(Matrix4.scale(1.2f))));
+            parameter(TRANSFORM, Matrix4.translation(80, -50, 100).multiply(Matrix4.rotateX((float) -Math.PI / 6)).multiply(Matrix4.rotateY((float) Math.PI / 4)).multiply(Matrix4.rotateX((float) -Math.PI / 2).multiply(Matrix4.scale(1.2f))));
             parameter("shaders", "gray_shader");
             instance("teapot.instance1", "teapot");
-            parameter("transform", Matrix4.translation(-80, -160, 50).multiply(Matrix4.rotateY((float) Math.PI / 4)).multiply(Matrix4.rotateX((float) -Math.PI / 2).multiply(Matrix4.scale(1.2f))));
+            parameter(TRANSFORM, Matrix4.translation(-80, -160, 50).multiply(Matrix4.rotateY((float) Math.PI / 4)).multiply(Matrix4.rotateX((float) -Math.PI / 2).multiply(Matrix4.scale(1.2f))));
             parameter("shaders", "gray_shader");
             instance("teapot.instance2", "teapot");
         }
 
         private void sphere(String name, String shaderName, float x, float y, float z, float radius) {
             geometry(name, "sphere");
-            parameter("transform", Matrix4.translation(x, y, z).multiply(Matrix4.scale(radius)));
+            parameter(TRANSFORM, Matrix4.translation(x, y, z).multiply(Matrix4.scale(radius)));
             parameter("shaders", shaderName);
             instance(name + ".instance", name);
         }
@@ -227,20 +238,24 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
                 diff += Math.abs(((validationImage[i] >> 8) & 0xFF) - ((referenceImage[i] >> 8) & 0xFF));
                 diff += Math.abs(((validationImage[i] >> 16) & 0xFF) - ((referenceImage[i] >> 16) & 0xFF));
             }
-            if (diff > errorThreshold)
+            if (diff > errorThreshold) {
                 UI.printError(Module.BENCH, "Image check failed! - #errors: %d", diff);
-            else
+            } else {
                 UI.printInfo(Module.BENCH, "Image check passed!");
-        } else
+            }
+        } else {
             UI.printError(Module.BENCH, "Image check failed! - reference is not comparable");
+        }
 
     }
 
     public void print(Module m, PrintLevel level, String s) {
-        if (showOutput || (showBenchmarkOutput && m == Module.BENCH))
+        if (showOutput || (showBenchmarkOutput && m == Module.BENCH)) {
             System.out.println(UI.formatOutput(m, level, s));
-        if (level == PrintLevel.ERROR)
+        }
+        if (level == PrintLevel.ERROR) {
             throw new RuntimeException(s);
+        }
     }
 
     public void taskStart(String s, int min, int max) {
@@ -273,8 +288,10 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
 
     public void imageUpdate(int x, int y, int w, int h, Color[] data, float[] alpha) {
         // copy bucket data to validation image
-        for (int j = 0, index = 0; j < h; j++, y++)
-            for (int i = 0, offset = x + resolution * (resolution - 1 - y); i < w; i++, index++, offset++)
+        for (int j = 0, index = 0; j < h; j++, y++) {
+            for (int i = 0, offset = x + resolution * (resolution - 1 - y); i < w; i++, index++, offset++) {
                 validationImage[offset] = data[index].copy().toNonLinear().toRGB();
+            }
+        }
     }
 }

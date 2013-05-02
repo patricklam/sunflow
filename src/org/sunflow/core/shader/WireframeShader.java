@@ -9,6 +9,7 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
 
 public class WireframeShader implements Shader {
+
     private Color lineColor;
     private Color fillColor;
     private float width;
@@ -42,14 +43,16 @@ public class WireframeShader implements Shader {
 
     public Color getRadiance(ShadingState state) {
         Point3[] p = new Point3[3];
-        if (!state.getTrianglePoints(p))
+        if (!state.getTrianglePoints(p)) {
             return getFillColor(state);
+        }
         // transform points into camera space
         Point3 center = state.getPoint();
         Matrix4 w2c = state.getWorldToCamera();
         center = w2c.transformP(center);
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++) {
             p[i] = w2c.transformP(state.transformObjectToWorld(p[i]));
+        }
         float cn = 1.0f / (float) Math.sqrt(center.x * center.x + center.y * center.y + center.z * center.z);
         for (int i = 0, i2 = 2; i < 3; i2 = i, i++) {
             // compute orthogonal projection of the shading point onto each
@@ -65,8 +68,9 @@ public class WireframeShader implements Shader {
             float n = 1.0f / (float) Math.sqrt(projx * projx + projy * projy + projz * projz);
             // check angular width
             float dot = projx * center.x + projy * center.y + projz * center.z;
-            if (dot * n * cn >= cosWidth)
+            if (dot * n * cn >= cosWidth) {
                 return getLineColor(state);
+            }
         }
         return getFillColor(state);
     }

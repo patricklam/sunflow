@@ -10,6 +10,7 @@ import org.sunflow.image.Color;
 import org.sunflow.image.ColorEncoder;
 
 public class TGABitmapWriter implements BitmapWriter {
+
     private String filename;
     private int width, height;
     private byte[] data;
@@ -46,7 +47,7 @@ public class TGABitmapWriter implements BitmapWriter {
         // actually write the file from here
         OutputStream f = new BufferedOutputStream(new FileOutputStream(filename));
         // no id, no colormap, uncompressed 32bpp RGBA
-        byte[] tgaHeader = { 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        byte[] tgaHeader = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         f.write(tgaHeader);
         // then the size info
         f.write(width & 0xFF);

@@ -3,6 +3,8 @@ package org.sunflow.core.primitive;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.sunflow.SunflowAPI;
 import org.sunflow.core.Instance;
@@ -23,6 +25,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class TriangleMesh implements PrimitiveList {
+
     private static boolean smallTriangles = false;
     protected float[] points;
     protected int[] triangles;
@@ -32,10 +35,11 @@ public class TriangleMesh implements PrimitiveList {
     private byte[] faceShaders;
 
     public static void setSmallTriangles(boolean smallTriangles) {
-        if (smallTriangles)
+        if (smallTriangles) {
             UI.printInfo(Module.GEOM, "Small trimesh mode: enabled");
-        else
+        } else {
             UI.printInfo(Module.GEOM, "Small trimesh mode: disabled");
+        }
         TriangleMesh.smallTriangles = smallTriangles;
     }
 
@@ -50,17 +54,20 @@ public class TriangleMesh implements PrimitiveList {
         try {
             FileWriter file = new FileWriter(filename);
             file.write(String.format("o object\n"));
-            for (int i = 0; i < points.length; i += 3)
+            for (int i = 0; i < points.length; i += 3) {
                 file.write(String.format("v %g %g %g\n", points[i], points[i + 1], points[i + 2]));
+            }
             file.write("s off\n");
-            for (int i = 0; i < triangles.length; i += 3)
+            for (int i = 0; i < triangles.length; i += 3) {
                 file.write(String.format("f %d %d %d\n", triangles[i] + 1, triangles[i + 1] + 1, triangles[i + 2] + 1));
+            }
             file.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(TriangleMesh.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
+    @Override
     public boolean update(ParameterList pl, SunflowAPI api) {
         boolean updatedTopology = false;
         {
@@ -74,18 +81,20 @@ public class TriangleMesh implements PrimitiveList {
             UI.printError(Module.GEOM, "Unable to update mesh - triangle indices are missing");
             return false;
         }
-        if (triangles.length % 3 != 0)
+        if (triangles.length % 3 != 0) {
             UI.printWarning(Module.GEOM, "Triangle index data is not a multiple of 3 - triangles may be missing");
+        }
         pl.setFaceCount(triangles.length / 3);
         {
             FloatParameter pointsP = pl.getPointArray("points");
-            if (pointsP != null)
-                if (pointsP.interp != InterpolationType.VERTEX)
+            if (pointsP != null) {
+                if (pointsP.interp != InterpolationType.VERTEX) {
                     UI.printError(Module.GEOM, "Point interpolation type must be set to \"vertex\" - was \"%s\"", pointsP.interp.name().toLowerCase(Locale.ENGLISH));
-                else {
+                } else {
                     points = pointsP.data;
                     updatedTopology = true;
                 }
+            }
         }
         if (points == null) {
             UI.printError(Module.GEOM, "Unable to update mesh - vertices are missing");
@@ -94,18 +103,21 @@ public class TriangleMesh implements PrimitiveList {
         pl.setVertexCount(points.length / 3);
         pl.setFaceVertexCount(3 * (triangles.length / 3));
         FloatParameter normals = pl.getVectorArray("normals");
-        if (normals != null)
+        if (normals != null) {
             this.normals = normals;
+        }
         FloatParameter uvs = pl.getTexCoordArray("uvs");
-        if (uvs != null)
+        if (uvs != null) {
             this.uvs = uvs;
+        }
         int[] faceShaders = pl.getIntArray("faceshaders");
         if (faceShaders != null && faceShaders.length == triangles.length / 3) {
             this.faceShaders = new byte[faceShaders.length];
             for (int i = 0; i < faceShaders.length; i++) {
                 int v = faceShaders[i];
-                if (v > 255)
+                if (v > 255) {
                     UI.printWarning(Module.GEOM, "Shader index too large on triangle %d", i);
+                }
                 this.faceShaders[i] = (byte) (v & 0xFF);
             }
         }
@@ -116,23 +128,27 @@ public class TriangleMesh implements PrimitiveList {
         return true;
     }
 
+    @Override
     public float getPrimitiveBound(int primID, int i) {
         int tri = 3 * primID;
         int a = 3 * triangles[tri + 0];
         int b = 3 * triangles[tri + 1];
         int c = 3 * triangles[tri + 2];
         int axis = i >>> 1;
-        if ((i & 1) == 0)
+        if ((i & 1) == 0) {
             return MathUtils.min(points[a + axis], points[b + axis], points[c + axis]);
-        else
+        } else {
             return MathUtils.max(points[a + axis], points[b + axis], points[c + axis]);
+        }
     }
 
+    @Override
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox();
         if (o2w == null) {
-            for (int i = 0; i < points.length; i += 3)
+            for (int i = 0; i < points.length; i += 3) {
                 bounds.include(points[i], points[i + 1], points[i + 2]);
+            }
         } else {
             // transform vertices first
             for (int i = 0; i < points.length; i += 3) {
@@ -148,7 +164,7 @@ public class TriangleMesh implements PrimitiveList {
         return bounds;
     }
 
-    private final void intersectTriangleKensler(Ray r, int primID, IntersectionState state) {
+    private void intersectTriangleKensler(Ray r, int primID, IntersectionState state) {
         int tri = 3 * primID;
         int a = 3 * triangles[tri + 0];
         int b = 3 * triangles[tri + 1];
@@ -169,25 +185,30 @@ public class TriangleMesh implements PrimitiveList {
         float edge2z = points[a + 2] - r.oz;
         float va = nx * edge2x + ny * edge2y + nz * edge2z;
         float t = iv * va;
-        if (!r.isInside(t))
+        if (!r.isInside(t)) {
             return;
+        }
         float ix = edge2y * r.dz - edge2z * r.dy;
         float iy = edge2z * r.dx - edge2x * r.dz;
         float iz = edge2x * r.dy - edge2y * r.dx;
         float v1 = ix * edge1x + iy * edge1y + iz * edge1z;
         float beta = iv * v1;
-        if (beta < 0)
+        if (beta < 0) {
             return;
+        }
         float v2 = ix * edge0x + iy * edge0y + iz * edge0z;
-        if ((v1 + v2) * v > v * v)
+        if ((v1 + v2) * v > v * v) {
             return;
+        }
         float gamma = iv * v2;
-        if (gamma < 0)
+        if (gamma < 0) {
             return;
+        }
         r.setMax(t);
         state.setIntersection(primID, beta, gamma);
     }
 
+    @Override
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
         // alternative test -- disabled for now
         // intersectPrimitiveRobust(r, primID, state);
@@ -200,10 +221,12 @@ public class TriangleMesh implements PrimitiveList {
         intersectTriangleKensler(r, primID, state);
     }
 
+    @Override
     public int getNumPrimitives() {
         return triangles.length / 3;
     }
 
+    @Override
     public void prepareShadingState(ShadingState state) {
         state.init();
         Instance parent = state.getInstance();
@@ -312,8 +335,9 @@ public class TriangleMesh implements PrimitiveList {
                 // create basis in world space
                 state.setBasis(OrthoNormalBasis.makeFromWV(state.getNormal(), dpdv));
             }
-        } else
+        } else {
             state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
+        }
         int shaderIndex = faceShaders == null ? 0 : (faceShaders[primID] & 0xFF);
         state.setShader(parent.getShader(shaderIndex));
         state.setModifier(parent.getModifier(shaderIndex));
@@ -329,8 +353,9 @@ public class TriangleMesh implements PrimitiveList {
                 return;
             }
             triaccel = new WaldTriangle[nt];
-            for (int i = 0; i < nt; i++)
+            for (int i = 0; i < nt; i++) {
                 triaccel[i] = new WaldTriangle(this, i);
+            }
         }
     }
 
@@ -346,6 +371,7 @@ public class TriangleMesh implements PrimitiveList {
 
     private static final class WaldTriangle {
         // private data for fast triangle intersection testing
+
         private int k;
         private float nu, nv, nd;
         private float bnu, bnv, bnd;
@@ -361,12 +387,13 @@ public class TriangleMesh implements PrimitiveList {
             Point3 v1p = mesh.getPoint(index1);
             Point3 v2p = mesh.getPoint(index2);
             Vector3 ng = Point3.normal(v0p, v1p, v2p);
-            if (Math.abs(ng.x) > Math.abs(ng.y) && Math.abs(ng.x) > Math.abs(ng.z))
+            if (Math.abs(ng.x) > Math.abs(ng.y) && Math.abs(ng.x) > Math.abs(ng.z)) {
                 k = 0;
-            else if (Math.abs(ng.y) > Math.abs(ng.z))
+            } else if (Math.abs(ng.y) > Math.abs(ng.z)) {
                 k = 1;
-            else
+            } else {
                 k = 2;
+            }
             float ax, ay, bx, by, cx, cy;
             switch (k) {
                 case 0: {
@@ -420,18 +447,22 @@ public class TriangleMesh implements PrimitiveList {
                 case 0: {
                     float det = 1.0f / (r.dx + nu * r.dy + nv * r.dz);
                     float t = (nd - r.ox - nu * r.oy - nv * r.oz) * det;
-                    if (!r.isInside(t))
+                    if (!r.isInside(t)) {
                         return;
+                    }
                     float hu = r.oy + t * r.dy;
                     float hv = r.oz + t * r.dz;
                     float u = hu * bnu + hv * bnv + bnd;
-                    if (u < 0.0f)
+                    if (u < 0.0f) {
                         return;
+                    }
                     float v = hu * cnu + hv * cnv + cnd;
-                    if (v < 0.0f)
+                    if (v < 0.0f) {
                         return;
-                    if (u + v > 1.0f)
+                    }
+                    if (u + v > 1.0f) {
                         return;
+                    }
                     r.setMax(t);
                     state.setIntersection(primID, u, v);
                     return;
@@ -439,18 +470,22 @@ public class TriangleMesh implements PrimitiveList {
                 case 1: {
                     float det = 1.0f / (r.dy + nu * r.dz + nv * r.dx);
                     float t = (nd - r.oy - nu * r.oz - nv * r.ox) * det;
-                    if (!r.isInside(t))
+                    if (!r.isInside(t)) {
                         return;
+                    }
                     float hu = r.oz + t * r.dz;
                     float hv = r.ox + t * r.dx;
                     float u = hu * bnu + hv * bnv + bnd;
-                    if (u < 0.0f)
+                    if (u < 0.0f) {
                         return;
+                    }
                     float v = hu * cnu + hv * cnv + cnd;
-                    if (v < 0.0f)
+                    if (v < 0.0f) {
                         return;
-                    if (u + v > 1.0f)
+                    }
+                    if (u + v > 1.0f) {
                         return;
+                    }
                     r.setMax(t);
                     state.setIntersection(primID, u, v);
                     return;
@@ -458,18 +493,22 @@ public class TriangleMesh implements PrimitiveList {
                 case 2: {
                     float det = 1.0f / (r.dz + nu * r.dx + nv * r.dy);
                     float t = (nd - r.oz - nu * r.ox - nv * r.oy) * det;
-                    if (!r.isInside(t))
+                    if (!r.isInside(t)) {
                         return;
+                    }
                     float hu = r.ox + t * r.dx;
                     float hv = r.oy + t * r.dy;
                     float u = hu * bnu + hv * bnv + bnd;
-                    if (u < 0.0f)
+                    if (u < 0.0f) {
                         return;
+                    }
                     float v = hu * cnu + hv * cnv + cnd;
-                    if (v < 0.0f)
+                    if (v < 0.0f) {
                         return;
-                    if (u + v > 1.0f)
+                    }
+                    if (u + v > 1.0f) {
                         return;
+                    }
                     r.setMax(t);
                     state.setIntersection(primID, u, v);
                     return;
@@ -478,6 +517,7 @@ public class TriangleMesh implements PrimitiveList {
         }
     }
 
+    @Override
     public PrimitiveList getBakingPrimitives() {
         switch (uvs.interp) {
             case NONE:
@@ -490,17 +530,22 @@ public class TriangleMesh implements PrimitiveList {
     }
 
     private class BakingSurface implements PrimitiveList {
+
+        @Override
         public PrimitiveList getBakingPrimitives() {
             return null;
         }
 
+        @Override
         public int getNumPrimitives() {
             return TriangleMesh.this.getNumPrimitives();
         }
 
+        @Override
         public float getPrimitiveBound(int primID, int i) {
-            if (i > 3)
+            if (i > 3) {
                 return 0;
+            }
             switch (uvs.interp) {
                 case NONE:
                 case FACE:
@@ -548,11 +593,13 @@ public class TriangleMesh implements PrimitiveList {
             }
         }
 
+        @Override
         public BoundingBox getWorldBounds(Matrix4 o2w) {
             BoundingBox bounds = new BoundingBox();
             if (o2w == null) {
-                for (int i = 0; i < uvs.data.length; i += 2)
+                for (int i = 0; i < uvs.data.length; i += 2) {
                     bounds.include(uvs.data[i], uvs.data[i + 1], 0);
+                }
             } else {
                 // transform vertices first
                 for (int i = 0; i < uvs.data.length; i += 2) {
@@ -567,6 +614,7 @@ public class TriangleMesh implements PrimitiveList {
             return bounds;
         }
 
+        @Override
         public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
             float uv00 = 0, uv01 = 0, uv10 = 0, uv11 = 0, uv20 = 0, uv21 = 0;
             switch (uvs.interp) {
@@ -620,29 +668,34 @@ public class TriangleMesh implements PrimitiveList {
                 double tvecy = r.oy - uv01;
                 double tvecz = r.oz;
                 u = (tvecx * pvecx + tvecy * pvecy + tvecz * pvecz);
-                if (u < 0.0 || u > det)
+                if (u < 0.0 || u > det) {
                     return;
+                }
                 qvecx = tvecy * 0 - tvecz * edge1y;
                 qvecy = tvecz * edge1x - tvecx * 0;
                 qvecz = tvecx * edge1y - tvecy * edge1x;
                 v = (r.dx * qvecx + r.dy * qvecy + r.dz * qvecz);
-                if (v < 0.0 || u + v > det)
+                if (v < 0.0 || u + v > det) {
                     return;
+                }
             } else if (det < 0) {
                 double tvecx = r.ox - uv00;
                 double tvecy = r.oy - uv01;
                 double tvecz = r.oz;
                 u = (tvecx * pvecx + tvecy * pvecy + tvecz * pvecz);
-                if (u > 0.0 || u < det)
+                if (u > 0.0 || u < det) {
                     return;
+                }
                 qvecx = tvecy * 0 - tvecz * edge1y;
                 qvecy = tvecz * edge1x - tvecx * 0;
                 qvecz = tvecx * edge1y - tvecy * edge1x;
                 v = (r.dx * qvecx + r.dy * qvecy + r.dz * qvecz);
-                if (v > 0.0 || u + v < det)
+                if (v > 0.0 || u + v < det) {
                     return;
-            } else
+                }
+            } else {
                 return;
+            }
             double inv_det = 1.0 / det;
             float t = (float) ((edge2x * qvecx + edge2y * qvecy + 0 * qvecz) * inv_det);
             if (r.isInside(t)) {
@@ -651,6 +704,7 @@ public class TriangleMesh implements PrimitiveList {
             }
         }
 
+        @Override
         public void prepareShadingState(ShadingState state) {
             state.init();
             Instance parent = state.getInstance();
@@ -675,8 +729,9 @@ public class TriangleMesh implements PrimitiveList {
             state.getPoint().set(state.transformObjectToWorld(state.getPoint()));
 
             Vector3 ng = Point3.normal(v0p, v1p, v2p);
-            if (parent != null)
+            if (parent != null) {
                 ng = state.transformNormalObjectToWorld(ng);
+            }
             ng.normalize();
             state.getGeoNormal().set(ng);
             switch (normals.interp) {
@@ -693,8 +748,9 @@ public class TriangleMesh implements PrimitiveList {
                     state.getNormal().x = w * normals[i30 + 0] + u * normals[i31 + 0] + v * normals[i32 + 0];
                     state.getNormal().y = w * normals[i30 + 1] + u * normals[i31 + 1] + v * normals[i32 + 1];
                     state.getNormal().z = w * normals[i30 + 2] + u * normals[i31 + 2] + v * normals[i32 + 2];
-                    if (parent != null)
+                    if (parent != null) {
                         state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
+                    }
                     state.getNormal().normalize();
                     break;
                 }
@@ -704,8 +760,9 @@ public class TriangleMesh implements PrimitiveList {
                     state.getNormal().x = w * normals[idx + 0] + u * normals[idx + 3] + v * normals[idx + 6];
                     state.getNormal().y = w * normals[idx + 1] + u * normals[idx + 4] + v * normals[idx + 7];
                     state.getNormal().z = w * normals[idx + 2] + u * normals[idx + 5] + v * normals[idx + 8];
-                    if (parent != null)
+                    if (parent != null) {
                         state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
+                    }
                     state.getNormal().normalize();
                     break;
                 }
@@ -766,13 +823,15 @@ public class TriangleMesh implements PrimitiveList {
                     dpdv.x = (-du2 * dp1.x + du1 * dp2.x) * invdet;
                     dpdv.y = (-du2 * dp1.y + du1 * dp2.y) * invdet;
                     dpdv.z = (-du2 * dp1.z + du1 * dp2.z) * invdet;
-                    if (parent != null)
+                    if (parent != null) {
                         dpdv = state.transformVectorObjectToWorld(dpdv);
+                    }
                     // create basis in world space
                     state.setBasis(OrthoNormalBasis.makeFromWV(state.getNormal(), dpdv));
                 }
-            } else
+            } else {
                 state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
+            }
             int shaderIndex = faceShaders == null ? 0 : (faceShaders[primID] & 0xFF);
             state.setShader(parent.getShader(shaderIndex));
         }

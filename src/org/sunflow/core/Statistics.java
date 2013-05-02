@@ -5,6 +5,7 @@ import org.sunflow.system.UI.Module;
 
 public class Statistics {
     // raytracing
+
     private long numEyeRays;
     private long numShadowRays;
     private long numReflectionRays;
@@ -77,7 +78,8 @@ public class Statistics {
     }
 
     private void printRayTypeStats(String name, long n) {
-        if (n > 0)
+        if (n > 0) {
             UI.printInfo(Module.SCENE, "      %-10s  %11d   %7.2f      %7.2f      %6.2f%%", name, n, (double) n / (double) numPixels, (double) n / (double) numEyeRays, (double) (n * 100) / (double) numRays);
+        }
     }
 }

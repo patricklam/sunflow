@@ -10,6 +10,7 @@ import org.sunflow.system.UI.Module;
  * texture might be used more than once in your scene.
  */
 public final class TextureCache {
+
     private static HashMap<String, Texture> textures = new HashMap<String, Texture>();
 
     private TextureCache() {
@@ -19,7 +20,7 @@ public final class TextureCache {
      * Gets a reference to the texture specified by the given filename. If the
      * texture has already been loaded the previous reference is returned,
      * otherwise, a new texture is created.
-     * 
+     *
      * @param filename image file to load
      * @param isLinear is the texture gamma corrected?
      * @return texture object

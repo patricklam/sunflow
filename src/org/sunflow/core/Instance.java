@@ -13,6 +13,7 @@ import org.sunflow.system.UI.Module;
  * modifiers attached to the surface.
  */
 public class Instance implements RenderObject {
+
     private MovingMatrix4 o2w;
     private MovingMatrix4 w2o;
     private BoundingBox bounds;
@@ -38,7 +39,7 @@ public class Instance implements RenderObject {
             return null;
         }
         i.geometry = new Geometry(primitives);
-        i.shaders = new Shader[] { shader };
+        i.shaders = new Shader[]{shader};
         i.updateBounds();
         return i;
     }
@@ -62,8 +63,9 @@ public class Instance implements RenderObject {
             shaders = new Shader[shaderNames.length];
             for (int i = 0; i < shaders.length; i++) {
                 shaders[i] = api.lookupShader(shaderNames[i]);
-                if (shaders[i] == null)
+                if (shaders[i] == null) {
                     UI.printWarning(Module.GEOM, "Shader \"%s\" was not declared yet - ignoring", shaderNames[i]);
+                }
             }
         } else {
             // re-use existing shader array
@@ -74,8 +76,9 @@ public class Instance implements RenderObject {
             modifiers = new Modifier[modifierNames.length];
             for (int i = 0; i < modifiers.length; i++) {
                 modifiers[i] = api.lookupModifier(modifierNames[i]);
-                if (modifiers[i] == null)
+                if (modifiers[i] == null) {
                     UI.printWarning(Module.GEOM, "Modifier \"%s\" was not declared yet - ignoring", modifierNames[i]);
+                }
             }
         }
         o2w = pl.getMovingMatrix("transform", o2w);
@@ -92,16 +95,17 @@ public class Instance implements RenderObject {
      */
     public void updateBounds() {
         bounds = geometry.getWorldBounds(o2w.getData(0));
-        for (int i = 1; i < o2w.numSegments(); i++)
+        for (int i = 1; i < o2w.numSegments(); i++) {
             bounds.include(geometry.getWorldBounds(o2w.getData(i)));
+        }
     }
 
     /**
      * Checks to see if this instance is relative to the specified geometry.
-     * 
+     *
      * @param g geometry to check against
      * @return <code>true</code> if the instanced geometry is equals to g,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     public boolean hasGeometry(Geometry g) {
         return geometry == g;
@@ -109,34 +113,38 @@ public class Instance implements RenderObject {
 
     /**
      * Remove the specified shader from the instance's list if it is being used.
-     * 
+     *
      * @param s shader to remove
      */
     public void removeShader(Shader s) {
         if (shaders != null) {
-            for (int i = 0; i < shaders.length; i++)
-                if (shaders[i] == s)
+            for (int i = 0; i < shaders.length; i++) {
+                if (shaders[i] == s) {
                     shaders[i] = null;
+                }
+            }
         }
     }
 
     /**
      * Remove the specified modifier from the instance's list if it is being
      * used.
-     * 
+     *
      * @param m modifier to remove
      */
     public void removeModifier(Modifier m) {
         if (modifiers != null) {
-            for (int i = 0; i < modifiers.length; i++)
-                if (modifiers[i] == m)
+            for (int i = 0; i < modifiers.length; i++) {
+                if (modifiers[i] == m) {
                     modifiers[i] = null;
+                }
+            }
         }
     }
 
     /**
      * Get the world space bounding box for this instance.
-     * 
+     *
      * @return bounding box in world space
      */
     public BoundingBox getBounds() {
@@ -158,40 +166,43 @@ public class Instance implements RenderObject {
     /**
      * Prepare the shading state for shader invocation. This also runs the
      * currently attached surface modifier.
-     * 
+     *
      * @param state shading state to be prepared
      */
     public void prepareShadingState(ShadingState state) {
         geometry.prepareShadingState(state);
-        if (state.getNormal() != null && state.getGeoNormal() != null)
+        if (state.getNormal() != null && state.getGeoNormal() != null) {
             state.correctShadingNormal();
+        }
         // run modifier if it was provided
-        if (state.getModifier() != null)
+        if (state.getModifier() != null) {
             state.getModifier().modify(state);
+        }
     }
 
     /**
      * Get a shader for the instance's list.
-     * 
+     *
      * @param i index into the shader list
      * @return requested shader, or <code>null</code> if the input is invalid
      */
     public Shader getShader(int i) {
-        if (shaders == null || i < 0 || i >= shaders.length)
+        if (shaders == null || i < 0 || i >= shaders.length) {
             return null;
+        }
         return shaders[i];
     }
 
     /**
      * Get a modifier for the instance's list.
-     * 
+     *
      * @param i index into the modifier list
-     * @return requested modifier, or <code>null</code> if the input is
-     *         invalid
+     * @return requested modifier, or <code>null</code> if the input is invalid
      */
     public Modifier getModifier(int i) {
-        if (modifiers == null || i < 0 || i >= modifiers.length)
+        if (modifiers == null || i < 0 || i >= modifiers.length) {
             return null;
+        }
         return modifiers[i];
     }
 

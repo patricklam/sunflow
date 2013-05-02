@@ -15,6 +15,7 @@ import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
 
 public class SphereFlake implements PrimitiveList {
+
     private static final int MAX_LEVEL = 20;
     private static final float[] boundingRadiusOffset = new float[MAX_LEVEL + 1];
     private static final float[] recursivePattern = new float[9 * 3];
@@ -24,8 +25,9 @@ public class SphereFlake implements PrimitiveList {
 
     static {
         // geometric series table, to compute bounding radius quickly
-        for (int i = 0, r = 3; i < boundingRadiusOffset.length; i++, r *= 3)
+        for (int i = 0, r = 3; i < boundingRadiusOffset.length; i++, r *= 3) {
             boundingRadiusOffset[i] = (r - 3.0f) / r;
+        }
         // lower ring
         double a = 0, daL = 2 * Math.PI / 6, daU = 2 * Math.PI / 3;
         for (int i = 0; i < 6; i++) {
@@ -62,8 +64,9 @@ public class SphereFlake implements PrimitiveList {
 
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(getPrimitiveBound(0, 1));
-        if (o2w != null)
+        if (o2w != null) {
             bounds = o2w.transform(bounds);
+        }
         return bounds;
     }
 
@@ -90,8 +93,9 @@ public class SphereFlake implements PrimitiveList {
         state.getNormal().normalize();
 
         float phi = (float) Math.atan2(state.getNormal().y, state.getNormal().x);
-        if (phi < 0)
+        if (phi < 0) {
             phi += 2 * Math.PI;
+        }
         float theta = (float) Math.acos(state.getNormal().z);
         state.getUV().y = theta / (float) Math.PI;
         state.getUV().x = phi / (float) (2 * Math.PI);
@@ -131,12 +135,14 @@ public class SphereFlake implements PrimitiveList {
                 float d = (float) Math.sqrt(disc);
                 float t1 = (b - d) * qaInv;
                 float t2 = (b + d) * qaInv;
-                if (t1 >= r.getMax() || t2 <= r.getMin())
+                if (t1 >= r.getMax() || t2 <= r.getMin()) {
                     return;
-                if (t1 > r.getMin())
+                }
+                if (t1 > r.getMin()) {
                     r.setMax(t1);
-                else
+                } else {
                     r.setMax(t2);
+                }
                 state.setIntersection(0, cx, cy, cz);
             }
         } else {
@@ -152,8 +158,9 @@ public class SphereFlake implements PrimitiveList {
                 float d = (float) Math.sqrt(disc);
                 float t1 = (b - d) * qaInv;
                 float t2 = (b + d) * qaInv;
-                if (t1 >= r.getMax() || t2 <= r.getMin())
+                if (t1 >= r.getMax() || t2 <= r.getMin()) {
                     return;
+                }
 
                 // we hit the bounds, now compute intersection with the actual
                 // leaf sphere
@@ -165,10 +172,11 @@ public class SphereFlake implements PrimitiveList {
                     if (t1 >= r.getMax() || t2 <= r.getMin()) {
                         // no hit
                     } else {
-                        if (t1 > r.getMin())
+                        if (t1 > r.getMin()) {
                             r.setMax(t1);
-                        else
+                        } else {
                             r.setMax(t2);
+                        }
                         state.setIntersection(0, cx, cy, cz);
                     }
                 }

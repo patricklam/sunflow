@@ -10,6 +10,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 
 public class Background implements PrimitiveList {
+
     public Background() {
     }
 
@@ -18,8 +19,9 @@ public class Background implements PrimitiveList {
     }
 
     public void prepareShadingState(ShadingState state) {
-        if (state.getDepth() == 0)
+        if (state.getDepth() == 0) {
             state.setShader(state.getInstance().getShader(0));
+        }
     }
 
     public int getNumPrimitives() {
@@ -35,8 +37,9 @@ public class Background implements PrimitiveList {
     }
 
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
-        if (r.getMax() == Float.POSITIVE_INFINITY)
+        if (r.getMax() == Float.POSITIVE_INFINITY) {
             state.setIntersection(0);
+        }
     }
 
     public PrimitiveList getBakingPrimitives() {

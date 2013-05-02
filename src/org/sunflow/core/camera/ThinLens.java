@@ -6,6 +6,7 @@ import org.sunflow.core.ParameterList;
 import org.sunflow.core.Ray;
 
 public class ThinLens implements CameraLens {
+
     private float au, av;
     private float aspect, fov;
     private float shiftX, shiftY;
@@ -68,10 +69,11 @@ public class ThinLens implements CameraLens {
                     angle = 0.25 * Math.PI * (4 + r2 / r1);
                 } else {
                     r = -r2;
-                    if (r2 != 0)
+                    if (r2 != 0) {
                         angle = 0.25 * Math.PI * (6 - r1 / r2);
-                    else
+                    } else {
                         angle = 0;
+                    }
                 }
             }
             r *= lensRadius;

@@ -6,6 +6,7 @@ import org.sunflow.core.ParameterList;
 import org.sunflow.core.Ray;
 
 public class PinholeLens implements CameraLens {
+
     private float au, av;
     private float aspect, fov;
     private float shiftX, shiftY;

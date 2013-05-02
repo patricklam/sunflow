@@ -3,11 +3,13 @@ package org.sunflow.core.bucket;
 import org.sunflow.core.BucketOrder;
 
 public class HilbertBucketOrder implements BucketOrder {
+
     public int[] getBucketSequence(int nbw, int nbh) {
         int hi = 0; // hilbert curve index
         int hn = 0; // hilbert curve order
-        while (((1 << hn) < nbw || (1 << hn) < nbh) && hn < 16)
+        while (((1 << hn) < nbw || (1 << hn) < nbh) && hn < 16) {
             hn++; // fit to number of buckets
+        }
         int hN = 1 << (2 * hn); // number of hilbert buckets - 2**2n
         int n = nbw * nbh; // total number of buckets
         int[] coords = new int[2 * n]; // storage for bucket coordinates

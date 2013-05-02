@@ -4,6 +4,7 @@ import org.sunflow.image.Bitmap;
 import org.sunflow.image.Color;
 
 public class BitmapG8 extends Bitmap {
+
     private int w, h;
     private byte[] data;
 

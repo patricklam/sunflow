@@ -12,6 +12,7 @@ import org.sunflow.system.UI.Module;
 import org.sunflow.util.IntArray;
 
 public class BoundingIntervalHierarchy implements AccelerationStructure {
+
     private int[] tree;
     private int[] objects;
     private PrimitiveList primitives;
@@ -22,14 +23,16 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
         maxPrims = 2;
     }
 
+    @Override
     public void build(PrimitiveList primitives) {
         this.primitives = primitives;
         int n = primitives.getNumPrimitives();
         UI.printDetailed(Module.ACCEL, "Getting bounding box ...");
         bounds = primitives.getWorldBounds(null);
         objects = new int[n];
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             objects[i] = i;
+        }
         UI.printDetailed(Module.ACCEL, "Creating tree ...");
         int initialSize = 3 * (2 * 6 * n + 1);
         IntArray tempTree = new IntArray((initialSize + 3) / 4);
@@ -49,6 +52,7 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
     }
 
     private static class BuildStats {
+
         private int numNodes;
         private int numLeaves;
         private int sumObjects;
@@ -146,15 +150,16 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
         tempTree.add(3 << 30); // dummy leaf
         tempTree.add(0);
         tempTree.add(0);
-        if (objects.length == 0)
+        if (objects.length == 0) {
             return;
+        }
         // seed bbox
-        float[] gridBox = { bounds.getMinimum().x, bounds.getMaximum().x,
-                bounds.getMinimum().y, bounds.getMaximum().y,
-                bounds.getMinimum().z, bounds.getMaximum().z };
-        float[] nodeBox = { bounds.getMinimum().x, bounds.getMaximum().x,
-                bounds.getMinimum().y, bounds.getMaximum().y,
-                bounds.getMinimum().z, bounds.getMaximum().z };
+        float[] gridBox = {bounds.getMinimum().x, bounds.getMaximum().x,
+            bounds.getMinimum().y, bounds.getMaximum().y,
+            bounds.getMinimum().z, bounds.getMaximum().z};
+        float[] nodeBox = {bounds.getMinimum().x, bounds.getMaximum().x,
+            bounds.getMinimum().y, bounds.getMaximum().y,
+            bounds.getMinimum().z, bounds.getMaximum().z};
         // seed subdivide function
         subdivide(0, objects.length - 1, tempTree, indices, gridBox, nodeBox, 0, 1, stats);
     }
@@ -181,10 +186,11 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
             prevAxis = axis;
             prevSplit = split;
             // perform quick consistency checks
-            float d[] = { gridBox[1] - gridBox[0], gridBox[3] - gridBox[2],
-                    gridBox[5] - gridBox[4] };
-            if (d[0] < 0 || d[1] < 0 || d[2] < 0)
+            float d[] = {gridBox[1] - gridBox[0], gridBox[3] - gridBox[2],
+                gridBox[5] - gridBox[4]};
+            if (d[0] < 0 || d[1] < 0 || d[2] < 0) {
                 throw new IllegalStateException("negative node extents");
+            }
             for (int i = 0; i < 3; i++) {
                 if (nodeBox[2 * i + 1] < gridBox[2 * i] || nodeBox[2 * i] > gridBox[2 * i + 1]) {
                     UI.printError(Module.ACCEL, "Reached tree area in error - discarding node with: %d objects", right - left + 1);
@@ -192,12 +198,13 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
                 }
             }
             // find longest axis
-            if (d[0] > d[1] && d[0] > d[2])
+            if (d[0] > d[1] && d[0] > d[2]) {
                 axis = 0;
-            else if (d[1] > d[2])
+            } else if (d[1] > d[2]) {
                 axis = 1;
-            else
+            } else {
                 axis = 2;
+            }
             split = 0.5f * (gridBox[2 * axis] + gridBox[2 * axis + 1]);
             // partition L/R subsets
             clipL = Float.NEGATIVE_INFINITY;
@@ -213,21 +220,25 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
                 if (center <= split) {
                     // stay left
                     i++;
-                    if (clipL < maxb)
+                    if (clipL < maxb) {
                         clipL = maxb;
+                    }
                 } else {
                     // move to the right most
                     int t = indices[i];
                     indices[i] = indices[right];
                     indices[right] = t;
                     right--;
-                    if (clipR > minb)
+                    if (clipR > minb) {
                         clipR = minb;
+                    }
                 }
-                if (nodeL > minb)
+                if (nodeL > minb) {
                     nodeL = minb;
-                if (nodeR < maxb)
+                }
+                if (nodeR < maxb) {
                     nodeR = maxb;
+                }
             }
             // check for empty space
             if (nodeL > nodeBox[2 * axis + 0] && nodeR < nodeBox[2 * axis + 1]) {
@@ -332,8 +343,9 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
             tempTree.add(0);
             tempTree.add(0);
             tempTree.add(0);
-        } else
+        } else {
             nextIndex -= 3;
+        }
         // allocate right node
         if (nr > 0) {
             tempTree.add(0);
@@ -360,16 +372,19 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
         // free memory
         gridBox = nodeBox = null;
         // recurse
-        if (nl > 0)
+        if (nl > 0) {
             subdivide(left, right, tempTree, indices, gridBoxL, nodeBoxL, nextIndex, depth + 1, stats);
-        else
+        } else {
             stats.updateLeaf(depth + 1, 0);
-        if (nr > 0)
+        }
+        if (nr > 0) {
             subdivide(right + 1, rightOrig, tempTree, indices, gridBoxR, nodeBoxR, nextIndex + 3, depth + 1, stats);
-        else
+        } else {
             stats.updateLeaf(depth + 1, 0);
+        }
     }
 
+    @Override
     public void intersect(Ray r, IntersectionState state) {
         float intervalMin = r.getMin();
         float intervalMax = r.getMax();
@@ -379,52 +394,67 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
         t1 = (bounds.getMinimum().x - orgX) * invDirX;
         t2 = (bounds.getMaximum().x - orgX) * invDirX;
         if (invDirX > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgY = r.oy;
         float dirY = r.dy, invDirY = 1 / dirY;
         t1 = (bounds.getMinimum().y - orgY) * invDirY;
         t2 = (bounds.getMaximum().y - orgY) * invDirY;
         if (invDirY > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgZ = r.oz;
         float dirZ = r.dz, invDirZ = 1 / dirZ;
         t1 = (bounds.getMinimum().z - orgZ) * invDirZ;
         t2 = (bounds.getMaximum().z - orgZ) * invDirZ;
         if (invDirZ > 0) {
-            if (t1 > intervalMin)
+            if (t1 > intervalMin) {
                 intervalMin = t1;
-            if (t2 < intervalMax)
+            }
+            if (t2 < intervalMax) {
                 intervalMax = t2;
+            }
         } else {
-            if (t2 > intervalMin)
+            if (t2 > intervalMin) {
                 intervalMin = t2;
-            if (t1 < intervalMax)
+            }
+            if (t1 < intervalMax) {
                 intervalMax = t1;
+            }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
 
         // compute custom offsets from direction sign bit
 
@@ -457,7 +487,8 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
         int node = 0;
 
         while (true) {
-            pushloop: while (true) {
+            pushloop:
+            while (true) {
                 int tn = tree[node];
                 int axis = tn & (7 << 29);
                 int offset = tn & ~(7 << 29);
@@ -467,8 +498,9 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
                         float tf = (Float.intBitsToFloat(tree[node + offsetXFront]) - orgX) * invDirX;
                         float tb = (Float.intBitsToFloat(tree[node + offsetXBack]) - orgX) * invDirX;
                         // ray passes between clip zones
-                        if (tf < intervalMin && tb > intervalMax)
+                        if (tf < intervalMin && tb > intervalMax) {
                             break pushloop;
+                        }
                         int back = offset + offsetXBack3;
                         node = back;
                         // ray passes through far node only
@@ -496,8 +528,9 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
                         float tf = (Float.intBitsToFloat(tree[node + offsetYFront]) - orgY) * invDirY;
                         float tb = (Float.intBitsToFloat(tree[node + offsetYBack]) - orgY) * invDirY;
                         // ray passes between clip zones
-                        if (tf < intervalMin && tb > intervalMax)
+                        if (tf < intervalMin && tb > intervalMax) {
                             break pushloop;
+                        }
                         int back = offset + offsetYBack3;
                         node = back;
                         // ray passes through far node only
@@ -526,8 +559,9 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
                         float tf = (Float.intBitsToFloat(tree[node + offsetZFront]) - orgZ) * invDirZ;
                         float tb = (Float.intBitsToFloat(tree[node + offsetZBack]) - orgZ) * invDirZ;
                         // ray passes between clip zones
-                        if (tf < intervalMin && tb > intervalMax)
+                        if (tf < intervalMin && tb > intervalMax) {
                             break pushloop;
+                        }
                         int back = offset + offsetZBack3;
                         node = back;
                         // ray passes through far node only
@@ -567,8 +601,9 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
                         node = offset;
                         intervalMin = (tf >= intervalMin) ? tf : intervalMin;
                         intervalMax = (tb <= intervalMax) ? tb : intervalMax;
-                        if (intervalMin > intervalMax)
+                        if (intervalMin > intervalMax) {
                             break pushloop;
+                        }
                         continue;
                     }
                     case 3 << 29: {
@@ -577,8 +612,9 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
                         node = offset;
                         intervalMin = (tf >= intervalMin) ? tf : intervalMin;
                         intervalMax = (tb <= intervalMax) ? tb : intervalMax;
-                        if (intervalMin > intervalMax)
+                        if (intervalMin > intervalMax) {
                             break pushloop;
+                        }
                         continue;
                     }
                     case 5 << 29: {
@@ -587,8 +623,9 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
                         node = offset;
                         intervalMin = (tf >= intervalMin) ? tf : intervalMin;
                         intervalMax = (tb <= intervalMax) ? tb : intervalMax;
-                        if (intervalMin > intervalMax)
+                        if (intervalMin > intervalMax) {
                             break pushloop;
+                        }
                         continue;
                     }
                     default:
@@ -597,13 +634,15 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
             } // traversal loop
             do {
                 // stack is empty?
-                if (stackPos == 0)
+                if (stackPos == 0) {
                     return;
+                }
                 // move back up the stack
                 stackPos--;
                 intervalMin = stack[stackPos].near;
-                if (r.getMax() < intervalMin)
+                if (r.getMax() < intervalMin) {
                     continue;
+                }
                 node = stack[stackPos].node;
                 intervalMax = stack[stackPos].far;
                 break;

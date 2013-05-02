@@ -3,6 +3,8 @@ package org.sunflow.core.primitive;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.sunflow.SunflowAPI;
 import org.sunflow.core.Instance;
@@ -23,6 +25,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class QuadMesh implements PrimitiveList {
+
     protected float[] points;
     protected int[] quads;
     private FloatParameter normals;
@@ -40,39 +43,44 @@ public class QuadMesh implements PrimitiveList {
         try {
             FileWriter file = new FileWriter(filename);
             file.write(String.format("o object\n"));
-            for (int i = 0; i < points.length; i += 3)
+            for (int i = 0; i < points.length; i += 3) {
                 file.write(String.format("v %g %g %g\n", points[i], points[i + 1], points[i + 2]));
+            }
             file.write("s off\n");
-            for (int i = 0; i < quads.length; i += 4)
+            for (int i = 0; i < quads.length; i += 4) {
                 file.write(String.format("f %d %d %d %d\n", quads[i] + 1, quads[i + 1] + 1, quads[i + 2] + 1, quads[i + 3] + 1));
+            }
             file.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(QuadMesh.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
+    @Override
     public boolean update(ParameterList pl, SunflowAPI api) {
         {
-            int[] quads = pl.getIntArray("quads");
-            if (quads != null) {
-                this.quads = quads;
+            int[] quadsu = pl.getIntArray("quads");
+            if (quadsu != null) {
+                this.quads = quadsu;
             }
         }
         if (quads == null) {
             UI.printError(Module.GEOM, "Unable to update mesh - quad indices are missing");
             return false;
         }
-        if (quads.length % 4 != 0)
+        if (quads.length % 4 != 0) {
             UI.printWarning(Module.GEOM, "Quad index data is not a multiple of 4 - some quads may be missing");
+        }
         pl.setFaceCount(quads.length / 4);
         {
             FloatParameter pointsP = pl.getPointArray("points");
-            if (pointsP != null)
-                if (pointsP.interp != InterpolationType.VERTEX)
+            if (pointsP != null) {
+                if (pointsP.interp != InterpolationType.VERTEX) {
                     UI.printError(Module.GEOM, "Point interpolation type must be set to \"vertex\" - was \"%s\"", pointsP.interp.name().toLowerCase(Locale.ENGLISH));
-                else {
+                } else {
                     points = pointsP.data;
                 }
+            }
         }
         if (points == null) {
             UI.printError(Module.GEOM, "Unabled to update mesh - vertices are missing");
@@ -80,25 +88,29 @@ public class QuadMesh implements PrimitiveList {
         }
         pl.setVertexCount(points.length / 3);
         pl.setFaceVertexCount(4 * (quads.length / 4));
-        FloatParameter normals = pl.getVectorArray("normals");
-        if (normals != null)
-            this.normals = normals;
-        FloatParameter uvs = pl.getTexCoordArray("uvs");
-        if (uvs != null)
-            this.uvs = uvs;
-        int[] faceShaders = pl.getIntArray("faceshaders");
-        if (faceShaders != null && faceShaders.length == quads.length / 4) {
-            this.faceShaders = new byte[faceShaders.length];
-            for (int i = 0; i < faceShaders.length; i++) {
-                int v = faceShaders[i];
-                if (v > 255)
+        FloatParameter normalsp = pl.getVectorArray("normals");
+        if (normalsp != null) {
+            this.normals = normalsp;
+        }
+        FloatParameter uvsp = pl.getTexCoordArray("uvs");
+        if (uvsp != null) {
+            this.uvs = uvsp;
+        }
+        int[] faceShadersl = pl.getIntArray("faceshaders");
+        if (faceShadersl != null && faceShadersl.length == quads.length / 4) {
+            this.faceShaders = new byte[faceShadersl.length];
+            for (int i = 0; i < faceShadersl.length; i++) {
+                int v = faceShadersl[i];
+                if (v > 255) {
                     UI.printWarning(Module.GEOM, "Shader index too large on quad %d", i);
+                }
                 this.faceShaders[i] = (byte) (v & 0xFF);
             }
         }
         return true;
     }
 
+    @Override
     public float getPrimitiveBound(int primID, int i) {
         int quad = 4 * primID;
         int a = 3 * quads[quad + 0];
@@ -106,17 +118,20 @@ public class QuadMesh implements PrimitiveList {
         int c = 3 * quads[quad + 2];
         int d = 3 * quads[quad + 3];
         int axis = i >>> 1;
-        if ((i & 1) == 0)
+        if ((i & 1) == 0) {
             return MathUtils.min(points[a + axis], points[b + axis], points[c + axis], points[d + axis]);
-        else
+        } else {
             return MathUtils.max(points[a + axis], points[b + axis], points[c + axis], points[d + axis]);
+        }
     }
 
+    @Override
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox();
         if (o2w == null) {
-            for (int i = 0; i < points.length; i += 3)
+            for (int i = 0; i < points.length; i += 3) {
                 bounds.include(points[i], points[i + 1], points[i + 2]);
+            }
         } else {
             // transform vertices first
             for (int i = 0; i < points.length; i += 3) {
@@ -142,18 +157,18 @@ public class QuadMesh implements PrimitiveList {
         int p3 = 3 * quads[quad + 3];
         // transform patch into Hilbert space
         final float A[] = {
-                points[p2 + 0] - points[p3 + 0] - points[p1 + 0] + points[p0 + 0],
-                points[p2 + 1] - points[p3 + 1] - points[p1 + 1] + points[p0 + 1],
-                points[p2 + 2] - points[p3 + 2] - points[p1 + 2] + points[p0 + 2] };
-        final float B[] = { points[p1 + 0] - points[p0 + 0],
-                points[p1 + 1] - points[p0 + 1],
-                points[p1 + 2] - points[p0 + 2] };
-        final float C[] = { points[p3 + 0] - points[p0 + 0],
-                points[p3 + 1] - points[p0 + 1],
-                points[p3 + 2] - points[p0 + 2] };
-        final float R[] = { r.ox - points[p0 + 0], r.oy - points[p0 + 1],
-                r.oz - points[p0 + 2] };
-        final float Q[] = { r.dx, r.dy, r.dz };
+            points[p2 + 0] - points[p3 + 0] - points[p1 + 0] + points[p0 + 0],
+            points[p2 + 1] - points[p3 + 1] - points[p1 + 1] + points[p0 + 1],
+            points[p2 + 2] - points[p3 + 2] - points[p1 + 2] + points[p0 + 2]};
+        final float B[] = {points[p1 + 0] - points[p0 + 0],
+            points[p1 + 1] - points[p0 + 1],
+            points[p1 + 2] - points[p0 + 2]};
+        final float C[] = {points[p3 + 0] - points[p0 + 0],
+            points[p3 + 1] - points[p0 + 1],
+            points[p3 + 2] - points[p0 + 2]};
+        final float R[] = {r.ox - points[p0 + 0], r.oy - points[p0 + 1],
+            r.oz - points[p0 + 2]};
+        final float Q[] = {r.dx, r.dy, r.dz};
 
         // pick major direction
         float absqx = Math.abs(r.dx);
@@ -204,8 +219,9 @@ public class QuadMesh implements PrimitiveList {
             float c = C[X] * Rzy + C[Y] * Rxz + C[Z] * Ryx;
             float discrim = b * b - 4 * a * c;
             // reject trivial cases
-            if (c * (a + b + c) > 0 && (discrim < 0 || a * c < 0 || b / a > 0 || b / a < -2))
+            if (c * (a + b + c) > 0 && (discrim < 0 || a * c < 0 || b / a > 0 || b / a < -2)) {
                 return;
+            }
             // solve quadratic
             float q = b > 0 ? -0.5f * (b + (float) Math.sqrt(discrim)) : -0.5f * (b - (float) Math.sqrt(discrim));
             // check first solution
@@ -237,10 +253,12 @@ public class QuadMesh implements PrimitiveList {
         }
     }
 
+    @Override
     public int getNumPrimitives() {
         return quads.length / 4;
     }
 
+    @Override
     public void prepareShadingState(ShadingState state) {
         state.init();
         Instance parent = state.getInstance();
@@ -290,20 +308,20 @@ public class QuadMesh implements PrimitiveList {
                 int i31 = 3 * index1;
                 int i32 = 3 * index2;
                 int i33 = 3 * index3;
-                float[] normals = this.normals.data;
-                state.getNormal().x = k00 * normals[i30 + 0] + k10 * normals[i31 + 0] + k11 * normals[i32 + 0] + k01 * normals[i33 + 0];
-                state.getNormal().y = k00 * normals[i30 + 1] + k10 * normals[i31 + 1] + k11 * normals[i32 + 1] + k01 * normals[i33 + 1];
-                state.getNormal().z = k00 * normals[i30 + 2] + k10 * normals[i31 + 2] + k11 * normals[i32 + 2] + k01 * normals[i33 + 2];
+                float[] normalsv = this.normals.data;
+                state.getNormal().x = k00 * normalsv[i30 + 0] + k10 * normalsv[i31 + 0] + k11 * normalsv[i32 + 0] + k01 * normalsv[i33 + 0];
+                state.getNormal().y = k00 * normalsv[i30 + 1] + k10 * normalsv[i31 + 1] + k11 * normalsv[i32 + 1] + k01 * normalsv[i33 + 1];
+                state.getNormal().z = k00 * normalsv[i30 + 2] + k10 * normalsv[i31 + 2] + k11 * normalsv[i32 + 2] + k01 * normalsv[i33 + 2];
                 state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
                 state.getNormal().normalize();
                 break;
             }
             case FACEVARYING: {
                 int idx = 3 * quad;
-                float[] normals = this.normals.data;
-                state.getNormal().x = k00 * normals[idx + 0] + k10 * normals[idx + 3] + k11 * normals[idx + 6] + k01 * normals[idx + 9];
-                state.getNormal().y = k00 * normals[idx + 1] + k10 * normals[idx + 4] + k11 * normals[idx + 7] + k01 * normals[idx + 10];
-                state.getNormal().z = k00 * normals[idx + 2] + k10 * normals[idx + 5] + k11 * normals[idx + 8] + k01 * normals[idx + 11];
+                float[] normalsf = this.normals.data;
+                state.getNormal().x = k00 * normalsf[idx + 0] + k10 * normalsf[idx + 3] + k11 * normalsf[idx + 6] + k01 * normalsf[idx + 9];
+                state.getNormal().y = k00 * normalsf[idx + 1] + k10 * normalsf[idx + 4] + k11 * normalsf[idx + 7] + k01 * normalsf[idx + 10];
+                state.getNormal().z = k00 * normalsf[idx + 2] + k10 * normalsf[idx + 5] + k11 * normalsf[idx + 8] + k01 * normalsf[idx + 11];
                 state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
                 state.getNormal().normalize();
                 break;
@@ -322,28 +340,28 @@ public class QuadMesh implements PrimitiveList {
                 int i21 = 2 * index1;
                 int i22 = 2 * index2;
                 int i23 = 2 * index3;
-                float[] uvs = this.uvs.data;
-                uv00 = uvs[i20 + 0];
-                uv01 = uvs[i20 + 1];
-                uv10 = uvs[i21 + 0];
-                uv11 = uvs[i21 + 1];
-                uv20 = uvs[i22 + 0];
-                uv21 = uvs[i22 + 1];
-                uv20 = uvs[i23 + 0];
-                uv21 = uvs[i23 + 1];
+                float[] uvsv = this.uvs.data;
+                uv00 = uvsv[i20 + 0];
+                uv01 = uvsv[i20 + 1];
+                uv10 = uvsv[i21 + 0];
+                uv11 = uvsv[i21 + 1];
+                uv20 = uvsv[i22 + 0];
+                uv21 = uvsv[i22 + 1];
+                uv20 = uvsv[i23 + 0];
+                uv21 = uvsv[i23 + 1];
                 break;
             }
             case FACEVARYING: {
                 int idx = quad << 1;
-                float[] uvs = this.uvs.data;
-                uv00 = uvs[idx + 0];
-                uv01 = uvs[idx + 1];
-                uv10 = uvs[idx + 2];
-                uv11 = uvs[idx + 3];
-                uv20 = uvs[idx + 4];
-                uv21 = uvs[idx + 5];
-                uv30 = uvs[idx + 6];
-                uv31 = uvs[idx + 7];
+                float[] uvsf = this.uvs.data;
+                uv00 = uvsf[idx + 0];
+                uv01 = uvsf[idx + 1];
+                uv10 = uvsf[idx + 2];
+                uv11 = uvsf[idx + 3];
+                uv20 = uvsf[idx + 4];
+                uv21 = uvsf[idx + 5];
+                uv30 = uvsf[idx + 6];
+                uv31 = uvsf[idx + 7];
                 break;
             }
         }
@@ -374,8 +392,9 @@ public class QuadMesh implements PrimitiveList {
                 // create basis in world space
                 state.setBasis(OrthoNormalBasis.makeFromWV(state.getNormal(), dpdv));
             }
-        } else
+        } else {
             state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
+        }
         int shaderIndex = faceShaders == null ? 0 : (faceShaders[primID] & 0xFF);
         state.setShader(parent.getShader(shaderIndex));
         state.setModifier(parent.getModifier(shaderIndex));
@@ -386,6 +405,7 @@ public class QuadMesh implements PrimitiveList {
         return new Point3(points[i], points[i + 1], points[i + 2]);
     }
 
+    @Override
     public PrimitiveList getBakingPrimitives() {
         return null;
     }

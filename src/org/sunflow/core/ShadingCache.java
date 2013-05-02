@@ -3,6 +3,7 @@ package org.sunflow.core;
 import org.sunflow.image.Color;
 
 public class ShadingCache {
+
     private Sample first;
     private int depth;
     // stats
@@ -12,6 +13,7 @@ public class ShadingCache {
     long numCaches;
 
     private static class Sample {
+
         Instance i;
         Shader s;
         float nx, ny, nz;
@@ -28,25 +30,31 @@ public class ShadingCache {
 
     public void reset() {
         sumDepth += depth;
-        if (depth > 0)
+        if (depth > 0) {
             numCaches++;
+        }
         first = null;
         depth = 0;
     }
 
     public Color lookup(ShadingState state, Shader shader) {
-        if (state.getNormal() == null)
+        if (state.getNormal() == null) {
             return null;
+        }
         // search further
         for (Sample s = first; s != null; s = s.next) {
-            if (s.i != state.getInstance())
+            if (s.i != state.getInstance()) {
                 continue;
-            if (s.s != shader)
+            }
+            if (s.s != shader) {
                 continue;
-            if (state.getRay().dot(s.dx, s.dy, s.dz) < 0.999f)
+            }
+            if (state.getRay().dot(s.dx, s.dy, s.dz) < 0.999f) {
                 continue;
-            if (state.getNormal().dot(s.nx, s.ny, s.nz) < 0.99f)
+            }
+            if (state.getNormal().dot(s.nx, s.ny, s.nz) < 0.99f) {
                 continue;
+            }
             // we have a match
             hits++;
             return s.c;
@@ -56,8 +64,9 @@ public class ShadingCache {
     }
 
     public void add(ShadingState state, Shader shader, Color c) {
-        if (state.getNormal() == null)
+        if (state.getNormal() == null) {
             return;
+        }
         depth++;
         Sample s = new Sample();
         s.i = state.getInstance();

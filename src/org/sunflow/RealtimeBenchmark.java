@@ -12,6 +12,7 @@ import org.sunflow.system.UI.Module;
 import org.sunflow.system.ui.ConsoleInterface;
 
 public class RealtimeBenchmark extends SunflowAPI {
+
     public RealtimeBenchmark(boolean showGUI, int threads) {
         Display display = showGUI ? new FastDisplay() : new FileDisplay(false);
         UI.printInfo(Module.BENCH, "Preparing benchmarking scene ...");

@@ -1,6 +1,7 @@
 package org.sunflow.util;
 
 public final class FloatArray {
+
     private float[] array;
     private int size;
 
@@ -16,7 +17,7 @@ public final class FloatArray {
 
     /**
      * Append a float to the end of the array.
-     * 
+     *
      * @param f
      */
     public final void add(float f) {
@@ -32,7 +33,7 @@ public final class FloatArray {
     /**
      * Write a value to the specified index. Assumes the array is already big
      * enough.
-     * 
+     *
      * @param index
      * @param value
      */
@@ -42,7 +43,7 @@ public final class FloatArray {
 
     /**
      * Read value from the array.
-     * 
+     *
      * @param index index into the array
      * @return value at the specified index
      */
@@ -52,7 +53,7 @@ public final class FloatArray {
 
     /**
      * Returns the number of elements added to the array.
-     * 
+     *
      * @return current size of the array
      */
     public final int getSize() {
@@ -62,7 +63,7 @@ public final class FloatArray {
     /**
      * Return a copy of the array, trimmed to fit the size of its contents
      * exactly.
-     * 
+     *
      * @return a new array of exactly the right length
      */
     public final float[] trim() {

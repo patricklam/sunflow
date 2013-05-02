@@ -16,6 +16,7 @@ import org.sunflow.system.UI.Module;
  * concern.
  */
 public class GenericBitmap extends Bitmap {
+
     private int w, h;
     private Color[] color;
     private float[] alpha;

@@ -15,14 +15,16 @@ import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
 
 public class Cylinder implements PrimitiveList {
+
     public boolean update(ParameterList pl, SunflowAPI api) {
         return true;
     }
 
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(1);
-        if (o2w != null)
+        if (o2w != null) {
             bounds = o2w.transform(bounds);
+        }
         return bounds;
     }
 
@@ -43,8 +45,9 @@ public class Cylinder implements PrimitiveList {
         state.getNormal().normalize();
 
         float phi = (float) Math.atan2(state.getNormal().y, state.getNormal().x);
-        if (phi < 0)
+        if (phi < 0) {
             phi += 2 * Math.PI;
+        }
         state.getUV().x = phi / (float) (2 * Math.PI);
         state.getUV().y = (localPoint.z + 1) * 0.5f;
         state.setShader(parent.getShader(0));
@@ -67,8 +70,9 @@ public class Cylinder implements PrimitiveList {
         double[] t = Solvers.solveQuadric(qa, qb, qc);
         if (t != null) {
             // early rejection
-            if (t[0] >= r.getMax() || t[1] <= r.getMin())
+            if (t[0] >= r.getMax() || t[1] <= r.getMin()) {
                 return;
+            }
             if (t[0] > r.getMin()) {
                 float z = r.oz + (float) t[0] * r.dz;
                 if (z >= -1 && z <= 1) {

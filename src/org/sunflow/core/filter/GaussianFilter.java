@@ -3,6 +3,7 @@ package org.sunflow.core.filter;
 import org.sunflow.core.Filter;
 
 public class GaussianFilter implements Filter {
+
     private float es2;
 
     public GaussianFilter() {

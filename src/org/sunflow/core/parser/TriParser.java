@@ -8,6 +8,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.sunflow.SunflowAPIInterface;
 import org.sunflow.core.SceneParser;
@@ -16,6 +18,8 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class TriParser implements SceneParser {
+
+    @Override
     public boolean parse(String filename, SunflowAPIInterface api) {
         try {
             UI.printInfo(Module.USER, "TRI - Reading geometry: \"%s\" ...", filename);
@@ -56,16 +60,18 @@ public class TriParser implements SceneParser {
             FloatBuffer floats = map.asFloatBuffer();
             ints.put(0, verts.length / 3);
             ints.put(1, triangles.length / 3);
-            for (int i = 0; i < verts.length; i++)
+            for (int i = 0; i < verts.length; i++) {
                 floats.put(2 + i, verts[i]);
-            for (int i = 0; i < triangles.length; i++)
+            }
+            for (int i = 0; i < triangles.length; i++) {
                 ints.put(2 + verts.length + i, triangles[i]);
+            }
             stream.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Logger.getLogger(TriParser.class.getName()).log(Level.SEVERE, null, e);
             return false;
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(TriParser.class.getName()).log(Level.SEVERE, null, e);
             return false;
         }
         return true;

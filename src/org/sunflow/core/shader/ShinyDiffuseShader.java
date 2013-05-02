@@ -10,6 +10,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public class ShinyDiffuseShader implements Shader {
+
     private Color diff;
     private float refl;
 
@@ -36,8 +37,9 @@ public class ShinyDiffuseShader implements Shader {
         state.initCausticSamples();
         Color d = getDiffuse(state);
         Color lr = state.diffuse(d);
-        if (!state.includeSpecular())
+        if (!state.includeSpecular()) {
             return lr;
+        }
         float cos = state.getCosND();
         float dn = 2 * cos;
         Vector3 refDir = new Vector3();

@@ -14,6 +14,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
+
     private ArrayList<Photon> photonList;
     private Photon[] photons;
     private int storedPhotons;
@@ -67,8 +68,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                 float dist1d = photons[i].getDist1(np.px, np.py, np.pz);
                 dist1d2[level] = dist1d * dist1d;
                 i += i;
-                if (dist1d > 0.0f)
+                if (dist1d > 0.0f) {
                     i++;
+                }
                 chosen[level++] = i;
             }
             np.checkAddNearest(photons[i]);
@@ -76,8 +78,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                 cameFrom = i;
                 i >>= 1;
                 level--;
-                if (i == 0)
+                if (i == 0) {
                     return;
+                }
             } while ((dist1d2[level] >= np.dist2[0]) || (cameFrom != chosen[level]));
             np.checkAddNearest(photons[i]);
             i = chosen[level++] ^ 1;
@@ -85,8 +88,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
     }
 
     private void balance() {
-        if (storedPhotons == 0)
+        if (storedPhotons == 0) {
             return;
+        }
         photons = photonList.toArray(new Photon[photonList.size()]);
         photonList = null;
         Photon[] temp = new Photon[storedPhotons + 1];
@@ -98,19 +102,22 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
 
     private void balanceSegment(Photon[] temp, int index, int start, int end) {
         int median = 1;
-        while ((4 * median) <= (end - start + 1))
+        while ((4 * median) <= (end - start + 1)) {
             median += median;
+        }
         if ((3 * median) <= (end - start + 1)) {
             median += median;
             median += (start - 1);
-        } else
+        } else {
             median = end - median + 1;
+        }
         int axis = Photon.SPLIT_Z;
         Vector3 extents = bounds.getExtents();
-        if ((extents.x > extents.y) && (extents.x > extents.z))
+        if ((extents.x > extents.y) && (extents.x > extents.z)) {
             axis = Photon.SPLIT_X;
-        else if (extents.y > extents.z)
+        } else if (extents.y > extents.z) {
             axis = Photon.SPLIT_Y;
+        }
         int left = start;
         int right = end;
         while (right > left) {
@@ -122,15 +129,18 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                 }
                 while ((photons[--j].getCoord(axis) > v) && (j > left)) {
                 }
-                if (i >= j)
+                if (i >= j) {
                     break;
+                }
                 swap(i, j);
             }
             swap(i, right);
-            if (i >= median)
+            if (i >= median) {
                 right = i - 1;
-            if (i <= median)
+            }
+            if (i <= median) {
                 left = i + 1;
+            }
         }
         temp[index] = photons[median];
         temp[index].setSplitAxis(axis);
@@ -156,8 +166,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                         balanceSegment(temp, 2 * index, start, median - 1);
                         bounds.getMaximum().z = tmp;
                 }
-            } else
+            } else {
                 temp[2 * index] = photons[start];
+            }
         }
         if (median < end) {
             if ((median + 1) < end) {
@@ -181,8 +192,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                         balanceSegment(temp, (2 * index) + 1, median + 1, end);
                         bounds.getMinimum().z = tmp;
                 }
-            } else
+            } else {
                 temp[(2 * index) + 1] = photons[end];
+            }
         }
     }
 
@@ -193,6 +205,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
     }
 
     static class Photon {
+
         float x;
         float y;
         float z;
@@ -201,7 +214,6 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         int data;
         int power;
         int flags;
-
         static final int SPLIT_X = 0;
         static final int SPLIT_Y = 1;
         static final int SPLIT_Z = 2;
@@ -268,8 +280,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         maxRadius = 1.4f * (float) Math.sqrt(maxPower * numGather);
         UI.printInfo(Module.LIGHT, "  * Maximum radius:   %.3f", maxRadius);
         UI.printInfo(Module.LIGHT, "  * Balancing time:   %s", t.toString());
-        if (gatherRadius > maxRadius)
+        if (gatherRadius > maxRadius) {
             gatherRadius = maxRadius;
+        }
         t.start();
         precomputeRadiance();
         t.end();
@@ -279,8 +292,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
     }
 
     public void precomputeRadiance() {
-        if (storedPhotons == 0)
+        if (storedPhotons == 0) {
             return;
+        }
         // precompute the radiance for all photons that are neither
         // leaves nor parents of leaves in the tree.
         int quadStoredPhotons = halfStoredPhotons / 2;
@@ -318,8 +332,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                     ppos.set(phot.x, phot.y, phot.z);
                     Point3.sub(ppos, p, pvec);
                     float pcos = Vector3.dot(pvec, n);
-                    if ((pcos < maxNDist) && (pcos > -maxNDist))
+                    if ((pcos < maxNDist) && (pcos > -maxNDist)) {
                         irr.add(pow.setRGBE(phot.power));
+                    }
                 }
             }
             irr.mul(invArea);
@@ -333,8 +348,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         // resize photon map to only include irradiance photons
         numGather /= 4;
         maxRadius = 1.4f * (float) Math.sqrt(maxPower * numGather);
-        if (gatherRadius > maxRadius)
+        if (gatherRadius > maxRadius) {
             gatherRadius = maxRadius;
+        }
         storedPhotons = quadStoredPhotons;
         halfStoredPhotons = storedPhotons / 2;
         log2n = (int) Math.ceil(Math.log(storedPhotons) / Math.log(2.0));
@@ -343,8 +359,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
     }
 
     public Color getRadiance(Point3 p, Vector3 n) {
-        if (!hasRadiance || (storedPhotons == 0))
+        if (!hasRadiance || (storedPhotons == 0)) {
             return Color.BLACK;
+        }
         float px = p.x;
         float py = p.y;
         float pz = p.z;
@@ -363,8 +380,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                 float dist1d = photons[i].getDist1(px, py, pz);
                 dist1d2[level] = dist1d * dist1d;
                 i += i;
-                if (dist1d > 0)
+                if (dist1d > 0) {
                     i++;
+                }
                 chosen[level++] = i;
             }
             curr = photons[i];
@@ -381,8 +399,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                 cameFrom = i;
                 i >>= 1;
                 level--;
-                if (i == 0)
+                if (i == 0) {
                     return (nearest == null) ? Color.BLACK : new Color().setRGBE(nearest.data);
+                }
             } while ((dist1d2[level] >= maxDist2) || (cameFrom != chosen[level]));
             curr = photons[i];
             dist2 = curr.getDist2(px, py, pz);
@@ -399,6 +418,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
     }
 
     private static class NearestPhotons {
+
         int found;
         float px, py, pz;
         private int max;
@@ -447,10 +467,12 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                             dst2 = dist2[k];
                             while (parent <= halfFound) {
                                 j = parent + parent;
-                                if ((j < found) && (dist2[j] < dist2[j + 1]))
+                                if ((j < found) && (dist2[j] < dist2[j + 1])) {
                                     j++;
-                                if (dst2 >= dist2[j])
+                                }
+                                if (dst2 >= dist2[j]) {
                                     break;
+                                }
                                 dist2[parent] = dist2[j];
                                 index[parent] = index[j];
                                 parent = j;
@@ -463,10 +485,12 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                     parent = 1;
                     j = 2;
                     while (j <= found) {
-                        if ((j < found) && (dist2[j] < dist2[j + 1]))
+                        if ((j < found) && (dist2[j] < dist2[j + 1])) {
                             j++;
-                        if (fdist2 > dist2[j])
+                        }
+                        if (fdist2 > dist2[j]) {
                             break;
+                        }
                         dist2[parent] = dist2[j];
                         index[parent] = index[j];
                         parent = j;

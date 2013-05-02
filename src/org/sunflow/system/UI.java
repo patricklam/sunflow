@@ -10,15 +10,18 @@ import org.sunflow.system.ui.SilentInterface;
  * console by default.
  */
 public final class UI {
+
     private static UserInterface ui = new ConsoleInterface();
     private static boolean canceled = false;
     private static int verbosity = 3;
 
     public enum Module {
+
         API, GEOM, HAIR, ACCEL, BCKT, IPR, LIGHT, GUI, SCENE, BENCH, TEX, IMG, DISP, QMC, SYS, USER, CAM,
     }
 
     public enum PrintLevel {
+
         ERROR, WARN, INFO, DETAIL
     }
 
@@ -26,14 +29,15 @@ public final class UI {
     }
 
     /**
-     * Sets the active user interface implementation. Passing <code>null</code>
-     * silences printing completely.
-     * 
+     * Sets the active user interface implementation. Passing
+     * <code>null</code> silences printing completely.
+     *
      * @param ui object to recieve all user interface calls
      */
     public final static void set(UserInterface ui) {
-        if (ui == null)
+        if (ui == null) {
             ui = new SilentInterface();
+        }
         UI.ui = ui;
     }
 
@@ -46,23 +50,27 @@ public final class UI {
     }
 
     public final static synchronized void printDetailed(Module m, String s, Object... args) {
-        if (verbosity > 3)
+        if (verbosity > 3) {
             ui.print(m, PrintLevel.DETAIL, String.format(s, args));
+        }
     }
 
     public final static synchronized void printInfo(Module m, String s, Object... args) {
-        if (verbosity > 2)
+        if (verbosity > 2) {
             ui.print(m, PrintLevel.INFO, String.format(s, args));
+        }
     }
 
     public final static synchronized void printWarning(Module m, String s, Object... args) {
-        if (verbosity > 1)
+        if (verbosity > 1) {
             ui.print(m, PrintLevel.WARN, String.format(s, args));
+        }
     }
 
     public final static synchronized void printError(Module m, String s, Object... args) {
-        if (verbosity > 0)
+        if (verbosity > 0) {
             ui.print(m, PrintLevel.ERROR, String.format(s, args));
+        }
     }
 
     public final static synchronized void taskStart(String s, int min, int max) {
@@ -91,13 +99,14 @@ public final class UI {
 
     /**
      * Check to see if the current task should be aborted.
-     * 
+     *
      * @return <code>true</code> if the current task should be stopped,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     public final static synchronized boolean taskCanceled() {
-        if (canceled)
+        if (canceled) {
             printInfo(Module.GUI, "Abort request noticed by the current task");
+        }
         return canceled;
     }
 }

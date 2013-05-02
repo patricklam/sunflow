@@ -10,15 +10,18 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public class AmbientOcclusionGIEngine implements GIEngine {
+
     private Color bright;
     private Color dark;
     private int samples;
     private float maxDist;
 
+    @Override
     public Color getGlobalRadiance(ShadingState state) {
         return Color.BLACK;
     }
 
+    @Override
     public boolean init(Options options, Scene scene) {
         bright = options.getColor("gi.ambocc.bright", Color.WHITE);
         dark = options.getColor("gi.ambocc.dark", Color.BLACK);
@@ -28,6 +31,7 @@ public class AmbientOcclusionGIEngine implements GIEngine {
         return true;
     }
 
+    @Override
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         OrthoNormalBasis onb = state.getBasis();
         Vector3 w = new Vector3();

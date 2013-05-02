@@ -17,6 +17,7 @@ import org.sunflow.system.UI.Module;
  */
 public class Scene {
     // scene storage
+
     private LightServer lightServer;
     private InstanceList instanceList;
     private InstanceList infiniteInstanceList;
@@ -24,19 +25,15 @@ public class Scene {
     private AccelerationStructure intAccel;
     private String acceltype;
     private Statistics stats;
-
     // baking
     private boolean bakingViewDependent;
     private Instance bakingInstance;
     private PrimitiveList bakingPrimitives;
     private AccelerationStructure bakingAccel;
-
     private boolean rebuildAccel;
-
     // image size
     private int imageWidth;
     private int imageHeight;
-
     // global options
     private int threads;
     private boolean lowPriority;
@@ -67,7 +64,7 @@ public class Scene {
 
     /**
      * Get number of allowed threads for multi-threaded operations.
-     * 
+     *
      * @return number of threads that can be started
      */
     public int getThreads() {
@@ -76,7 +73,7 @@ public class Scene {
 
     /**
      * Get the priority level to assign to multi-threaded operations.
-     * 
+     *
      * @return thread priority
      */
     public int getThreadPriority() {
@@ -85,7 +82,7 @@ public class Scene {
 
     /**
      * Sets the current camera (no support for multiple cameras yet).
-     * 
+     *
      * @param camera camera to be used as the viewpoint for the scene
      */
     public void setCamera(Camera camera) {
@@ -98,7 +95,7 @@ public class Scene {
 
     /**
      * Update the instance lists for this scene.
-     * 
+     *
      * @param instances regular instances
      * @param infinite infinite instances (no bounds)
      */
@@ -110,7 +107,7 @@ public class Scene {
 
     /**
      * Update the light list for this scene.
-     * 
+     *
      * @param lights array of light source objects
      */
     public void setLightList(LightSource[] lights) {
@@ -120,12 +117,11 @@ public class Scene {
     /**
      * Enables shader overiding (set null to disable). The specified shader will
      * be used to shade all surfaces
-     * 
+     *
      * @param shader shader to run over all surfaces, or <code>null</code> to
-     *            disable overriding
+     * disable overriding
      * @param photonOverride <code>true</code> to override photon scattering
-     *            with this shader or <code>false</code> to run the regular
-     *            shaders
+     * with this shader or <code>false</code> to run the regular shaders
      */
     public void setShaderOverride(Shader shader, boolean photonOverride) {
         lightServer.setShaderOverride(shader, photonOverride);
@@ -133,9 +129,10 @@ public class Scene {
 
     /**
      * The provided instance will be considered for lightmap baking. If the
-     * specified instance is <code>null</code>, lightmap baking will be
-     * disabled and normal rendering will occur.
-     * 
+     * specified instance is
+     * <code>null</code>, lightmap baking will be disabled and normal rendering
+     * will occur.
+     *
      * @param instance instance to bake
      */
     public void setBakingInstance(Instance instance) {
@@ -144,7 +141,7 @@ public class Scene {
 
     /**
      * Get the radiance seen through a particular pixel
-     * 
+     *
      * @param istate intersection state for ray tracing
      * @param rx pixel x coordinate
      * @param ry pixel y coordinate
@@ -153,8 +150,7 @@ public class Scene {
      * @param time motion blur sampling variable
      * @param instance QMC instance seed
      * @return a shading state for the intersected primitive, or
-     *         <code>null</code> if nothing is seen through the specifieFd
-     *         point
+     * <code>null</code> if nothing is seen through the specifieFd point
      */
     public ShadingState getRadiance(IntersectionState istate, float rx, float ry, double lensU, double lensV, double time, int instance, int dim, ShadingCache cache) {
         istate.numEyeRays++;
@@ -165,13 +161,14 @@ public class Scene {
         } else {
             Ray r = new Ray(rx / imageWidth, ry / imageHeight, -1, 0, 0, 1);
             traceBake(r, istate);
-            if (!istate.hit())
+            if (!istate.hit()) {
                 return null;
+            }
             ShadingState state = ShadingState.createState(istate, rx, ry, sceneTime, r, instance, dim, lightServer);
             bakingPrimitives.prepareShadingState(state);
-            if (bakingViewDependent)
+            if (bakingViewDependent) {
                 state.setRay(camera.getRay(state.getPoint(), sceneTime));
-            else {
+            } else {
                 Point3 p = state.getPoint();
                 Vector3 n = state.getNormal();
                 // create a ray coming from directly above the point being
@@ -187,7 +184,7 @@ public class Scene {
 
     /**
      * Get scene world space bounding box.
-     * 
+     *
      * @return scene bounding box
      */
     public BoundingBox getBounds() {
@@ -208,8 +205,9 @@ public class Scene {
         // reset object
         state.instance = null;
         state.current = null;
-        for (int i = 0; i < infiniteInstanceList.getNumPrimitives(); i++)
+        for (int i = 0; i < infiniteInstanceList.getNumPrimitives(); i++) {
             infiniteInstanceList.intersectPrimitive(r, i, state);
+        }
         // reset for next accel structure
         state.current = null;
         intAccel.intersect(r, state);
@@ -237,25 +235,29 @@ public class Scene {
             Instance lightInstance = l.createInstance();
             if (lightInstance != null) {
                 if (lightInstance.getBounds() == null) {
-                    if (infiniteAreaLights == null)
+                    if (infiniteAreaLights == null) {
                         infiniteAreaLights = new ArrayList<Instance>();
+                    }
                     infiniteAreaLights.add(lightInstance);
                 } else {
-                    if (areaLights == null)
+                    if (areaLights == null) {
                         areaLights = new ArrayList<Instance>();
+                    }
                     areaLights.add(lightInstance);
                 }
             }
         }
         // add area light sources to the list of instances if they exist
-        if (infiniteAreaLights != null && infiniteAreaLights.size() > 0)
+        if (infiniteAreaLights != null && infiniteAreaLights.size() > 0) {
             infiniteInstanceList.addLightSourceInstances(infiniteAreaLights.toArray(new Instance[infiniteAreaLights.size()]));
-        else
+        } else {
             infiniteInstanceList.clearLightSources();
-        if (areaLights != null && areaLights.size() > 0)
+        }
+        if (areaLights != null && areaLights.size() > 0) {
             instanceList.addLightSourceInstances(areaLights.toArray(new Instance[areaLights.size()]));
-        else
+        } else {
             instanceList.clearLightSources();
+        }
         // FIXME: this _could_ be done incrementally to avoid top-level rebuilds
         // each frame
         rebuildAccel = true;
@@ -268,16 +270,17 @@ public class Scene {
 
     /**
      * Render the scene using the specified options, image sampler and display.
-     * 
+     *
      * @param options rendering options object
      * @param sampler image sampler
      * @param display display to send the final image to, a default display will
-     *            be created if <code>null</code>
+     * be created if <code>null</code>
      */
     public void render(Options options, ImageSampler sampler, Display display) {
         stats.reset();
-        if (display == null)
+        if (display == null) {
             display = new FrameDisplay();
+        }
 
         if (bakingInstance != null) {
             UI.printDetailed(Module.SCENE, "Creating primitives for lightmapping ...");
@@ -316,8 +319,9 @@ public class Scene {
         // get acceleration structure info
         // count scene primitives
         long numPrimitives = 0;
-        for (int i = 0; i < instanceList.getNumPrimitives(); i++)
+        for (int i = 0; i < instanceList.getNumPrimitives(); i++) {
             numPrimitives += instanceList.getNumPrimitives(i);
+        }
         UI.printInfo(Module.SCENE, "Scene stats:");
         UI.printInfo(Module.SCENE, "  * Infinite instances:  %d", infiniteInstanceList.getNumPrimitives());
         UI.printInfo(Module.SCENE, "  * Instances:           %d", instanceList.getNumPrimitives());
@@ -337,10 +341,12 @@ public class Scene {
         UI.printInfo(Module.SCENE, "  * Scene center:        %s", getBounds().getCenter());
         UI.printInfo(Module.SCENE, "  * Scene diameter:      %.2f", getBounds().getExtents().length());
         UI.printInfo(Module.SCENE, "  * Lightmap bake:       %s", bakingInstance != null ? (bakingViewDependent ? "view" : "ortho") : "off");
-        if (sampler == null)
+        if (sampler == null) {
             return;
-        if (!lightServer.build(options))
+        }
+        if (!lightServer.build(options)) {
             return;
+        }
         // render
         UI.printInfo(Module.SCENE, "Rendering ...");
         stats.setResolution(imageWidth, imageHeight);
@@ -359,7 +365,7 @@ public class Scene {
 
     /**
      * Create a photon map as prescribed by the given {@link PhotonStore}.
-     * 
+     *
      * @param map object that will recieve shot photons
      * @param type type of photons being shot
      * @param seed QMC seed parameter

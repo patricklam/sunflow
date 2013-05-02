@@ -6,6 +6,7 @@ import org.sunflow.core.ParameterList;
 import org.sunflow.core.Ray;
 
 public class SphericalLens implements CameraLens {
+
     public boolean update(ParameterList pl, SunflowAPI api) {
         return true;
     }

@@ -11,6 +11,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public class AnisotropicWardShader implements Shader {
+
     private Color rhoD; // diffuse reflectance
     private Color rhoS; // specular reflectance
     private float alphaX;
@@ -41,10 +42,11 @@ public class AnisotropicWardShader implements Shader {
     private float brdf(Vector3 i, Vector3 o, OrthoNormalBasis basis) {
         float fr = 4 * (float) Math.PI * alphaX * alphaY;
         float p = basis.untransformZ(i) * basis.untransformZ(o);
-        if (p > 0)
+        if (p > 0) {
             fr *= (float) Math.sqrt(p);
-        else
+        } else {
             fr = 0;
+        }
         Vector3 h = Vector3.add(i, o, new Vector3());
         basis.untransform(h);
         float hx = h.x / alphaX;
@@ -52,8 +54,9 @@ public class AnisotropicWardShader implements Shader {
         float hy = h.y / alphaY;
         hy *= hy;
         float hn = h.z * h.z;
-        if (fr > 0)
+        if (fr > 0) {
             fr = (float) Math.exp(-(hx + hy) / hn) / fr;
+        }
         return fr;
     }
 

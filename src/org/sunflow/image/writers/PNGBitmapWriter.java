@@ -10,6 +10,7 @@ import org.sunflow.image.BitmapWriter;
 import org.sunflow.image.Color;
 
 public class PNGBitmapWriter implements BitmapWriter {
+
     private String filename;
     private BufferedImage image;
 
@@ -25,9 +26,11 @@ public class PNGBitmapWriter implements BitmapWriter {
     }
 
     public void writeTile(int x, int y, int w, int h, Color[] color, float[] alpha) throws IOException {
-        for (int j = 0, index = 0; j < h; j++)
-            for (int i = 0; i < w; i++, index++)
+        for (int j = 0, index = 0; j < h; j++) {
+            for (int i = 0; i < w; i++, index++) {
                 image.setRGB(x + i, y + j, color[index].copy().mul(1.0f / alpha[index]).toNonLinear().toRGBA(alpha[index]));
+            }
+        }
     }
 
     public void closeFile() throws IOException {

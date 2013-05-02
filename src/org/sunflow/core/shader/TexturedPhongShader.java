@@ -8,6 +8,7 @@ import org.sunflow.core.TextureCache;
 import org.sunflow.image.Color;
 
 public class TexturedPhongShader extends PhongShader {
+
     private Texture tex;
 
     public TexturedPhongShader() {
@@ -17,8 +18,9 @@ public class TexturedPhongShader extends PhongShader {
     @Override
     public boolean update(ParameterList pl, SunflowAPI api) {
         String filename = pl.getString("texture", null);
-        if (filename != null)
+        if (filename != null) {
             tex = TextureCache.getTexture(api.resolveTextureFilename(filename), false);
+        }
         return tex != null && super.update(pl, api);
     }
 

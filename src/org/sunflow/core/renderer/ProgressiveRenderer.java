@@ -15,6 +15,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class ProgressiveRenderer implements ImageSampler {
+
     private Scene scene;
     private int imageWidth, imageHeight;
     private PriorityBlockingQueue<SmallBucket> smallBucketQueue;
@@ -43,8 +44,9 @@ public class ProgressiveRenderer implements ImageSampler {
         b.x = b.y = 0;
         int s = Math.max(imageWidth, imageHeight);
         b.size = 1;
-        while (b.size < s)
+        while (b.size < s) {
             b.size <<= 1;
+        }
         smallBucketQueue = new PriorityBlockingQueue<SmallBucket>();
         smallBucketQueue.add(b);
         UI.taskStart("Progressive Render", 0, imageWidth * imageHeight);
@@ -74,6 +76,7 @@ public class ProgressiveRenderer implements ImageSampler {
     }
 
     private class SmallBucketThread extends Thread {
+
         private final IntersectionState istate = new IntersectionState();
 
         @Override
@@ -81,13 +84,15 @@ public class ProgressiveRenderer implements ImageSampler {
             while (true) {
                 int n = progressiveRenderNext(istate);
                 synchronized (ProgressiveRenderer.this) {
-                    if (counter >= counterMax)
+                    if (counter >= counterMax) {
                         return;
+                    }
                     counter += n;
                     UI.taskUpdate(counter);
                 }
-                if (UI.taskCanceled())
+                if (UI.taskCanceled()) {
                     return;
+                }
             }
         }
 
@@ -99,8 +104,9 @@ public class ProgressiveRenderer implements ImageSampler {
     private int progressiveRenderNext(IntersectionState istate) {
         final int TASK_SIZE = 16;
         SmallBucket first = smallBucketQueue.poll();
-        if (first == null)
+        if (first == null) {
             return 0;
+        }
         int ds = first.size / TASK_SIZE;
         boolean useMask = !smallBucketQueue.isEmpty();
         int mask = 2 * first.size / TASK_SIZE - 1;
@@ -108,8 +114,9 @@ public class ProgressiveRenderer implements ImageSampler {
         for (int i = 0, y = first.y; i < TASK_SIZE && y < imageHeight; i++, y += ds) {
             for (int j = 0, x = first.x; j < TASK_SIZE && x < imageWidth; j++, x += ds) {
                 // check to see if this is a pixel from a higher level tile
-                if (useMask && (x & mask) == 0 && (y & mask) == 0)
+                if (useMask && (x & mask) == 0 && (y & mask) == 0) {
                     continue;
+                }
                 int instance = ((x & ((1 << QMC.MAX_SIGMA_ORDER) - 1)) << QMC.MAX_SIGMA_ORDER) + QMC.sigma(y & ((1 << QMC.MAX_SIGMA_ORDER) - 1), QMC.MAX_SIGMA_ORDER);
                 double time = QMC.halton(1, instance);
                 double lensU = QMC.halton(2, instance);
@@ -144,14 +151,17 @@ public class ProgressiveRenderer implements ImageSampler {
 
     // progressive rendering
     private static class SmallBucket implements Comparable<SmallBucket> {
+
         int x, y, size;
         float constrast;
 
         public int compareTo(SmallBucket o) {
-            if (constrast < o.constrast)
+            if (constrast < o.constrast) {
                 return -1;
-            if (constrast == o.constrast)
+            }
+            if (constrast == o.constrast) {
                 return 0;
+            }
             return 1;
         }
     }

@@ -16,6 +16,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class BezierMesh implements Tesselatable {
+
     private int subdivs;
     private boolean smooth;
     private boolean quads;
@@ -38,8 +39,9 @@ public class BezierMesh implements Tesselatable {
         if (o2w == null) {
             for (int i = 0; i < patches.length; i++) {
                 float[] patch = patches[i];
-                for (int j = 0; j < patch.length; j += 3)
+                for (int j = 0; j < patch.length; j += 3) {
                     bounds.include(patch[j], patch[j + 1], patch[j + 2]);
+                }
             }
         } else {
             // transform vertices first
@@ -70,8 +72,9 @@ public class BezierMesh implements Tesselatable {
     }
 
     private float[] bernsteinDeriv(float u) {
-        if (!smooth)
+        if (!smooth) {
             return null;
+        }
         float[] b = new float[4];
         float i = 1 - u;
         b[0] = 3 * (0 - i * i);
@@ -185,13 +188,15 @@ public class BezierMesh implements Tesselatable {
         }
         ParameterList pl = new ParameterList();
         pl.addPoints("points", InterpolationType.VERTEX, vertices);
-        if (quads)
+        if (quads) {
             pl.addIntegerArray("quads", indices);
-        else
+        } else {
             pl.addIntegerArray("triangles", indices);
+        }
         pl.addTexCoords("uvs", InterpolationType.VERTEX, uvs);
-        if (smooth)
+        if (smooth) {
             pl.addVectors("normals", InterpolationType.VERTEX, normals);
+        }
         PrimitiveList m = quads ? new QuadMesh() : new TriangleMesh();
         m.update(pl, null);
         pl.clear(true);

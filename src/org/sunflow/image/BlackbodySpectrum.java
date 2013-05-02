@@ -1,6 +1,7 @@
 package org.sunflow.image;
 
 public class BlackbodySpectrum extends SpectralCurve {
+
     private float temp;
 
     public BlackbodySpectrum(float temp) {

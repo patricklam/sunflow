@@ -7,6 +7,7 @@ package org.sunflow.image;
  * the finite width color matching functions.
  */
 public class ConstantSpectralCurve extends SpectralCurve {
+
     private final float amp;
 
     public ConstantSpectralCurve(float amp) {

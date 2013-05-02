@@ -12,6 +12,7 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class SimpleRenderer implements ImageSampler {
+
     private Scene scene;
     private Display display;
     private int imageWidth, imageHeight;
@@ -56,6 +57,7 @@ public class SimpleRenderer implements ImageSampler {
     }
 
     private class BucketThread extends Thread {
+
         private final IntersectionState istate = new IntersectionState();
 
         @Override
@@ -63,8 +65,9 @@ public class SimpleRenderer implements ImageSampler {
             while (true) {
                 int bx, by;
                 synchronized (SimpleRenderer.this) {
-                    if (bucketCounter >= numBuckets)
+                    if (bucketCounter >= numBuckets) {
                         return;
+                    }
                     by = bucketCounter / numBucketsX;
                     bx = bucketCounter % numBucketsX;
                     bucketCounter++;

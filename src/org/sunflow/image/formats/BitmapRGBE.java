@@ -4,6 +4,7 @@ import org.sunflow.image.Bitmap;
 import org.sunflow.image.Color;
 
 public class BitmapRGBE extends Bitmap {
+
     private int w, h;
     private int[] data;
     private static final float[] EXPONENT = new float[256];
@@ -13,12 +14,15 @@ public class BitmapRGBE extends Bitmap {
         for (int i = 1; i < 256; i++) {
             float f = 1.0f;
             int e = i - (128 + 8);
-            if (e > 0)
-                for (int j = 0; j < e; j++)
+            if (e > 0) {
+                for (int j = 0; j < e; j++) {
                     f *= 2.0f;
-            else
-                for (int j = 0; j < -e; j++)
+                }
+            } else {
+                for (int j = 0; j < -e; j++) {
                     f *= 0.5f;
+                }
+            }
             EXPONENT[i] = f;
         }
     }

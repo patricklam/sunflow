@@ -10,6 +10,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public class DiffuseShader implements Shader {
+
     private Color diff;
 
     public DiffuseShader() {

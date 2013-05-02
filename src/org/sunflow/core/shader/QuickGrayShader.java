@@ -10,6 +10,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
 
 public class QuickGrayShader implements Shader {
+
     public QuickGrayShader() {
     }
 

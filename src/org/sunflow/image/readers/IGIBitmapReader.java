@@ -14,6 +14,7 @@ import org.sunflow.image.formats.BitmapXYZ;
  * http://www2.indigorenderer.com/joomla/forum/viewtopic.php?p=11430
  */
 public class IGIBitmapReader implements BitmapReader {
+
     public Bitmap load(String filename, boolean isLinear) throws IOException, BitmapFormatException {
         InputStream stream = new BufferedInputStream(new FileInputStream(filename));
         // read header
@@ -28,22 +29,30 @@ public class IGIBitmapReader implements BitmapReader {
         int colorSpace = read32i(stream);
         stream.skip(5000); // skip the rest of the header (unused for now)
         // error checking
-        if (magic != 66613373)
+        if (magic != 66613373) {
             throw new BitmapFormatException("wrong magic: " + magic);
-        if (version != 1)
+        }
+        if (version != 1) {
             throw new BitmapFormatException("unsupported version: " + version);
-        if (compression != 0)
+        }
+        if (compression != 0) {
             throw new BitmapFormatException("unsupported compression: " + compression);
-        if (colorSpace != 0)
+        }
+        if (colorSpace != 0) {
             throw new BitmapFormatException("unsupported color space: " + colorSpace);
-        if (dataSize != (width * height * 12))
+        }
+        if (dataSize != (width * height * 12)) {
             throw new BitmapFormatException("invalid data block size: " + dataSize);
-        if (width <= 0 || height <= 0)
+        }
+        if (width <= 0 || height <= 0) {
             throw new BitmapFormatException("invalid image size: " + width + "x" + height);
-        if (superSample <= 0)
+        }
+        if (superSample <= 0) {
             throw new BitmapFormatException("invalid super sample factor: " + superSample);
-        if ((width % superSample) != 0 || (height % superSample) != 0)
+        }
+        if ((width % superSample) != 0 || (height % superSample) != 0) {
             throw new BitmapFormatException("invalid image size: " + width + "x" + height);
+        }
         float[] xyz = new float[width * height * 3];
         for (int y = 0, i = 3 * (height - 1) * width; y < height; y++, i -= 6 * width) {
             for (int x = 0; x < width; x++, i += 3) {
@@ -76,8 +85,9 @@ public class IGIBitmapReader implements BitmapReader {
                 }
             }
             return new BitmapXYZ(width / superSample, height / superSample, rescaled);
-        } else
+        } else {
             return new BitmapXYZ(width, height, xyz);
+        }
     }
 
     private static final int read32i(InputStream stream) throws IOException {

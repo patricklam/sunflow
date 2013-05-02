@@ -1,11 +1,11 @@
 package org.sunflow.math;
 
 public final class Vector3 {
+
     private static final float[] COS_THETA = new float[256];
     private static final float[] SIN_THETA = new float[256];
     private static final float[] COS_PHI = new float[256];
     private static final float[] SIN_PHI = new float[256];
-
     public float x, y, z;
 
     static {
@@ -49,13 +49,15 @@ public final class Vector3 {
 
     public final short encode() {
         int theta = (int) (Math.acos(z) * (256.0 / Math.PI));
-        if (theta > 255)
+        if (theta > 255) {
             theta = 255;
+        }
         int phi = (int) (Math.atan2(y, x) * (128.0 / Math.PI));
-        if (phi < 0)
+        if (phi < 0) {
             phi += 256;
-        else if (phi > 255)
+        } else if (phi > 255) {
             phi = 255;
+        }
         return (short) (((theta & 0xFF) << 8) | (phi & 0xFF));
     }
 

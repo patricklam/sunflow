@@ -3,6 +3,7 @@ package org.sunflow.image;
 import org.sunflow.math.MathUtils;
 
 public final class Color {
+
     private float r, g, b;
     public static final RGBSpace NATIVE_SPACE = RGBSpace.SRGB;
     public static final Color BLACK = new Color(0, 0, 0);
@@ -22,7 +23,6 @@ public final class Color {
     public static Color white() {
         return new Color(1, 1, 1);
     }
-
     private static final float[] EXPONENT = new float[256];
 
     static {
@@ -30,12 +30,15 @@ public final class Color {
         for (int i = 1; i < 256; i++) {
             float f = 1.0f;
             int e = i - (128 + 8);
-            if (e > 0)
-                for (int j = 0; j < e; j++)
+            if (e > 0) {
+                for (int j = 0; j < e; j++) {
                     f *= 2.0f;
-            else
-                for (int j = 0; j < -e; j++)
+                }
+            } else {
+                for (int j = 0; j < -e; j++) {
                     f *= 0.5f;
+                }
+            }
             EXPONENT[i] = f;
         }
     }
@@ -133,7 +136,7 @@ public final class Color {
     }
 
     public final float[] getRGB() {
-        return new float[] { r, g, b };
+        return new float[]{r, g, b};
     }
 
     public final int toRGB() {
@@ -162,8 +165,9 @@ public final class Color {
         // encode the color into 32bits while preserving HDR using Ward's RGBE
         // technique
         float v = MathUtils.max(r, g, b);
-        if (v < 1e-32f)
+        if (v < 1e-32f) {
             return 0;
+        }
 
         // get mantissa and exponent
         float m = v;
@@ -354,12 +358,15 @@ public final class Color {
     }
 
     public static final boolean hasContrast(Color c1, Color c2, float thresh) {
-        if (Math.abs(c1.r - c2.r) / (c1.r + c2.r) > thresh)
+        if (Math.abs(c1.r - c2.r) / (c1.r + c2.r) > thresh) {
             return true;
-        if (Math.abs(c1.g - c2.g) / (c1.g + c2.g) > thresh)
+        }
+        if (Math.abs(c1.g - c2.g) / (c1.g + c2.g) > thresh) {
             return true;
-        if (Math.abs(c1.b - c2.b) / (c1.b + c2.b) > thresh)
+        }
+        if (Math.abs(c1.b - c2.b) / (c1.b + c2.b) > thresh) {
             return true;
+        }
         return false;
     }
 

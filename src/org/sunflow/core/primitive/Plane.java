@@ -14,6 +14,7 @@ import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
 
 public class Plane implements PrimitiveList {
+
     private Point3 center;
     private Vector3 normal;
     int k;
@@ -37,12 +38,13 @@ public class Plane implements PrimitiveList {
             Point3 v1 = b;
             Point3 v2 = c;
             Vector3 ng = normal = Vector3.cross(Point3.sub(v1, v0, new Vector3()), Point3.sub(v2, v0, new Vector3()), new Vector3()).normalize();
-            if (Math.abs(ng.x) > Math.abs(ng.y) && Math.abs(ng.x) > Math.abs(ng.z))
+            if (Math.abs(ng.x) > Math.abs(ng.y) && Math.abs(ng.x) > Math.abs(ng.z)) {
                 k = 0;
-            else if (Math.abs(ng.y) > Math.abs(ng.z))
+            } else if (Math.abs(ng.y) > Math.abs(ng.z)) {
                 k = 1;
-            else
+            } else {
                 k = 2;
+            }
             float ax, ay, bx, by, cx, cy;
             switch (k) {
                 case 0: {
@@ -126,8 +128,9 @@ public class Plane implements PrimitiveList {
 
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
         float dn = normal.x * r.dx + normal.y * r.dy + normal.z * r.dz;
-        if (dn == 0.0)
+        if (dn == 0.0) {
             return;
+        }
         float t = (((center.x - r.ox) * normal.x) + ((center.y - r.oy) * normal.y) + ((center.z - r.oz) * normal.z)) / dn;
         if (r.isInside(t)) {
             r.setMax(t);

@@ -6,6 +6,7 @@ package org.sunflow.core;
  * traversal.
  */
 public final class IntersectionState {
+
     private static final int MAX_STACK_SIZE = 64;
     float time;
     float u, v, w;
@@ -25,6 +26,7 @@ public final class IntersectionState {
      * traversal.
      */
     public static final class StackNode {
+
         public int node;
         public float near;
         public float far;
@@ -34,16 +36,18 @@ public final class IntersectionState {
      * Initializes all traversal stacks.
      */
     public IntersectionState() {
-        for (int i = 0; i < stacks.length; i++)
-            for (int j = 0; j < stacks[i].length; j++)
+        for (int i = 0; i < stacks.length; i++) {
+            for (int j = 0; j < stacks[i].length; j++) {
                 stacks[i][j] = new StackNode();
+            }
+        }
     }
 
     /**
      * Returns the time at which the intersection should be calculated. This
      * will be constant for a given ray-tree. This value is guarenteed to be
      * between the camera's shutter open and shutter close time.
-     * 
+     *
      * @return time value
      */
     public float getTime() {
@@ -52,7 +56,7 @@ public final class IntersectionState {
 
     /**
      * Get stack object for tree based {@link AccelerationStructure}s.
-     * 
+     *
      * @return array of stack nodes
      */
     public final StackNode[] getStack() {
@@ -61,9 +65,9 @@ public final class IntersectionState {
 
     /**
      * Checks to see if a hit has been recorded.
-     * 
-     * @return <code>true</code> if a hit has been recorded,
-     *         <code>false</code> otherwise
+     *
+     * @return <code>true</code> if a hit has been recorded, <code>false</code>
+     * otherwise
      */
     public final boolean hit() {
         return instance != null;
@@ -73,7 +77,7 @@ public final class IntersectionState {
      * Record an intersection with the specified primitive id. The parent object
      * is assumed to be the current instance. The u and v parameters are used to
      * pinpoint the location on the surface if needed.
-     * 
+     *
      * @param id primitive id of the intersected object
      */
     public final void setIntersection(int id) {
@@ -85,7 +89,7 @@ public final class IntersectionState {
      * Record an intersection with the specified primitive id. The parent object
      * is assumed to be the current instance. The u and v parameters are used to
      * pinpoint the location on the surface if needed.
-     * 
+     *
      * @param id primitive id of the intersected object
      * @param u u surface paramater of the intersection point
      * @param v v surface parameter of the intersection point
@@ -101,7 +105,7 @@ public final class IntersectionState {
      * Record an intersection with the specified primitive id. The parent object
      * is assumed to be the current instance. The u and v parameters are used to
      * pinpoint the location on the surface if needed.
-     * 
+     *
      * @param id primitive id of the intersected object
      * @param u u surface paramater of the intersection point
      * @param v v surface parameter of the intersection point

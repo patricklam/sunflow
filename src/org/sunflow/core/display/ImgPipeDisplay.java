@@ -1,6 +1,8 @@
 package org.sunflow.core.display;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 
@@ -9,6 +11,7 @@ import org.sunflow.image.Color;
 
 @SuppressWarnings("serial")
 public class ImgPipeDisplay extends JPanel implements Display {
+
     private int ih;
 
     /**
@@ -18,15 +21,18 @@ public class ImgPipeDisplay extends JPanel implements Display {
     public ImgPipeDisplay() {
     }
 
+    @Override
     public synchronized void imageBegin(int w, int h, int bucketSize) {
         ih = h;
         outputPacket(5, w, h, Float.floatToRawIntBits(1.0f), 0);
         System.out.flush();
     }
 
+    @Override
     public synchronized void imagePrepare(int x, int y, int w, int h, int id) {
     }
 
+    @Override
     public synchronized void imageUpdate(int x, int y, int w, int h, Color[] data, float[] alpha) {
         int xl = x;
         int xh = x + w - 1;
@@ -48,11 +54,12 @@ public class ImgPipeDisplay extends JPanel implements Display {
         }
         try {
             System.out.write(rgba);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(ImgPipeDisplay.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    @Override
     public synchronized void imageFill(int x, int y, int w, int h, Color c, float alpha) {
         int xl = x;
         int xh = x + w - 1;
@@ -74,11 +81,12 @@ public class ImgPipeDisplay extends JPanel implements Display {
         }
         try {
             System.out.write(rgba);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(ImgPipeDisplay.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    @Override
     public synchronized void imageEnd() {
         outputPacket(4, 0, 0, 0, 0);
         System.out.flush();

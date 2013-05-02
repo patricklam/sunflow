@@ -4,6 +4,7 @@ import org.sunflow.image.Bitmap;
 import org.sunflow.image.Color;
 
 public class BitmapBlack extends Bitmap {
+
     @Override
     public int getWidth() {
         return 1;

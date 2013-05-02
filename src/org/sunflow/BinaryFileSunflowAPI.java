@@ -11,6 +11,7 @@ import org.sunflow.core.parser.SCAbstractParser.Keyword;
 import org.sunflow.math.Matrix4;
 
 class BinaryFileSunflowAPI extends FileSunflowAPI {
+
     private DataOutputStream stream;
 
     BinaryFileSunflowAPI(String filename) throws FileNotFoundException {
@@ -20,10 +21,11 @@ class BinaryFileSunflowAPI extends FileSunflowAPI {
     @Override
     protected void writeBoolean(boolean value) {
         try {
-            if (value)
+            if (value) {
                 stream.write(1);
-            else
+            } else {
                 stream.write(0);
+            }
         } catch (IOException e) {
             // throw as a silent exception to avoid having to propage throw
             // declarations upwards
@@ -189,8 +191,9 @@ class BinaryFileSunflowAPI extends FileSunflowAPI {
 
     @Override
     protected void writeMatrix(Matrix4 value) {
-        for (float f : value.asRowMajor())
+        for (float f : value.asRowMajor()) {
             writeFloat(f);
+        }
     }
 
     @Override

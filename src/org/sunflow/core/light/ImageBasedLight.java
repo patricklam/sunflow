@@ -22,6 +22,7 @@ import org.sunflow.math.QMC;
 import org.sunflow.math.Vector3;
 
 public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
+
     private Texture texture;
     private OrthoNormalBasis basis;
     private int numSamples;
@@ -54,15 +55,18 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
         numSamples = pl.getInt("samples", numSamples);
         numLowSamples = pl.getInt("lowsamples", numLowSamples);
         String filename = pl.getString("texture", null);
-        if (filename != null)
+        if (filename != null) {
             texture = TextureCache.getTexture(api.resolveTextureFilename(filename), false);
+        }
 
         // no texture provided
-        if (texture == null)
+        if (texture == null) {
             return false;
+        }
         Bitmap b = texture.getBitmap();
-        if (b == null)
+        if (b == null) {
             return false;
+        }
 
         // rebuild histograms if this is a new texture
         if (filename != null) {
@@ -76,17 +80,21 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
                     float v = (y + 0.5f) * dv;
                     Color c = texture.getPixel(u, v);
                     imageHistogram[x][y] = c.getLuminance() * (float) Math.sin(Math.PI * v);
-                    if (y > 0)
+                    if (y > 0) {
                         imageHistogram[x][y] += imageHistogram[x][y - 1];
+                    }
                 }
                 colHistogram[x] = imageHistogram[x][b.getHeight() - 1];
-                if (x > 0)
+                if (x > 0) {
                     colHistogram[x] += colHistogram[x - 1];
-                for (int y = 0; y < b.getHeight(); y++)
+                }
+                for (int y = 0; y < b.getHeight(); y++) {
                     imageHistogram[x][y] /= imageHistogram[x][b.getHeight() - 1];
+                }
             }
-            for (int x = 0; x < b.getWidth(); x++)
+            for (int x = 0; x < b.getWidth(); x++) {
                 colHistogram[x] /= colHistogram[b.getWidth() - 1];
+            }
             jacobian = (float) (2 * Math.PI * Math.PI) / (b.getWidth() * b.getHeight());
         }
         // take fixed samples
@@ -112,12 +120,14 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
             double randX = (double) i / (double) samples.length;
             double randY = QMC.halton(0, i);
             int x = 0;
-            while (randX >= colHistogram[x] && x < colHistogram.length - 1)
+            while (randX >= colHistogram[x] && x < colHistogram.length - 1) {
                 x++;
+            }
             float[] rowHistogram = imageHistogram[x];
             int y = 0;
-            while (randY >= rowHistogram[y] && y < rowHistogram.length - 1)
+            while (randY >= rowHistogram[y] && y < rowHistogram.length - 1) {
                 y++;
+            }
             // sample from (x, y)
             float u = (float) ((x == 0) ? (randX / colHistogram[0]) : ((randX - colHistogram[x - 1]) / (colHistogram[x] - colHistogram[x - 1])));
             float v = (float) ((y == 0) ? (randY / rowHistogram[0]) : ((randY - rowHistogram[y - 1]) / (rowHistogram[y] - rowHistogram[y - 1])));
@@ -136,13 +146,15 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
     }
 
     public void prepareShadingState(ShadingState state) {
-        if (state.includeLights())
+        if (state.includeLights()) {
             state.setShader(this);
+        }
     }
 
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
-        if (r.getMax() == Float.POSITIVE_INFINITY)
+        if (r.getMax() == Float.POSITIVE_INFINITY) {
             state.setIntersection(0);
+        }
     }
 
     public int getNumPrimitives() {
@@ -174,12 +186,14 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
                 double randX = state.getRandom(i, 0, n);
                 double randY = state.getRandom(i, 1, n);
                 int x = 0;
-                while (randX >= colHistogram[x] && x < colHistogram.length - 1)
+                while (randX >= colHistogram[x] && x < colHistogram.length - 1) {
                     x++;
+                }
                 float[] rowHistogram = imageHistogram[x];
                 int y = 0;
-                while (randY >= rowHistogram[y] && y < rowHistogram.length - 1)
+                while (randY >= rowHistogram[y] && y < rowHistogram.length - 1) {
                     y++;
+                }
                 // sample from (x, y)
                 float u = (float) ((x == 0) ? (randX / colHistogram[0]) : ((randX - colHistogram[x - 1]) / (colHistogram[x] - colHistogram[x - 1])));
                 float v = (float) ((y == 0) ? (randY / rowHistogram[0]) : ((randY - rowHistogram[y - 1]) / (rowHistogram[y] - rowHistogram[y - 1])));

@@ -129,13 +129,13 @@ import org.sunflow.system.Plugins;
  */
 public final class PluginRegistry {
     // base types - needed by SunflowAPI
+
     public static final Plugins<PrimitiveList> primitivePlugins = new Plugins<PrimitiveList>(PrimitiveList.class);
     public static final Plugins<Tesselatable> tesselatablePlugins = new Plugins<Tesselatable>(Tesselatable.class);
     public static final Plugins<Shader> shaderPlugins = new Plugins<Shader>(Shader.class);
     public static final Plugins<Modifier> modifierPlugins = new Plugins<Modifier>(Modifier.class);
     public static final Plugins<LightSource> lightSourcePlugins = new Plugins<LightSource>(LightSource.class);
     public static final Plugins<CameraLens> cameraLensPlugins = new Plugins<CameraLens>(CameraLens.class);
-
     // advanced types - used inside the Sunflow core
     public static final Plugins<AccelerationStructure> accelPlugins = new Plugins<AccelerationStructure>(AccelerationStructure.class);
     public static final Plugins<BucketOrder> bucketOrderPlugins = new Plugins<BucketOrder>(BucketOrder.class);

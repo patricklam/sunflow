@@ -13,6 +13,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.sunflow.SunflowAPI;
 import org.sunflow.core.ParameterList;
@@ -31,6 +33,7 @@ import org.sunflow.util.FloatArray;
 import org.sunflow.util.IntArray;
 
 public class FileMesh implements Tesselatable {
+
     private String filename = null;
     private boolean smoothNormals = false;
 
@@ -54,20 +57,22 @@ public class FileMesh implements Tesselatable {
                 int numTris = ints.get(1);
                 UI.printInfo(Module.GEOM, "RA3 -   * Reading %d vertices ...", numVerts);
                 float[] verts = new float[3 * numVerts];
-                for (int i = 0; i < verts.length; i++)
+                for (int i = 0; i < verts.length; i++) {
                     verts[i] = buffer.get(2 + i);
+                }
                 UI.printInfo(Module.GEOM, "RA3 -   * Reading %d triangles ...", numTris);
                 int[] tris = new int[3 * numTris];
-                for (int i = 0; i < tris.length; i++)
+                for (int i = 0; i < tris.length; i++) {
                     tris[i] = ints.get(2 + verts.length + i);
+                }
                 stream.close();
                 UI.printInfo(Module.GEOM, "RA3 -   * Creating mesh ...");
                 return generate(tris, verts, smoothNormals);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Logger.getLogger(FileMesh.class.getName()).log(Level.SEVERE, null, e);
                 UI.printError(Module.GEOM, "Unable to read mesh file \"%s\" - file not found", filename);
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.getLogger(FileMesh.class.getName()).log(Level.SEVERE, null, e);
                 UI.printError(Module.GEOM, "Unable to read mesh file \"%s\" - I/O error occured", filename);
             }
         } else if (filename.endsWith(".obj")) {
@@ -100,21 +105,22 @@ public class FileMesh implements Tesselatable {
                             tris.add(Integer.parseInt(f[3]) - 1);
                         }
                     }
-                    if (lineNumber % 100000 == 0)
+                    if (lineNumber % 100000 == 0) {
                         UI.printInfo(Module.GEOM, "OBJ -   * Parsed %7d lines ...", lineNumber);
+                    }
                     lineNumber++;
                 }
                 file.close();
                 UI.printInfo(Module.GEOM, "OBJ -   * Creating mesh ...");
                 return generate(tris.trim(), verts.trim(), smoothNormals);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Logger.getLogger(FileMesh.class.getName()).log(Level.SEVERE, null, e);
                 UI.printError(Module.GEOM, "Unable to read mesh file \"%s\" - file not found", filename);
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                Logger.getLogger(FileMesh.class.getName()).log(Level.SEVERE, null, e);
                 UI.printError(Module.GEOM, "Unable to read mesh file \"%s\" - syntax error at line %d", lineNumber);
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.getLogger(FileMesh.class.getName()).log(Level.SEVERE, null, e);
                 UI.printError(Module.GEOM, "Unable to read mesh file \"%s\" - I/O error occured", filename);
             }
         } else if (filename.endsWith(".stl")) {
@@ -145,24 +151,27 @@ public class FileMesh implements Tesselatable {
                         verts[index + 2] = getLittleEndianFloat(stream.readInt());
                     }
                     stream.readShort();
-                    if ((i + 1) % 100000 == 0)
+                    if ((i + 1) % 100000 == 0) {
                         UI.printInfo(Module.GEOM, "STL -   * Parsed %7d triangles ...", i + 1);
+                    }
                 }
                 file.close();
                 // create geometry
                 UI.printInfo(Module.GEOM, "STL -   * Creating mesh ...");
-                if (smoothNormals)
+                if (smoothNormals) {
                     UI.printWarning(Module.GEOM, "STL - format does not support shared vertices - normal smoothing disabled");
+                }
                 return generate(tris, verts, false);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Logger.getLogger(FileMesh.class.getName()).log(Level.SEVERE, null, e);
                 UI.printError(Module.GEOM, "Unable to read mesh file \"%s\" - file not found", filename);
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.getLogger(FileMesh.class.getName()).log(Level.SEVERE, null, e);
                 UI.printError(Module.GEOM, "Unable to read mesh file \"%s\" - I/O error occured", filename);
             }
-        } else
+        } else {
             UI.printWarning(Module.GEOM, "Unable to read mesh file \"%s\" - unrecognized format", filename);
+        }
         return null;
     }
 
@@ -208,8 +217,9 @@ public class FileMesh implements Tesselatable {
             pl.addVectors("normals", InterpolationType.VERTEX, normals);
         }
         TriangleMesh m = new TriangleMesh();
-        if (m.update(pl, null))
+        if (m.update(pl, null)) {
             return m;
+        }
         // something failed in creating the mesh, the error message will be
         // printed by the mesh itself - no need to repeat it here
         return null;
@@ -217,8 +227,9 @@ public class FileMesh implements Tesselatable {
 
     public boolean update(ParameterList pl, SunflowAPI api) {
         String file = pl.getString("filename", null);
-        if (file != null)
+        if (file != null) {
             filename = api.resolveIncludeFilename(file);
+        }
         smoothNormals = pl.getBoolean("smooth_normals", smoothNormals);
         return filename != null;
     }

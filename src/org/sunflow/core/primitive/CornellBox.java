@@ -18,6 +18,7 @@ import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
 
 public class CornellBox implements PrimitiveList, Shader, LightSource {
+
     private float minX, minY, minZ;
     private float maxX, maxY, maxZ;
     private Color left, right, top, bottom, back;
@@ -115,22 +116,30 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         b.include(new Point3(maxX, maxY, maxZ));
         if (b.intersects(box)) {
             // the box is overlapping or enclosed
-            if (!b.contains(new Point3(box.getMinimum().x, box.getMinimum().y, box.getMinimum().z)))
+            if (!b.contains(new Point3(box.getMinimum().x, box.getMinimum().y, box.getMinimum().z))) {
                 return true;
-            if (!b.contains(new Point3(box.getMinimum().x, box.getMinimum().y, box.getMaximum().z)))
+            }
+            if (!b.contains(new Point3(box.getMinimum().x, box.getMinimum().y, box.getMaximum().z))) {
                 return true;
-            if (!b.contains(new Point3(box.getMinimum().x, box.getMaximum().y, box.getMinimum().z)))
+            }
+            if (!b.contains(new Point3(box.getMinimum().x, box.getMaximum().y, box.getMinimum().z))) {
                 return true;
-            if (!b.contains(new Point3(box.getMinimum().x, box.getMaximum().y, box.getMaximum().z)))
+            }
+            if (!b.contains(new Point3(box.getMinimum().x, box.getMaximum().y, box.getMaximum().z))) {
                 return true;
-            if (!b.contains(new Point3(box.getMaximum().x, box.getMinimum().y, box.getMinimum().z)))
+            }
+            if (!b.contains(new Point3(box.getMaximum().x, box.getMinimum().y, box.getMinimum().z))) {
                 return true;
-            if (!b.contains(new Point3(box.getMaximum().x, box.getMinimum().y, box.getMaximum().z)))
+            }
+            if (!b.contains(new Point3(box.getMaximum().x, box.getMinimum().y, box.getMaximum().z))) {
                 return true;
-            if (!b.contains(new Point3(box.getMaximum().x, box.getMaximum().y, box.getMinimum().z)))
+            }
+            if (!b.contains(new Point3(box.getMaximum().x, box.getMaximum().y, box.getMinimum().z))) {
                 return true;
-            if (!b.contains(new Point3(box.getMaximum().x, box.getMaximum().y, box.getMaximum().z)))
+            }
+            if (!b.contains(new Point3(box.getMaximum().x, box.getMaximum().y, box.getMaximum().z))) {
                 return true;
+            }
             // all vertices of the box are inside - the surface of the box is
             // not intersected
         }
@@ -197,8 +206,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 sideOut = 0;
             }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgY = r.oy;
         float invDirY = 1 / r.dy;
         t1 = (minY - orgY) * invDirY;
@@ -222,8 +232,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 sideOut = 2;
             }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         float orgZ = r.oz;
         float invDirZ = 1 / r.dz;
         t1 = (minZ - orgZ) * invDirZ; // no front wall
@@ -247,8 +258,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 sideOut = 4;
             }
         }
-        if (intervalMin > intervalMax)
+        if (intervalMin > intervalMax) {
             return;
+        }
         assert sideIn != -1;
         assert sideOut != -1;
         // can't hit minY wall, there is none
@@ -280,8 +292,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
             case 5:
                 float lx = state.getPoint().x;
                 float ly = state.getPoint().y;
-                if (lx >= lxmin && lx < lxmax && ly >= lymin && ly < lymax && state.getRay().dz > 0)
+                if (lx >= lxmin && lx < lxmax && ly >= lymin && ly < lymax && state.getRay().dz > 0) {
                     return state.includeLights() ? radiance : Color.BLACK;
+                }
                 kd = top;
                 break;
             default:
@@ -314,8 +327,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
             case 5:
                 float lx = state.getPoint().x;
                 float ly = state.getPoint().y;
-                if (lx >= lxmin && lx < lxmax && ly >= lymin && ly < lymax && state.getRay().dz > 0)
+                if (lx >= lxmin && lx < lxmax && ly >= lymin && ly < lymax && state.getRay().dz > 0) {
                     return;
+                }
                 kd = top;
                 break;
             default:
@@ -367,8 +381,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 // check that the direction of the sample is the same as the
                 // normal
                 float cosNx = dest.dot(state.getNormal());
-                if (cosNx <= 0)
+                if (cosNx <= 0) {
                     return;
+                }
 
                 // light source facing point ?
                 // (need to check with light source's normal)
@@ -431,8 +446,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(minX, minY, minZ);
         bounds.include(maxX, maxY, maxZ);
-        if (o2w == null)
+        if (o2w == null) {
             return bounds;
+        }
         return o2w.transform(bounds);
     }
 

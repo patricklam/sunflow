@@ -20,11 +20,13 @@ import org.sunflow.system.UI.Module;
 import org.sunflow.util.FastHashMap;
 
 final class RenderObjectMap {
+
     private FastHashMap<String, RenderObjectHandle> renderObjects;
     private boolean rebuildInstanceList;
     private boolean rebuildLightList;
 
     private enum RenderObjectType {
+
         UNKNOWN, SHADER, MODIFIER, GEOMETRY, INSTANCE, LIGHT, CAMERA, OPTIONS
     }
 
@@ -128,12 +130,13 @@ final class RenderObjectMap {
                 Instance i = e.getValue().getInstance();
                 if (i != null) {
                     i.updateBounds();
-                    if (i.getBounds() == null)
+                    if (i.getBounds() == null) {
                         numInfinite++;
-                    else if (!i.getBounds().isEmpty())
+                    } else if (!i.getBounds().isEmpty()) {
                         numInstance++;
-                    else
+                    } else {
                         UI.printWarning(Module.API, "Ignoring empty instance: \"%s\"", e.getKey());
+                    }
                 }
             }
             Instance[] infinite = new Instance[numInfinite];
@@ -159,8 +162,9 @@ final class RenderObjectMap {
             ArrayList<LightSource> lightList = new ArrayList<LightSource>();
             for (FastHashMap.Entry<String, RenderObjectHandle> e : renderObjects) {
                 LightSource light = e.getValue().getLight();
-                if (light != null)
+                if (light != null) {
                     lightList.add(light);
+                }
 
             }
             scene.setLightList(lightList.toArray(new LightSource[lightList.size()]));
@@ -201,55 +205,63 @@ final class RenderObjectMap {
     }
 
     final Geometry lookupGeometry(String name) {
-        if (name == null)
+        if (name == null) {
             return null;
+        }
         RenderObjectHandle handle = renderObjects.get(name);
         return (handle == null) ? null : handle.getGeometry();
     }
 
     final Instance lookupInstance(String name) {
-        if (name == null)
+        if (name == null) {
             return null;
+        }
         RenderObjectHandle handle = renderObjects.get(name);
         return (handle == null) ? null : handle.getInstance();
     }
 
     final Camera lookupCamera(String name) {
-        if (name == null)
+        if (name == null) {
             return null;
+        }
         RenderObjectHandle handle = renderObjects.get(name);
         return (handle == null) ? null : handle.getCamera();
     }
 
     final Options lookupOptions(String name) {
-        if (name == null)
+        if (name == null) {
             return null;
+        }
         RenderObjectHandle handle = renderObjects.get(name);
         return (handle == null) ? null : handle.getOptions();
     }
 
     final Shader lookupShader(String name) {
-        if (name == null)
+        if (name == null) {
             return null;
+        }
         RenderObjectHandle handle = renderObjects.get(name);
         return (handle == null) ? null : handle.getShader();
     }
 
     final Modifier lookupModifier(String name) {
-        if (name == null)
+        if (name == null) {
             return null;
+        }
         RenderObjectHandle handle = renderObjects.get(name);
         return (handle == null) ? null : handle.getModifier();
     }
 
     final LightSource lookupLight(String name) {
-        if (name == null)
+        if (name == null) {
             return null;
+        }
         RenderObjectHandle handle = renderObjects.get(name);
         return (handle == null) ? null : handle.getLight();
     }
 
     private static final class RenderObjectHandle {
+
         private final RenderObject obj;
         private final RenderObjectType type;
 
@@ -329,5 +341,4 @@ final class RenderObjectMap {
             return (type == RenderObjectType.OPTIONS) ? (Options) obj : null;
         }
     }
-
 }

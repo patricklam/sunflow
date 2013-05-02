@@ -7,6 +7,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 
 public class AmbientOcclusionShader implements Shader {
+
     private Color bright;
     private Color dark;
     private int samples;
@@ -30,8 +31,9 @@ public class AmbientOcclusionShader implements Shader {
         dark = pl.getColor("dark", dark);
         samples = pl.getInt("samples", samples);
         maxDist = pl.getFloat("maxdist", maxDist);
-        if (maxDist <= 0)
+        if (maxDist <= 0) {
             maxDist = Float.POSITIVE_INFINITY;
+        }
         return true;
     }
 

@@ -8,6 +8,8 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.sunflow.SunflowAPI;
 import org.sunflow.SunflowAPIInterface;
@@ -19,6 +21,8 @@ import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
 public class RA2Parser implements SceneParser {
+
+    @Override
     public boolean parse(String filename, SunflowAPIInterface api) {
         try {
             UI.printInfo(Module.USER, "RA2 - Reading geometry: \"%s\" ...", filename);
@@ -28,13 +32,15 @@ public class RA2Parser implements SceneParser {
             map.order(ByteOrder.LITTLE_ENDIAN);
             FloatBuffer buffer = map.asFloatBuffer();
             float[] data = new float[buffer.capacity()];
-            for (int i = 0; i < data.length; i++)
+            for (int i = 0; i < data.length; i++) {
                 data[i] = buffer.get(i);
+            }
             stream.close();
             api.parameter("points", "point", "vertex", data);
             int[] triangles = new int[3 * (data.length / 9)];
-            for (int i = 0; i < triangles.length; i++)
+            for (int i = 0; i < triangles.length; i++) {
                 triangles[i] = i;
+            }
             // create geo
             api.parameter("triangles", triangles);
             api.geometry(filename, "triangle_mesh");
@@ -44,10 +50,10 @@ public class RA2Parser implements SceneParser {
             api.parameter("shaders", filename + ".shader");
             api.instance(filename + ".instance", filename);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Logger.getLogger(RA2Parser.class.getName()).log(Level.SEVERE, null, e);
             return false;
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(RA2Parser.class.getName()).log(Level.SEVERE, null, e);
             return false;
         }
         try {
@@ -92,7 +98,7 @@ public class RA2Parser implements SceneParser {
         } catch (FileNotFoundException e) {
             UI.printWarning(Module.USER, "RA2 - Camera file not found");
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(RA2Parser.class.getName()).log(Level.SEVERE, null, e);
             return false;
         }
         return true;
