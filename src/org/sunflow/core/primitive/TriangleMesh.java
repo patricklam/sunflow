@@ -71,9 +71,9 @@ public class TriangleMesh implements PrimitiveList {
     public boolean update(ParameterList pl, SunflowAPI api) {
         boolean updatedTopology = false;
         {
-            int[] triangles = pl.getIntArray("triangles");
-            if (triangles != null) {
-                this.triangles = triangles;
+            int[] trianglesu = pl.getIntArray("triangles");
+            if (trianglesu != null) {
+                this.triangles = trianglesu;
                 updatedTopology = true;
             }
         }
@@ -102,19 +102,19 @@ public class TriangleMesh implements PrimitiveList {
         }
         pl.setVertexCount(points.length / 3);
         pl.setFaceVertexCount(3 * (triangles.length / 3));
-        FloatParameter normals = pl.getVectorArray("normals");
-        if (normals != null) {
-            this.normals = normals;
+        FloatParameter normalsu = pl.getVectorArray("normals");
+        if (normalsu != null) {
+            this.normals = normalsu;
         }
-        FloatParameter uvs = pl.getTexCoordArray("uvs");
-        if (uvs != null) {
-            this.uvs = uvs;
+        FloatParameter uvsu = pl.getTexCoordArray("uvs");
+        if (uvsu != null) {
+            this.uvs = uvsu;
         }
-        int[] faceShaders = pl.getIntArray("faceshaders");
-        if (faceShaders != null && faceShaders.length == triangles.length / 3) {
-            this.faceShaders = new byte[faceShaders.length];
-            for (int i = 0; i < faceShaders.length; i++) {
-                int v = faceShaders[i];
+        int[] faceShadersu = pl.getIntArray("faceshaders");
+        if (faceShadersu != null && faceShadersu.length == triangles.length / 3) {
+            this.faceShaders = new byte[faceShadersu.length];
+            for (int i = 0; i < faceShadersu.length; i++) {
+                int v = faceShadersu[i];
                 if (v > 255) {
                     UI.printWarning(Module.GEOM, "Shader index too large on triangle %d", i);
                 }
@@ -256,20 +256,20 @@ public class TriangleMesh implements PrimitiveList {
                 int i30 = 3 * index0;
                 int i31 = 3 * index1;
                 int i32 = 3 * index2;
-                float[] normals = this.normals.data;
-                state.getNormal().x = w * normals[i30 + 0] + u * normals[i31 + 0] + v * normals[i32 + 0];
-                state.getNormal().y = w * normals[i30 + 1] + u * normals[i31 + 1] + v * normals[i32 + 1];
-                state.getNormal().z = w * normals[i30 + 2] + u * normals[i31 + 2] + v * normals[i32 + 2];
+                float[] normalsu = this.normals.data;
+                state.getNormal().x = w * normalsu[i30 + 0] + u * normalsu[i31 + 0] + v * normalsu[i32 + 0];
+                state.getNormal().y = w * normalsu[i30 + 1] + u * normalsu[i31 + 1] + v * normalsu[i32 + 1];
+                state.getNormal().z = w * normalsu[i30 + 2] + u * normalsu[i31 + 2] + v * normalsu[i32 + 2];
                 state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
                 state.getNormal().normalize();
                 break;
             }
             case FACEVARYING: {
                 int idx = 3 * tri;
-                float[] normals = this.normals.data;
-                state.getNormal().x = w * normals[idx + 0] + u * normals[idx + 3] + v * normals[idx + 6];
-                state.getNormal().y = w * normals[idx + 1] + u * normals[idx + 4] + v * normals[idx + 7];
-                state.getNormal().z = w * normals[idx + 2] + u * normals[idx + 5] + v * normals[idx + 8];
+                float[] normalsu = this.normals.data;
+                state.getNormal().x = w * normalsu[idx + 0] + u * normalsu[idx + 3] + v * normalsu[idx + 6];
+                state.getNormal().y = w * normalsu[idx + 1] + u * normalsu[idx + 4] + v * normalsu[idx + 7];
+                state.getNormal().z = w * normalsu[idx + 2] + u * normalsu[idx + 5] + v * normalsu[idx + 8];
                 state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
                 state.getNormal().normalize();
                 break;
@@ -287,24 +287,24 @@ public class TriangleMesh implements PrimitiveList {
                 int i20 = 2 * index0;
                 int i21 = 2 * index1;
                 int i22 = 2 * index2;
-                float[] uvs = this.uvs.data;
-                uv00 = uvs[i20 + 0];
-                uv01 = uvs[i20 + 1];
-                uv10 = uvs[i21 + 0];
-                uv11 = uvs[i21 + 1];
-                uv20 = uvs[i22 + 0];
-                uv21 = uvs[i22 + 1];
+                float[] uvsu = this.uvs.data;
+                uv00 = uvsu[i20 + 0];
+                uv01 = uvsu[i20 + 1];
+                uv10 = uvsu[i21 + 0];
+                uv11 = uvsu[i21 + 1];
+                uv20 = uvsu[i22 + 0];
+                uv21 = uvsu[i22 + 1];
                 break;
             }
             case FACEVARYING: {
                 int idx = tri << 1;
-                float[] uvs = this.uvs.data;
-                uv00 = uvs[idx + 0];
-                uv01 = uvs[idx + 1];
-                uv10 = uvs[idx + 2];
-                uv11 = uvs[idx + 3];
-                uv20 = uvs[idx + 4];
-                uv21 = uvs[idx + 5];
+                float[] uvsu = this.uvs.data;
+                uv00 = uvsu[idx + 0];
+                uv01 = uvsu[idx + 1];
+                uv10 = uvsu[idx + 2];
+                uv11 = uvsu[idx + 3];
+                uv20 = uvsu[idx + 4];
+                uv21 = uvsu[idx + 5];
                 break;
             }
         }
@@ -511,7 +511,6 @@ public class TriangleMesh implements PrimitiveList {
                     }
                     r.setMax(t);
                     state.setIntersection(primID, u, v);
-                    return;
                 }
             }
         }
@@ -836,6 +835,7 @@ public class TriangleMesh implements PrimitiveList {
             state.setShader(parent.getShader(shaderIndex));
         }
 
+        @Override
         public boolean update(ParameterList pl, SunflowAPI api) {
             return true;
         }

@@ -6,7 +6,7 @@ import org.sunflow.system.UI.Module;
 
 class AccelerationStructureFactory {
 
-    static final AccelerationStructure create(String name, int n, boolean primitives) {
+    static AccelerationStructure create(String name, int n, boolean primitives) {
         if (name == null || name.equals("auto")) {
             if (primitives) {
                 if (n > 20000000) {

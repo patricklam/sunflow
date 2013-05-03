@@ -30,6 +30,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
     private float maxRadius;
     private int numEmit;
 
+    @Override
     public void prepare(Options options, BoundingBox sceneBounds) {
         // get options
         numEmit = options.getInt("caustics.emit", 10000);
@@ -193,6 +194,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         photons[j] = tmp;
     }
 
+    @Override
     public void store(ShadingState state, Vector3 dir, Color power, Color diffuse) {
         if (((state.getDiffuseDepth() == 0) && (state.getReflectionDepth() > 0 || state.getRefractionDepth() > 0))) {
             // this is a caustic photon
@@ -206,6 +208,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         }
     }
 
+    @Override
     public void init() {
         UI.printInfo(Module.LIGHT, "Balancing caustics photon map ...");
         Timer t = new Timer();
@@ -224,6 +227,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         }
     }
 
+    @Override
     public void getSamples(ShadingState state) {
         if (storedPhotons == 0) {
             return;
@@ -403,18 +407,22 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         }
     }
 
+    @Override
     public boolean allowDiffuseBounced() {
         return false;
     }
 
+    @Override
     public boolean allowReflectionBounced() {
         return true;
     }
 
+    @Override
     public boolean allowRefractionBounced() {
         return true;
     }
 
+    @Override
     public int numEmit() {
         return numEmit;
     }

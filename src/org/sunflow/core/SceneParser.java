@@ -9,11 +9,15 @@ import org.sunflow.SunflowAPIInterface;
 public interface SceneParser {
     
     final String ASPECT = "aspect";
+    final String BACKGROUND = "background";
     final String CENTER = "center";
     final String COLOR = "color";
     final String DIFF = "diff";
     final String DIFFUSE = "diffuse";
     final String EMIT = "emit";
+    final String FACEVARYING = "facevarying";
+    final String FILTER = "filter";
+    final String FOV = "fov";
     final String GI_ENGINE = "gi.engine";
     final String MODIFIER = "modifier";
     final String MODIFIERS = "modifiers";
@@ -26,6 +30,7 @@ public interface SceneParser {
     final String VERTEX = "vertex";
     final String RADIUS = "radius";
     final String RADIANCE = "radiance";
+    final String REFL = "refl";
     final String SAMPLES = "samples";
     final String SCALE = "scale";
     final String SHADER = "shader";
@@ -38,6 +43,7 @@ public interface SceneParser {
     final String TRIANGLES = "triangles";    
     final String TRIANGLE_MESH = "triangle_mesh";
     final String TYPE = "type";
+    final String UVS = "uvs";
 
     /**
      * Parse the specified file to create a scene description into the provided

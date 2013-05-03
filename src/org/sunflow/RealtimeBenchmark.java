@@ -12,7 +12,8 @@ import org.sunflow.system.UI.Module;
 import org.sunflow.system.ui.ConsoleInterface;
 
 public class RealtimeBenchmark extends SunflowAPI {
-
+    final String CAMERA = "camera";
+    final String TRANSFORM = "transform";
     public RealtimeBenchmark(boolean showGUI, int threads) {
         Display display = showGUI ? new FastDisplay() : new FileDisplay(false);
         UI.printInfo(Module.BENCH, "Preparing benchmarking scene ...");
@@ -34,10 +35,10 @@ public class RealtimeBenchmark extends SunflowAPI {
         Point3 eye = new Point3(30, 0, 10.967f);
         Point3 target = new Point3(0, 0, 5.4f);
         Vector3 up = new Vector3(0, 0, 1);
-        parameter("transform", Matrix4.lookAt(eye, target, up));
+        parameter(TRANSFORM, Matrix4.lookAt(eye, target, up));
         parameter("fov", 45.0f);
-        camera("camera", "pinhole");
-        parameter("camera", "camera");
+        camera(CAMERA, "pinhole");
+        parameter(CAMERA, CAMERA);
         options(SunflowAPI.DEFAULT_OPTIONS);
         // geometry
         createGeometry();
@@ -58,8 +59,8 @@ public class RealtimeBenchmark extends SunflowAPI {
             phi += Math.PI / 30;
             frames++;
             // update camera
-            parameter("transform", Matrix4.lookAt(eye, target, up));
-            camera("camera", null);
+            parameter(TRANSFORM, Matrix4.lookAt(eye, target, up));
+            camera(CAMERA, null);
             render(SunflowAPI.DEFAULT_OPTIONS, display);
         }
         t.end();
@@ -100,7 +101,7 @@ public class RealtimeBenchmark extends SunflowAPI {
         m = Matrix4.scale(0.075f).multiply(m);
         m = Matrix4.rotateZ((float) Math.toRadians(-45f)).multiply(m);
         m = Matrix4.translation(-7, 0, 0).multiply(m);
-        parameter("transform", m);
+        parameter(TRANSFORM, m);
         instance("teapot.instance", "teapot");
 
         // gumbo
@@ -111,7 +112,7 @@ public class RealtimeBenchmark extends SunflowAPI {
         m = Matrix4.rotateZ((float) Math.toRadians(25f)).multiply(m);
         m = Matrix4.translation(3, -7, 0).multiply(m);
         parameter("shaders", "default");
-        parameter("transform", m);
+        parameter(TRANSFORM, m);
         instance("gumbo.instance", "gumbo");
 
         // ground plane

@@ -38,6 +38,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         numEmit = 100000;
     }
 
+    @Override
     public void prepare(Options options, BoundingBox sceneBounds) {
         // get settings
         numEmit = options.getInt("gi.irr-cache.gmap.emit", 100000);
@@ -67,6 +68,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         return numStoredPhotons;
     }
 
+    @Override
     public void store(ShadingState state, Vector3 dir, Color power, Color diffuse) {
         // don't store on the wrong side of a surface
         if (Vector3.dot(state.getNormal(), dir) > 0) {
@@ -122,6 +124,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         }
     }
 
+    @Override
     public void init() {
         UI.printInfo(Module.LIGHT, "Initializing photon grid ...");
         UI.printInfo(Module.LIGHT, "  * Photon hits:      %d", numStoredPhotons);
@@ -167,6 +170,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         cellHash = temp;
     }
 
+    @Override
     public synchronized Color getRadiance(Point3 p, Vector3 n) {
         if (!bounds.contains(p)) {
             return Color.BLACK;
@@ -227,18 +231,21 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
                 // upgrade lock manually
                 rwl.readLock().unlock();
                 rwl.writeLock().lock();
-                if (center == null) {
-                    if (ndiff > 0) {
-                        diff.mul(1.0f / ndiff);
+                try {
+                    if (center == null) {
+                        if (ndiff > 0) {
+                            diff.mul(1.0f / ndiff);
+                        }
+                        center = new PhotonGroup(id, n);
+                        center.diffuse.set(diff);
+                        center.next = cellHash[id % cellHash.length];
+                        cellHash[id % cellHash.length] = center;
                     }
-                    center = new PhotonGroup(id, n);
-                    center.diffuse.set(diff);
-                    center.next = cellHash[id % cellHash.length];
-                    cellHash[id % cellHash.length] = center;
+                    irr.mul(center.diffuse);
+                    center.radiance = irr.copy();
+                } finally {
+                    rwl.writeLock().unlock();
                 }
-                irr.mul(center.diffuse);
-                center.radiance = irr.copy();
-                rwl.writeLock().unlock(); // unlock write - done
                 return irr;
             }
             vol++;
@@ -280,18 +287,22 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         }
     }
 
+    @Override
     public boolean allowDiffuseBounced() {
         return true;
     }
 
+    @Override
     public boolean allowReflectionBounced() {
         return true;
     }
 
+    @Override
     public boolean allowRefractionBounced() {
         return true;
     }
 
+    @Override
     public int numEmit() {
         return numEmit;
     }

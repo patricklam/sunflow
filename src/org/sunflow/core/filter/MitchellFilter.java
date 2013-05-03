@@ -4,10 +4,12 @@ import org.sunflow.core.Filter;
 
 public class MitchellFilter implements Filter {
 
+    @Override
     public float getSize() {
         return 4.0f;
     }
 
+    @Override
     public float get(float x, float y) {
         return mitchell(x) * mitchell(y);
     }

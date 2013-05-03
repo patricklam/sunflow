@@ -58,6 +58,7 @@ public class SunflowAPI implements SunflowAPIInterface {
     private ParameterList parameterList;
     private RenderObjectMap renderObjects;
     private int currentFrame;
+    static String COULDNT_MESSAGE_FORMAT = "Could not compile: \"%s\"";
 
     /**
      * This is a quick system test which verifies that the user has launched
@@ -620,19 +621,19 @@ public class SunflowAPI implements SunflowAPIInterface {
                 api = (SunflowAPI) ClassBodyEvaluator.createFastClassBodyEvaluator(new Scanner(filename, stream), SunflowAPI.class, ClassLoader.getSystemClassLoader());
                 stream.close();
             } catch (CompileException e) {
-                UI.printError(Module.API, "Could not compile: \"%s\"", filename);
+                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, filename);
                 UI.printError(Module.API, "%s", e.getMessage());
                 return null;
             } catch (ParseException e) {
-                UI.printError(Module.API, "Could not compile: \"%s\"", filename);
+                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, filename);
                 UI.printError(Module.API, "%s", e.getMessage());
                 return null;
             } catch (ScanException e) {
-                UI.printError(Module.API, "Could not compile: \"%s\"", filename);
+                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, filename);
                 UI.printError(Module.API, "%s", e.getMessage());
                 return null;
             } catch (IOException e) {
-                UI.printError(Module.API, "Could not compile: \"%s\"", filename);
+                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, filename);
                 UI.printError(Module.API, "%s", e.getMessage());
                 return null;
             }
