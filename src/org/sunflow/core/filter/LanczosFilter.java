@@ -4,10 +4,12 @@ import org.sunflow.core.Filter;
 
 public class LanczosFilter implements Filter {
 
+    @Override
     public float getSize() {
         return 4.0f;
     }
 
+    @Override
     public float get(float x, float y) {
         return sinc1d(x * 0.5f) * sinc1d(y * 0.5f);
     }

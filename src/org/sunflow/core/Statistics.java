@@ -23,7 +23,7 @@ public class Statistics {
         reset();
     }
 
-    void reset() {
+    final void reset() {
         numEyeRays = 0;
         numShadowRays = 0;
         numReflectionRays = 0;

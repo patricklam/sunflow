@@ -18,6 +18,7 @@ public class BumpMappingModifier implements Modifier {
         scale = 1;
     }
 
+    @Override
     public boolean update(ParameterList pl, SunflowAPI api) {
         String filename = pl.getString("texture", null);
         if (filename != null) {
@@ -27,6 +28,7 @@ public class BumpMappingModifier implements Modifier {
         return bumpTexture != null;
     }
 
+    @Override
     public void modify(ShadingState state) {
         // apply bump
         state.getNormal().set(bumpTexture.getBump(state.getUV().x, state.getUV().y, state.getBasis(), scale));

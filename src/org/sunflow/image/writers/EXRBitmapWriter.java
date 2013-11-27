@@ -37,15 +37,17 @@ public class EXRBitmapWriter implements BitmapWriter {
     private int channelSize;
     private byte[] tmpbuf;
     private byte[] comprbuf;
+    final String COMPRESSION = "compression";
 
     public EXRBitmapWriter() {
         // default settings
-        configure("compression", "zip");
+        configure(COMPRESSION, "zip");
         configure("channeltype", "half");
     }
 
-    public void configure(String option, String value) {
-        if (option.equals("compression")) {
+    @Override
+    public final void configure(final String option, String value) {
+        if (option.equals(COMPRESSION)) {
             if (value.equals("none")) {
                 compression = NO_COMPRESSION;
             } else if (value.equals("rle")) {
@@ -71,10 +73,12 @@ public class EXRBitmapWriter implements BitmapWriter {
         }
     }
 
+    @Override
     public void openFile(String filename) throws IOException {
         this.filename = filename == null ? "output.exr" : filename;
     }
 
+    @Override
     public void writeHeader(int width, int height, int tileSize) throws IOException, UnsupportedOperationException {
         file = new RandomAccessFile(filename, "rw");
         file.setLength(0);
@@ -84,12 +88,14 @@ public class EXRBitmapWriter implements BitmapWriter {
         writeRGBAHeader(width, height, tileSize);
     }
 
+    @Override
     public void writeTile(int x, int y, int w, int h, Color[] color, float[] alpha) throws IOException {
         int tx = x / tileSize;
         int ty = y / tileSize;
         writeEXRTile(tx, ty, w, h, color, alpha);
     }
 
+    @Override
     public void closeFile() throws IOException {
         writeTileOffsets();
         file.close();
@@ -119,9 +125,9 @@ public class EXRBitmapWriter implements BitmapWriter {
         file.write(0);
 
         // compression
-        file.write("compression".getBytes());
+        file.write(COMPRESSION.getBytes());
         file.write(0);
-        file.write("compression".getBytes());
+        file.write(COMPRESSION.getBytes());
         file.write(0);
         file.write(1);
         file.write(ByteUtil.get4BytesInv(compression));
@@ -307,7 +313,7 @@ public class EXRBitmapWriter implements BitmapWriter {
         }
     }
 
-    private static final int compress(int tp, byte[] in, int inSize, byte[] out) {
+    private static int compress(int tp, byte[] in, int inSize, byte[] out) {
         if (inSize == 0) {
             return 0;
         }
@@ -361,7 +367,7 @@ public class EXRBitmapWriter implements BitmapWriter {
         }
     }
 
-    private static final int rleCompress(byte[] in, int inLen, byte[] out) {
+    private static int rleCompress(byte[] in, int inLen, byte[] out) {
         int runStart = 0, runEnd = 1, outWrite = 0;
         while (runStart < inLen) {
             while (runEnd < inLen && in[runStart] == in[runEnd] && (runEnd - runStart - 1) < RLE_MAX_RUN) {

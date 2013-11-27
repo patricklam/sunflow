@@ -45,6 +45,7 @@ public class InstantGI implements GIEngine {
         return pow == null ? Color.BLACK : pow.copy().mul(1.0f / maxAvgPow);
     }
 
+    @Override
     public boolean init(Options options, Scene scene) {
         numPhotons = options.getInt("gi.igi.samples", 64);
         numSets = options.getInt("gi.igi.sets", 1);

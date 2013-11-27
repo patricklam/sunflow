@@ -16,10 +16,12 @@ import org.sunflow.math.Vector3;
 
 public class BanchoffSurface implements PrimitiveList {
 
+    @Override
     public boolean update(ParameterList pl, SunflowAPI api) {
         return true;
     }
 
+    @Override
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(1.5f);
         if (o2w != null) {
@@ -28,14 +30,17 @@ public class BanchoffSurface implements PrimitiveList {
         return bounds;
     }
 
+    @Override
     public float getPrimitiveBound(int primID, int i) {
         return (i & 1) == 0 ? -1.5f : 1.5f;
     }
 
+    @Override
     public int getNumPrimitives() {
         return 1;
     }
 
+    @Override
     public void prepareShadingState(ShadingState state) {
         state.init();
         state.getRay().getPoint(state.getPoint());
@@ -54,6 +59,7 @@ public class BanchoffSurface implements PrimitiveList {
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
     }
 
+    @Override
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
         // intersect in local space
         float rd2x = r.dx * r.dx;
@@ -87,6 +93,7 @@ public class BanchoffSurface implements PrimitiveList {
         }
     }
 
+    @Override
     public PrimitiveList getBakingPrimitives() {
         return null;
     }

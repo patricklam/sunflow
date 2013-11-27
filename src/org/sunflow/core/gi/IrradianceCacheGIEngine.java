@@ -28,6 +28,7 @@ public class IrradianceCacheGIEngine implements GIEngine {
     private ReentrantReadWriteLock rwl;
     private GlobalPhotonMapInterface globalPhotonMap;
 
+    @Override
     public boolean init(Options options, Scene scene) {
         // get settings
         samples = options.getInt("gi.irr-cache.samples", 256);
@@ -58,6 +59,7 @@ public class IrradianceCacheGIEngine implements GIEngine {
         return (globalPhotonMap != null) ? scene.calculatePhotons(globalPhotonMap, "global", 0, options) : true;
     }
 
+    @Override
     public Color getGlobalRadiance(ShadingState state) {
         if (globalPhotonMap == null) {
             if (state.getShader() != null) {
@@ -70,6 +72,7 @@ public class IrradianceCacheGIEngine implements GIEngine {
         }
     }
 
+    @Override
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         if (samples <= 0) {
             return Color.BLACK;
@@ -94,8 +97,12 @@ public class IrradianceCacheGIEngine implements GIEngine {
             return temp != null ? getGlobalRadiance(temp).copy().mul((float) Math.PI) : Color.BLACK;
         }
         rwl.readLock().lock();
-        Color irr = getIrradiance(state.getPoint(), state.getNormal());
-        rwl.readLock().unlock();
+        Color irr;
+        try {
+            irr = getIrradiance(state.getPoint(), state.getNormal());
+        } finally {
+            rwl.readLock().unlock();
+        }
         if (irr == null) {
             // compute new sample
             irr = Color.black();
@@ -127,10 +134,11 @@ public class IrradianceCacheGIEngine implements GIEngine {
             irr.mul((float) Math.PI / samples);
             invR = samples / invR;
             rwl.writeLock().lock();
-            insert(state.getPoint(), state.getNormal(), invR, irr);
-            rwl.writeLock().unlock();
-            // view irr-cache points
-            // irr = Color.YELLOW.copy().mul(1e6f);
+            try {
+                insert(state.getPoint(), state.getNormal(), invR, irr);
+            } finally {
+                rwl.writeLock().unlock();
+            }
         }
         return irr;
     }

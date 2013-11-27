@@ -77,14 +77,14 @@ public class SCParser implements SceneParser {
                 if (token.equals("image")) {
                     UI.printInfo(Module.API, "Reading image settings ...");
                     parseImageBlock(api);
-                } else if (token.equals("background")) {
+                } else if (token.equals(BACKGROUND)) {
                     UI.printInfo(Module.API, "Reading background ...");
                     parseBackgroundBlock(api);
                 } else if (token.equals("accel")) {
                     UI.printInfo(Module.API, "Reading accelerator type ...");
                     p.getNextToken();
                     UI.printWarning(Module.API, "Setting accelerator type is not recommended - ignoring");
-                } else if (token.equals("filter")) {
+                } else if (token.equals(FILTER)) {
                     UI.printInfo(Module.API, "Reading image filter type ...");
                     parseFilter(api);
                 } else if (token.equals("bucket")) {
@@ -184,8 +184,8 @@ public class SCParser implements SceneParser {
         if (p.peekNextToken("contrast")) {
             api.parameter("aa.contrast", p.getNextFloat());
         }
-        if (p.peekNextToken("filter")) {
-            api.parameter("filter", p.getNextToken());
+        if (p.peekNextToken(FILTER)) {
+            api.parameter(FILTER, p.getNextToken());
         }
         if (p.peekNextToken("jitter")) {
             api.parameter("aa.jitter", p.getNextBoolean());
@@ -210,16 +210,16 @@ public class SCParser implements SceneParser {
         p.checkNextToken(COLOR);
         api.parameter(COLOR, null, parseColor().getRGB());
         api.shader("background.shader", "constant");
-        api.geometry("background", "background");
+        api.geometry(BACKGROUND, BACKGROUND);
         api.parameter(SHADERS, "background.shader");
-        api.instance("background.instance", "background");
+        api.instance("background.instance", BACKGROUND);
         p.checkNextToken("}");
     }
 
     private void parseFilter(SunflowAPIInterface api) throws IOException, ParserException {
         UI.printWarning(Module.API, "Deprecated keyword \"filter\" - set this option in the image block");
         String name = p.getNextToken();
-        api.parameter("filter", name);
+        api.parameter(FILTER, name);
         api.options(SunflowAPI.DEFAULT_OPTIONS);
         boolean hasSizeParams = name.equals("box") || name.equals("gaussian") || name.equals("blackman-harris") || name.equals("sinc") || name.equals("triangle");
         if (hasSizeParams) {
@@ -379,7 +379,7 @@ public class SCParser implements SceneParser {
         if (p.peekNextToken(DIFF)) {
             api.parameter("depths.diffuse", p.getNextInt());
         }
-        if (p.peekNextToken("refl")) {
+        if (p.peekNextToken(REFL)) {
             api.parameter("depths.reflection", p.getNextInt());
         }
         if (p.peekNextToken("refr")) {
@@ -401,8 +401,8 @@ public class SCParser implements SceneParser {
         parseCameraTransform(api);
         String name = generateUniqueName("camera");
         if (type.equals("pinhole")) {
-            p.checkNextToken("fov");
-            api.parameter("fov", p.getNextFloat());
+            p.checkNextToken(FOV);
+            api.parameter(FOV, p.getNextFloat());
             p.checkNextToken(ASPECT);
             api.parameter(ASPECT, p.getNextFloat());
             if (p.peekNextToken("shift")) {
@@ -411,8 +411,8 @@ public class SCParser implements SceneParser {
             }
             api.camera(name, "pinhole");
         } else if (type.equals("thinlens")) {
-            p.checkNextToken("fov");
-            api.parameter("fov", p.getNextFloat());
+            p.checkNextToken(FOV);
+            api.parameter(FOV, p.getNextFloat());
             p.checkNextToken(ASPECT);
             api.parameter(ASPECT, p.getNextFloat());
             if (p.peekNextToken("shift")) {
@@ -545,7 +545,7 @@ public class SCParser implements SceneParser {
                 api.shader(name, "textured_ambient_occlusion");
             }
         } else if (p.peekNextToken("mirror")) {
-            p.checkNextToken("refl");
+            p.checkNextToken(REFL);
             api.parameter(COLOR, null, parseColor().getRGB());
             api.shader(name, "mirror");
         } else if (p.peekNextToken("glass")) {
@@ -568,7 +568,7 @@ public class SCParser implements SceneParser {
                 p.checkNextToken(DIFF);
                 api.parameter(DIFFUSE, null, parseColor().getRGB());
             }
-            p.checkNextToken("refl");
+            p.checkNextToken(REFL);
             api.parameter("shiny", p.getNextFloat());
             if (tex == null) {
                 api.shader(name, "shiny_diffuse");
@@ -625,7 +625,7 @@ public class SCParser implements SceneParser {
             if (p.peekNextToken("diff.blend")) {
                 api.parameter("diffuse.blend", p.getNextFloat());
             }
-            if (p.peekNextToken("refl") || p.peekNextToken("spec")) {
+            if (p.peekNextToken(REFL) || p.peekNextToken("spec")) {
                 api.parameter("specular", null, parseColor().getRGB());
             }
             if (p.peekNextToken(TEXTURE)) {
@@ -772,7 +772,7 @@ public class SCParser implements SceneParser {
             api.parameter(TRIANGLES, triangles);
             api.parameter(POINTS, POINT, VERTEX, points);
             api.parameter(NORMALS, "vector", VERTEX, normals);
-            api.parameter("uvs", TEXCOORD, VERTEX, uvs);
+            api.parameter(UVS, TEXCOORD, VERTEX, uvs);
             api.geometry(name, TRIANGLE_MESH);
         } else if (type.equals("flat-mesh")) {
             UI.printWarning(Module.API, "Deprecated object type: flat-mesh");
@@ -802,7 +802,7 @@ public class SCParser implements SceneParser {
             // create geometry
             api.parameter(TRIANGLES, triangles);
             api.parameter(POINTS, POINT, VERTEX, points);
-            api.parameter("uvs", TEXCOORD, VERTEX, uvs);
+            api.parameter(UVS, TEXCOORD, VERTEX, uvs);
             api.geometry(name, TRIANGLE_MESH);
         } else if (type.equals("sphere")) {
             UI.printInfo(Module.API, "Reading sphere ...");
@@ -875,17 +875,17 @@ public class SCParser implements SceneParser {
             p.checkNextToken(NORMALS);
             if (p.peekNextToken(VERTEX)) {
                 api.parameter(NORMALS, "vector", VERTEX, parseFloatArray(np * 3));
-            } else if (p.peekNextToken("facevarying")) {
-                api.parameter(NORMALS, "vector", "facevarying", parseFloatArray(nt * 9));
+            } else if (p.peekNextToken(FACEVARYING)) {
+                api.parameter(NORMALS, "vector", FACEVARYING, parseFloatArray(nt * 9));
             } else {
                 p.checkNextToken(NONE);
             }
             // parse texture coordinates
-            p.checkNextToken("uvs");
+            p.checkNextToken(UVS);
             if (p.peekNextToken(VERTEX)) {
-                api.parameter("uvs", TEXCOORD, VERTEX, parseFloatArray(np * 2));
-            } else if (p.peekNextToken("facevarying")) {
-                api.parameter("uvs", TEXCOORD, "facevarying", parseFloatArray(nt * 6));
+                api.parameter(UVS, TEXCOORD, VERTEX, parseFloatArray(np * 2));
+            } else if (p.peekNextToken(FACEVARYING)) {
+                api.parameter(UVS, TEXCOORD, FACEVARYING, parseFloatArray(nt * 6));
             } else {
                 p.checkNextToken(NONE);
             }

@@ -88,7 +88,7 @@ public class RA2Parser implements SceneParser {
             api.parameter("target", to);
             api.parameter("up", up);
             String cameraName = filename + ".camera";
-            api.parameter("fov", 80f);
+            api.parameter(FOV, 80f);
             api.camera(cameraName, "pinhole");
             api.parameter("camera", cameraName);
             api.parameter("resolutionX", 1024);

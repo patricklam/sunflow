@@ -147,6 +147,7 @@ public class QuadMesh implements PrimitiveList {
         return bounds;
     }
 
+    @Override
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
         // ray/bilinear patch intersection adapted from "Production Rendering:
         // Design and Implementation" by Ian Stephenson (Ed.)

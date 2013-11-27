@@ -66,6 +66,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         area = (lxmax - lxmin) * (lymax - lymin);
     }
 
+    @Override
     public boolean update(ParameterList pl, SunflowAPI api) {
         Point3 corner0 = pl.getPoint("corner0", null);
         Point3 corner1 = pl.getPoint("corner1", null);
@@ -146,6 +147,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         return false;
     }
 
+    @Override
     public void prepareShadingState(ShadingState state) {
         state.init();
         state.getRay().getPoint(state.getPoint());
@@ -178,6 +180,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         state.setShader(this);
     }
 
+    @Override
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
         float intervalMin = Float.NEGATIVE_INFINITY;
         float intervalMax = Float.POSITIVE_INFINITY;
@@ -273,6 +276,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         }
     }
 
+    @Override
     public Color getRadiance(ShadingState state) {
         int side = state.getPrimitiveID();
         Color kd = null;
@@ -308,6 +312,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         return state.diffuse(kd);
     }
 
+    @Override
     public void scatterPhoton(ShadingState state, Color power) {
         int side = state.getPrimitiveID();
         Color kd = null;
@@ -357,10 +362,12 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         }
     }
 
+    @Override
     public int getNumSamples() {
         return samples;
     }
 
+    @Override
     public void getSamples(ShadingState state) {
         if (lightBounds.contains(state.getPoint()) && state.getPoint().z < maxZ) {
             int n = state.getDiffuseDepth() > 0 ? 1 : samples;
@@ -405,6 +412,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         }
     }
 
+    @Override
     public void getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Vector3 dir, Color power) {
         p.x = (float) (lxmin * (1 - randX2) + lxmax * randX2);
         p.y = (float) (lymin * (1 - randY2) + lymax * randY2);
@@ -416,14 +424,17 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         Color.mul((float) Math.PI * area, radiance, power);
     }
 
+    @Override
     public float getPower() {
         return radiance.copy().mul((float) Math.PI * area).getLuminance();
     }
 
+    @Override
     public int getNumPrimitives() {
         return 1;
     }
 
+    @Override
     public float getPrimitiveBound(int primID, int i) {
         switch (i) {
             case 0:
@@ -443,6 +454,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         }
     }
 
+    @Override
     public BoundingBox getWorldBounds(Matrix4 o2w) {
         BoundingBox bounds = new BoundingBox(minX, minY, minZ);
         bounds.include(maxX, maxY, maxZ);
@@ -452,10 +464,12 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         return o2w.transform(bounds);
     }
 
+    @Override
     public PrimitiveList getBakingPrimitives() {
         return null;
     }
 
+    @Override
     public Instance createInstance() {
         return Instance.createTemporary(this, null, this);
     }

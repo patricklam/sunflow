@@ -33,6 +33,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
     private int errorThreshold;
     final String DIFFUSE = "diffuse";
     final String TRANSFORM = "transform";
+    final String TEAPOT = "teapot";
 
     public static void main(String[] args) {
         if (args.length == 0) {
@@ -116,6 +117,9 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
 
     private class BenchmarkScene extends SunflowAPI {
 
+        final String GRAY_SHADER = "gray_shader";
+        final String SHADERS = "shaders";
+
         public BenchmarkScene() {
             build();
             render(SunflowAPI.DEFAULT_OPTIONS, showWindow ? new FrameDisplay() : saveOutput ? new FileDisplay(String.format("resources/golden_%04X.png", resolution)) : Benchmark.this);
@@ -167,7 +171,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
                 2, 5, 5, 6, 2, 2, 3, 6, 6, 7, 3, 0, 3, 4, 4, 7, 3};
 
             parameter(DIFFUSE, null, 0.70f, 0.70f, 0.70f);
-            shader("gray_shader", DIFFUSE);
+            shader(GRAY_SHADER, DIFFUSE);
             parameter(DIFFUSE, null, 0.80f, 0.25f, 0.25f);
             shader("red_shader", DIFFUSE);
             parameter(DIFFUSE, null, 0.25f, 0.25f, 0.80f);
@@ -180,7 +184,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
             geometry("walls", "triangle_mesh");
 
             // instance walls
-            parameter("shaders", new String[]{"gray_shader", "red_shader",
+            parameter(SHADERS, new String[]{GRAY_SHADER, "red_shader",
                 "blue_shader"});
             instance("walls.instance", "walls");
 
@@ -201,19 +205,19 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
             sphere("mirror_sphere", "Mirror", 100, minY + 60, -50, 50);
 
             // scanned model
-            geometry("teapot", "teapot");
+            geometry(TEAPOT, TEAPOT);
             parameter(TRANSFORM, Matrix4.translation(80, -50, 100).multiply(Matrix4.rotateX((float) -Math.PI / 6)).multiply(Matrix4.rotateY((float) Math.PI / 4)).multiply(Matrix4.rotateX((float) -Math.PI / 2).multiply(Matrix4.scale(1.2f))));
-            parameter("shaders", "gray_shader");
-            instance("teapot.instance1", "teapot");
+            parameter(SHADERS, GRAY_SHADER);
+            instance("teapot.instance1", TEAPOT);
             parameter(TRANSFORM, Matrix4.translation(-80, -160, 50).multiply(Matrix4.rotateY((float) Math.PI / 4)).multiply(Matrix4.rotateX((float) -Math.PI / 2).multiply(Matrix4.scale(1.2f))));
-            parameter("shaders", "gray_shader");
-            instance("teapot.instance2", "teapot");
+            parameter(SHADERS, GRAY_SHADER);
+            instance("teapot.instance2", TEAPOT);
         }
 
         private void sphere(String name, String shaderName, float x, float y, float z, float radius) {
             geometry(name, "sphere");
             parameter(TRANSFORM, Matrix4.translation(x, y, z).multiply(Matrix4.scale(radius)));
-            parameter("shaders", shaderName);
+            parameter(SHADERS, shaderName);
             instance(name + ".instance", name);
         }
     }

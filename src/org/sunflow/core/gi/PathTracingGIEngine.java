@@ -15,6 +15,7 @@ public class PathTracingGIEngine implements GIEngine {
 
     private int samples;
 
+    @Override
     public boolean init(Options options, Scene scene) {
         samples = options.getInt("gi.path.samples", 16);
         samples = Math.max(0, samples);
@@ -23,6 +24,7 @@ public class PathTracingGIEngine implements GIEngine {
         return true;
     }
 
+    @Override
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         if (samples <= 0) {
             return Color.BLACK;
@@ -56,6 +58,7 @@ public class PathTracingGIEngine implements GIEngine {
         return irr;
     }
 
+    @Override
     public Color getGlobalRadiance(ShadingState state) {
         return Color.BLACK;
     }

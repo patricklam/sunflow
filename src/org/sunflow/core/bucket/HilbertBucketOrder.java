@@ -4,6 +4,7 @@ import org.sunflow.core.BucketOrder;
 
 public class HilbertBucketOrder implements BucketOrder {
 
+    @Override
     public int[] getBucketSequence(int nbw, int nbh) {
         int hi = 0; // hilbert curve index
         int hn = 0; // hilbert curve order
