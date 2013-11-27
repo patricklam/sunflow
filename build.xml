@@ -39,6 +39,9 @@
 		</javac>
 	</target>
 
+        <target name="test" depends="compile" description="task for travis">
+        </target>
+
 	<target name="create_manifest" description="Create the Sunflow jar manifest">
 		<echo file="${build.manifest}" append="false" message="Manifest-Version: 1.0${line.separator}Main-Class: SunflowGUI${line.separator}Class-Path: janino.jar${line.separator}" />
 	</target>
