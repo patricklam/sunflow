@@ -36,9 +36,9 @@ import javax.swing.border.TitledBorder;
 public class RenderGlobalsPanel extends JTabbedPane {
 
     private JPanel generalPanel;
-    private JComboBox maxSamplingComboxBox;
+    private JComboBox<String> maxSamplingComboxBox;
     private JPanel samplingPanel;
-    private JComboBox minSamplingComboBox;
+    private JComboBox<String> minSamplingComboBox;
     private JLabel jLabel6;
     private JLabel jLabel5;
     private JRadioButton defaultRendererRadioButton;
@@ -181,9 +181,9 @@ public class RenderGlobalsPanel extends JTabbedPane {
                             jLabel5.setText("Min:");
                         }
                         {
-                            ComboBoxModel minSamplingComboBoxModel = new DefaultComboBoxModel(new String[]{
+                            ComboBoxModel<String> minSamplingComboBoxModel = new DefaultComboBoxModel<String>(new String[]{
                                 "Item One", "Item Two"});
-                            minSamplingComboBox = new JComboBox();
+                            minSamplingComboBox = new JComboBox<String>();
                             samplingPanel.add(minSamplingComboBox);
                             minSamplingComboBox.setModel(minSamplingComboBoxModel);
                         }
@@ -193,9 +193,9 @@ public class RenderGlobalsPanel extends JTabbedPane {
                             jLabel6.setText("Max:");
                         }
                         {
-                            ComboBoxModel maxSamplingComboxBoxModel = new DefaultComboBoxModel(new String[]{
+                            ComboBoxModel<String> maxSamplingComboxBoxModel = new DefaultComboBoxModel<String>(new String[]{
                                 "Item One", "Item Two"});
-                            maxSamplingComboxBox = new JComboBox();
+                            maxSamplingComboxBox = new JComboBox<String>();
                             samplingPanel.add(maxSamplingComboxBox);
                             maxSamplingComboxBox.setModel(maxSamplingComboxBoxModel);
                         }
