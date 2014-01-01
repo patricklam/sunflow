@@ -360,7 +360,7 @@ public class Scene {
         // render
         UI.printInfo(Module.SCENE, "Rendering ...");
         stats.setResolution(imageWidth, imageHeight);
-        sampler.prepare(options, this, imageWidth, imageHeight);
+        sampler.prepare(options, this, x0, y0, w0, h0, imageWidth, imageHeight);
         sampler.render(display);
         // show statistics
         stats.displayStats();
