@@ -152,6 +152,7 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
             System.out.println("  -quick_gray      Renders using a plain gray diffuse shader");
             System.out.println("  -quick_wire      Renders using a wireframe shader");
             System.out.println("  -resolution w h  Changes the render resolution to the specified width and height (in pixels)");
+            System.out.println("  -sub x y w h     Renders only a subset of the picture (in pixels)");
             System.out.println("  -aa min max      Overrides the image anti-aliasing depths");
             System.out.println("  -samples n       Overrides the image sample count (affects bucket and multipass samplers)");
             System.out.println("  -bucket n order  Changes the default bucket size to n pixels and the default order");
@@ -186,6 +187,7 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
             float maxDist = 0;
             String shaderOverride = null;
             int resolutionW = 0, resolutionH = 0;
+            int x0 = 0, y0 = 0, w0 = 0, h0 = 0;
             int aaMin = -5, aaMax = -5;
             int samples = -1;
             int bucketSize = 0;
@@ -304,6 +306,15 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
                     resolutionW = Integer.parseInt(args[i + 1]);
                     resolutionH = Integer.parseInt(args[i + 2]);
                     i += 3;
+                } else if (args[i].equals("-sub")) {
+                    if (i > args.length - 5) {
+                        usage(false);
+                    }
+                    x0 = Integer.parseInt(args[i + 1]);
+                    y0 = Integer.parseInt(args[i + 2]);
+                    w0 = Integer.parseInt(args[i + 3]);
+                    h0 = Integer.parseInt(args[i + 4]);
+                    i += 5;
                 } else if (args[i].equals("-aa")) {
                     if (i > args.length - 3) {
                         usage(false);
@@ -427,6 +438,12 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
                 if (resolutionW > 0 && resolutionH > 0) {
                     api.parameter("resolutionX", resolutionW);
                     api.parameter("resolutionY", resolutionH);
+                }
+                if (x0 > 0 && y0 > 0 && w0 > 0 && h0 > 0) {
+                    api.parameter("x0", x0);
+                    api.parameter("y0", y0);
+                    api.parameter("w0", w0);
+                    api.parameter("h0", h0);
                 }
                 if (aaMin != -5 || aaMax != -5) {
                     api.parameter("aa.min", aaMin);
