@@ -96,7 +96,8 @@ shader {
   color 1 1 1
 }
 
-light {
+object {
+  shader none
   type cornellbox
   corner0 -60 -60 0
   corner1  60  60 100
