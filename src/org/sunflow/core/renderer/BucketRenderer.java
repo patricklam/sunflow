@@ -56,6 +56,11 @@ public class BucketRenderer implements ImageSampler {
     private Filter filter;
     private int fs;
     private float fhs;
+	// subimage
+	private int x0;
+	private int y0;
+	private int w0;
+	private int h0;
 
     public BucketRenderer() {
         bucketSize = 32;
@@ -65,6 +70,12 @@ public class BucketRenderer implements ImageSampler {
         filterName = "box";
         jitter = false; // off by default
         dumpBuckets = false; // for debugging only - not user settable
+    }
+
+    public boolean prepare(Options options, Scene scene, int x0, int y0, int w0, int h0, int w, int h) {
+        this.x0 = x0; this.y0 = y0;
+        this.w0 = w0; this.h0 = h0;
+        return prepare (options, scene, w, h);
     }
 
     public boolean prepare(Options options, Scene scene, int w, int h) {

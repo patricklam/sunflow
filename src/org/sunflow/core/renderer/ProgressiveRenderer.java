@@ -28,6 +28,10 @@ public class ProgressiveRenderer implements ImageSampler {
         smallBucketQueue = null;
     }
 
+    public boolean prepare(Options options, Scene scene, int x0, int y0, int w0, int h0, int w, int h) {
+        return prepare (options, scene, w, h);
+    }
+
     public boolean prepare(Options options, Scene scene, int w, int h) {
         this.scene = scene;
         imageWidth = w;
