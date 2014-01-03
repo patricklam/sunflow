@@ -225,6 +225,36 @@ public class BucketRenderer implements ImageSampler {
         int bw = Math.min(bucketSize, imageWidth - x0);
         int bh = Math.min(bucketSize, imageHeight - y0);
 
+        // two rectangles: (x = this.x0, y = this.y0) -> (x' = this.x0+this.w0, y' = this.y0+this.h0)
+        //                 (X = x0, Y = y0) -> (X' = x0+bw, Y' = y0+bh)
+
+        boolean xIntersect = false, yIntersect = false;
+
+        // for x:
+        // conditions: x == X
+        //         or: x < X && x' >= X
+        //         or: x > X && X' >= x
+
+        if (this.x0 == x0) xIntersect = true;
+        if (this.x0 < x0) {
+            if (this.x0 + this.w0 >= x0)
+                 xIntersect = true;
+        } else {
+            if (x0 + bw >= this.x0)
+                 xIntersect = true;
+        }
+        
+        if (this.y0 == y0) yIntersect = true;
+        if (this.y0 < y0) {
+            if (this.y0 + this.h0 >= y0)
+                yIntersect = true;
+        } else {
+            if (y0 + bh >= this.y0)
+                yIntersect = true;
+        }
+
+        if (!(xIntersect && yIntersect)) return;
+
         // prepare bucket
         display.imagePrepare(x0, y0, bw, bh, threadID);
 
