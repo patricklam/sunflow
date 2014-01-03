@@ -439,7 +439,7 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
                     api.parameter("resolutionX", resolutionW);
                     api.parameter("resolutionY", resolutionH);
                 }
-                if (x0 > 0 && y0 > 0 && w0 > 0 && h0 > 0) {
+                if (w0 > 0 && h0 > 0) {
                     api.parameter("x0", x0);
                     api.parameter("y0", y0);
                     api.parameter("w0", w0);
