@@ -315,13 +315,13 @@ public class Scene {
         lowPriority = options.getBoolean("threads.lowPriority", true);
         imageWidth = options.getInt("resolutionX", 640);
         imageHeight = options.getInt("resolutionY", 480);
-        x0 = options.getInt("x0", 0);
-        y0 = options.getInt("y0", 0);
-        w0 = options.getInt("w0", imageWidth);
-        h0 = options.getInt("h0", imageHeight);
         // limit resolution to 16k
         imageWidth = MathUtils.clamp(imageWidth, 1, 1 << 14);
         imageHeight = MathUtils.clamp(imageHeight, 1, 1 << 14);
+        x0 = Math.max(0, options.getInt("x0", 0));
+        y0 = Math.max(0, options.getInt("y0", 0));
+        w0 = Math.min(options.getInt("w0", imageWidth), imageWidth);
+        h0 = Math.min(options.getInt("h0", imageHeight), imageHeight);
 
         // prepare lights
         createAreaLightInstances();

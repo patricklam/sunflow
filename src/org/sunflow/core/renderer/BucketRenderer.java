@@ -155,7 +155,7 @@ public class BucketRenderer implements ImageSampler {
 
     public void render(Display display) {
         this.display = display;
-        display.imageBegin(imageWidth, imageHeight, bucketSize);
+        display.imageBegin(w0, h0, bucketSize);
         // set members variables
         bucketCounter = 0;
         // start task
@@ -361,8 +361,29 @@ public class BucketRenderer implements ImageSampler {
                 }
             }
         }
-        // update pixels
-        display.imageUpdate(x0, y0, bw, bh, bucketRGB, bucketAlpha);
+        // if we only have a partial bucket, write row-by-row
+        if (x0-this.x0 < 0 || y0-this.y0 < 0 || (x0-this.x0+bw) >= w0 || (y0-this.y0+bh) >= h0) {
+            Color[] subBucketRGB = new Color[bw];
+            float[] subBucketAlpha = new float[bw];
+
+            for (int y = 0; y < bh; y++) {
+                if (y0 - this.y0 + y < 0) continue;
+                if (y0 - this.y0 + y >= h0) break;
+                int x, i;
+                
+                for (x = 0, i = 0; x < bw; x++) {
+                    if (x0 - this.x0 + x < 0 || x0 - this.x0 + x >= w0) continue;
+                    subBucketRGB[i] = bucketRGB[y*bw+x];
+                    subBucketAlpha[i] = bucketAlpha[y*bw+x];
+                    i++;
+                }
+                display.imageUpdate(x0-this.x0+(bw-i), y0-this.y0+y, i, 1, subBucketRGB, subBucketAlpha);
+            }
+            return;
+        }
+
+        // otherwise update all pixels in bucket
+        display.imageUpdate(x0-this.x0, y0-this.y0, bw, bh, bucketRGB, bucketAlpha);
     }
 
     private void computeSubPixel(ImageSample sample, IntersectionState istate) {
