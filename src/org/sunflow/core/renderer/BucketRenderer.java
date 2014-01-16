@@ -369,15 +369,16 @@ public class BucketRenderer implements ImageSampler {
             for (int y = 0; y < bh; y++) {
                 if (y0 - this.y0 + y < 0) continue;
                 if (y0 - this.y0 + y >= h0) break;
-                int x, i;
+                int x, i, skip_x;
                 
-                for (x = 0, i = 0; x < bw; x++) {
-                    if (x0 - this.x0 + x < 0 || x0 - this.x0 + x >= w0) continue;
+                for (x = 0, i = 0, skip_x = 0; x < bw; x++) {
+                    if (x0 - this.x0 + x < 0) { skip_x ++; continue; }
+                    if (x0 - this.x0 + x >= w0) continue;
                     subBucketRGB[i] = bucketRGB[y*bw+x];
                     subBucketAlpha[i] = bucketAlpha[y*bw+x];
                     i++;
                 }
-                display.imageUpdate(x0-this.x0+(bw-i), y0-this.y0+y, i, 1, subBucketRGB, subBucketAlpha);
+                display.imageUpdate(x0-this.x0+skip_x, y0-this.y0+y, i, 1, subBucketRGB, subBucketAlpha);
             }
             return;
         }
