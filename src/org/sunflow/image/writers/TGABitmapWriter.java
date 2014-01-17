@@ -1,5 +1,6 @@
 package org.sunflow.image.writers;
 
+import java.io.File;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,8 +11,7 @@ import org.sunflow.image.Color;
 import org.sunflow.image.ColorEncoder;
 
 public class TGABitmapWriter implements BitmapWriter {
-
-    private String filename;
+    private File f;
     private int width, height;
     private byte[] data;
 
@@ -19,7 +19,11 @@ public class TGABitmapWriter implements BitmapWriter {
     }
 
     public void openFile(String filename) throws IOException {
-        this.filename = filename;
+        this.f = new File(filename);
+    }
+
+    public void openFile(File f) {
+        this.f = f;
     }
 
     public void writeHeader(int width, int height, int tileSize) throws IOException, UnsupportedOperationException {
@@ -45,7 +49,7 @@ public class TGABitmapWriter implements BitmapWriter {
 
     public void closeFile() throws IOException {
         // actually write the file from here
-        OutputStream f = new BufferedOutputStream(new FileOutputStream(filename));
+        OutputStream f = new BufferedOutputStream(new FileOutputStream(this.f));
         // no id, no colormap, uncompressed 32bpp RGBA
         byte[] tgaHeader = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         f.write(tgaHeader);

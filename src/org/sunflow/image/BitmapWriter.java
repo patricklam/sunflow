@@ -1,6 +1,7 @@
 package org.sunflow.image;
 
 import java.io.IOException;
+import java.io.File;
 
 /**
  * This interface is used to represents an image output format. The methods are
@@ -37,6 +38,14 @@ public interface BitmapWriter {
      * @throws IOException thrown if an I/O error occurs
      */
     public abstract void openFile(String filename) throws IOException;
+
+    /**
+     * Open a handle to the specified file for writing. If the writer buffers
+     * the image and writes it on close, then the file reference should be stored.
+     *
+     * @param f file to write the bitmap to
+     */
+    public abstract void openFile(File f);
 
     /**
      * Write the bitmap header. This may be defered if the image is buffered for

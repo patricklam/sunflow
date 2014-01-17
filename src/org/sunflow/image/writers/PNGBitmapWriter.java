@@ -10,15 +10,18 @@ import org.sunflow.image.BitmapWriter;
 import org.sunflow.image.Color;
 
 public class PNGBitmapWriter implements BitmapWriter {
-
-    private String filename;
+    private File f;
     private BufferedImage image;
 
     public void configure(String option, String value) {
     }
 
     public void openFile(String filename) throws IOException {
-        this.filename = filename;
+        this.f = new File(filename);
+    }
+
+    public void openFile(File f) {
+        this.f = f;
     }
 
     public void writeHeader(int width, int height, int tileSize) throws IOException, UnsupportedOperationException {
@@ -34,6 +37,6 @@ public class PNGBitmapWriter implements BitmapWriter {
     }
 
     public void closeFile() throws IOException {
-        ImageIO.write(image, "png", new File(filename));
+        ImageIO.write(image, "png", f);
     }
 }

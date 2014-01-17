@@ -1,5 +1,6 @@
 package org.sunflow.image.writers;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
@@ -25,7 +26,7 @@ public class EXRBitmapWriter implements BitmapWriter {
     private static final int ZIP_COMPRESSION = 3;
     private static final int RLE_MIN_RUN = 3;
     private static final int RLE_MAX_RUN = 127;
-    private String filename;
+    private File f;
     private RandomAccessFile file;
     private long[][] tileOffsets;
     private long tileOffsetsPosition;
@@ -75,12 +76,17 @@ public class EXRBitmapWriter implements BitmapWriter {
 
     @Override
     public void openFile(String filename) throws IOException {
-        this.filename = filename == null ? "output.exr" : filename;
+        this.f = new File(filename == null ? "output.exr" : filename);
+    }
+
+    @Override
+    public void openFile(File f) {
+        this.f = f;
     }
 
     @Override
     public void writeHeader(int width, int height, int tileSize) throws IOException, UnsupportedOperationException {
-        file = new RandomAccessFile(filename, "rw");
+        file = new RandomAccessFile(f, "rw");
         file.setLength(0);
         if (tileSize <= 0) {
             throw new UnsupportedOperationException("Can't use OpenEXR bitmap writer without buckets.");

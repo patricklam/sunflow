@@ -1,6 +1,7 @@
 package org.sunflow.image.writers;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,7 +12,7 @@ import org.sunflow.image.ColorEncoder;
 
 public class HDRBitmapWriter implements BitmapWriter {
 
-    private String filename;
+    private File f;
     private int width, height;
     private int[] data;
 
@@ -19,7 +20,11 @@ public class HDRBitmapWriter implements BitmapWriter {
     }
 
     public void openFile(String filename) throws IOException {
-        this.filename = filename;
+        this.f = new File(filename);
+    }
+
+    public void openFile(File f) {
+        this.f = f;
     }
 
     public void writeHeader(int width, int height, int tileSize) throws IOException, UnsupportedOperationException {
@@ -38,7 +43,7 @@ public class HDRBitmapWriter implements BitmapWriter {
     }
 
     public void closeFile() throws IOException {
-        OutputStream f = new BufferedOutputStream(new FileOutputStream(filename));
+        OutputStream f = new BufferedOutputStream(new FileOutputStream(this.f));
         f.write("#?RGBE\n".getBytes());
         f.write("FORMAT=32-bit_rle_rgbe\n\n".getBytes());
         f.write(("-Y " + height + " +X " + width + "\n").getBytes());

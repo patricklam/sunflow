@@ -1,6 +1,7 @@
 package org.sunflow.image.writers;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,7 +16,7 @@ import org.sunflow.image.XYZColor;
  */
 public class IGIBitmapWriter implements BitmapWriter {
 
-    private String filename;
+    private File f;
     private int width, height;
     private float[] xyz;
 
@@ -23,7 +24,11 @@ public class IGIBitmapWriter implements BitmapWriter {
     }
 
     public void openFile(String filename) throws IOException {
-        this.filename = filename;
+        this.f = new File(filename);
+    }
+
+    public void openFile(File f) {
+        this.f = f;
     }
 
     public void writeHeader(int width, int height, int tileSize) throws IOException, UnsupportedOperationException {
@@ -44,7 +49,7 @@ public class IGIBitmapWriter implements BitmapWriter {
     }
 
     public void closeFile() throws IOException {
-        OutputStream stream = new BufferedOutputStream(new FileOutputStream(filename));
+        OutputStream stream = new BufferedOutputStream(new FileOutputStream(f));
         write32(stream, 66613373); // magic number
         write32(stream, 1); // version
         write32(stream, 0); // this should be a double - assume it won't be used
