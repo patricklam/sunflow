@@ -1,5 +1,6 @@
 package org.sunflow.core;
 
+import java.io.File;
 import org.sunflow.SunflowAPI;
 import org.sunflow.SunflowAPIInterface;
 
@@ -49,10 +50,10 @@ public interface SceneParser {
      * Parse the specified file to create a scene description into the provided
      * {@link SunflowAPI} object.
      *
-     * @param filename filename to parse
+     * @param file file to parse
      * @param api scene to parse the file into
      * @return <code>true</code> upon success, or <code>false</code> if errors
      * have occurred.
      */
-    public boolean parse(String filename, SunflowAPIInterface api);
+    public boolean parse(File f, SunflowAPIInterface api);
 }

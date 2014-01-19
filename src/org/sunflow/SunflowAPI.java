@@ -566,21 +566,24 @@ public class SunflowAPI implements SunflowAPIInterface {
     }
 
     @Override
-    public final boolean include(String filename) {
-        if (filename == null) {
+    public final boolean include(File f) {
+        if (f == null) {
             return false;
         }
-        filename = includeSearchPath.resolvePath(filename);
+        // hmm, not sure about this change and if it works right with include paths -PL
+        String filename = f.getName();
+        if (!f.exists())
+            { f = new File(includeSearchPath.resolvePath(filename)); filename = f.getName(); }
         String extension = FileUtils.getExtension(filename);
         SceneParser parser = PluginRegistry.parserPlugins.createObject(extension);
         if (parser == null) {
             UI.printError(Module.API, "Unable to find a suitable parser for: \"%s\" (extension: %s)", filename, extension);
             return false;
         }
-        String currentFolder = new File(filename).getAbsoluteFile().getParentFile().getAbsolutePath();
+        String currentFolder = f.getAbsoluteFile().getParentFile().getAbsolutePath();
         includeSearchPath.addSearchPath(currentFolder);
         textureSearchPath.addSearchPath(currentFolder);
-        return parser.parse(filename, this);
+        return parser.parse(f, this);
     }
 
     /**
@@ -599,6 +602,19 @@ public class SunflowAPI implements SunflowAPIInterface {
     }
 
     /**
+     * Create an API object from the specified File. Java files are read by
+     * Janino and are expected to implement a build method (they implement a
+     * derived class of SunflowAPI. The build method is called if the code
+     * compiles succesfully. Other files types are handled by the parse method.
+     *
+     * @param file file to load
+     * @return a valid SunflowAPI object or <code>null</code> on failure
+     */
+    public static SunflowAPI create(String filename, int frameNumber) {
+        return create(filename==null ? null : new File(filename), frameNumber);
+    }
+    
+    /**
      * Create an API object from the specified file. Java files are read by
      * Janino and are expected to implement a build method (they implement a
      * derived class of SunflowAPI. The build method is called if the code
@@ -607,40 +623,40 @@ public class SunflowAPI implements SunflowAPIInterface {
      * @param filename filename to load
      * @return a valid SunflowAPI object or <code>null</code> on failure
      */
-    public static SunflowAPI create(String filename, int frameNumber) {
-        if (filename == null) {
+    public static SunflowAPI create(File f, int frameNumber) {
+        if (f == null) {
             return new SunflowAPI();
         }
         SunflowAPI api = null;
-        if (filename.endsWith(".java")) {
+        if (f.getName().endsWith(".java")) {
             Timer t = new Timer();
-            UI.printInfo(Module.API, "Compiling \"" + filename + "\" ...");
+            UI.printInfo(Module.API, "Compiling \"" + f.getName() + "\" ...");
             t.start();
             try {
-                FileInputStream stream = new FileInputStream(filename);
-                api = (SunflowAPI) ClassBodyEvaluator.createFastClassBodyEvaluator(new Scanner(filename, stream), SunflowAPI.class, ClassLoader.getSystemClassLoader());
+                FileInputStream stream = new FileInputStream(f);
+                api = (SunflowAPI) ClassBodyEvaluator.createFastClassBodyEvaluator(new Scanner(f.getName(), stream), SunflowAPI.class, ClassLoader.getSystemClassLoader());
                 stream.close();
             } catch (CompileException e) {
-                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, filename);
+                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, f.getName());
                 UI.printError(Module.API, "%s", e.getMessage());
                 return null;
             } catch (ParseException e) {
-                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, filename);
+                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, f.getName());
                 UI.printError(Module.API, "%s", e.getMessage());
                 return null;
             } catch (ScanException e) {
-                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, filename);
+                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, f.getName());
                 UI.printError(Module.API, "%s", e.getMessage());
                 return null;
             } catch (IOException e) {
-                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, filename);
+                UI.printError(Module.API, COULDNT_MESSAGE_FORMAT, f.getName());
                 UI.printError(Module.API, "%s", e.getMessage());
                 return null;
             }
             t.end();
             UI.printInfo(Module.API, "Compile time: " + t.toString());
             // allow relative paths
-            String currentFolder = new File(filename).getAbsoluteFile().getParentFile().getAbsolutePath();
+            String currentFolder = f.getAbsoluteFile().getParentFile().getAbsolutePath();
             api.includeSearchPath.addSearchPath(currentFolder);
             api.textureSearchPath.addSearchPath(currentFolder);
             UI.printInfo(Module.API, "Build script running ...");
@@ -651,7 +667,7 @@ public class SunflowAPI implements SunflowAPIInterface {
             UI.printInfo(Module.API, "Build script time: %s", t.toString());
         } else {
             api = new SunflowAPI();
-            api = api.include(filename) ? api : null;
+            api = api.include(f) ? api : null;
         }
         return api;
     }
@@ -685,7 +701,7 @@ public class SunflowAPI implements SunflowAPIInterface {
             return false;
         }
         try {
-            return parser.parse(filename, api);
+            return parser.parse(new File(filename), api);
         } catch (RuntimeException e) {
             Logger.getLogger(SunflowAPI.class.getName()).log(Level.SEVERE, null, e);
             UI.printError(Module.API, "Error occured during translation: %s", e.getMessage());
