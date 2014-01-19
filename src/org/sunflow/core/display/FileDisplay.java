@@ -1,7 +1,6 @@
 package org.sunflow.core.display;
 
 import java.io.IOException;
-import java.io.File;
 
 import org.sunflow.PluginRegistry;
 import org.sunflow.core.Display;
@@ -14,29 +13,25 @@ import org.sunflow.system.UI.Module;
 public class FileDisplay implements Display {
 
     private BitmapWriter writer;
-    private File f;
+    private String filename;
 
     public FileDisplay(boolean saveImage) {
         this(saveImage ? "output.png" : ".none");
     }
 
     public FileDisplay(String filename) {
-        this (new File(filename));
-    }
-
-    public FileDisplay(File f) {
-        this.f = (f == null) ? new File("output.png") : f;
-        String extension = FileUtils.getExtension(f.getName());
+        this.filename = filename == null ? "output.png" : filename;
+        String extension = FileUtils.getExtension(filename);
         writer = PluginRegistry.bitmapWriterPlugins.createObject(extension);
     }
-    
+
     @Override
     public void imageBegin(int w, int h, int bucketSize) {
         if (writer == null) {
             return;
         }
         try {
-            writer.openFile(f);
+            writer.openFile(filename);
             writer.writeHeader(w, h, bucketSize);
         } catch (IOException e) {
             UI.printError(Module.IMG, "I/O error occured while preparing image for display: %s", e.getMessage());

@@ -1,7 +1,5 @@
 package org.sunflow;
 
-import java.io.File;
-
 import org.sunflow.core.Display;
 import org.sunflow.core.PrimitiveList;
 import org.sunflow.core.RenderObject;
@@ -261,11 +259,11 @@ public interface SunflowAPIInterface {
      * break up a scene into parts, even across file formats. The appropriate
      * parser is chosen based on file extension.
      *
-     * @param f filename to load
+     * @param filename filename to load
      * @return <code>true</code> upon sucess, <code>false</code> if an error
      * occured.
      */
-    public boolean include(File f);
+    public boolean include(String filename);
 
     /**
      * Set the value of the current frame. This value is intended only for
